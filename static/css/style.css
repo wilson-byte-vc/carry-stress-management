@@ -144,6 +144,20 @@ main { flex: 1 0 auto; width: 100%; }
   border-bottom: 2px solid var(--color-primary);
   padding-bottom: 2px;
 }
+/* .nav-links also carries the .container class for alignment/padding, which
+   otherwise inherits .site-header .container's "display: flex" (applied at
+   every width, no media query) and its justify-content: space-between --
+   both more specific than the plain .nav-links rules above, so they win the
+   cascade and force the links visible + spread out even on mobile. Match
+   that specificity here to reclaim both display and justify-content. */
+.site-header .nav-links {
+  display: none;
+  justify-content: center;
+  gap: var(--space-md);
+}
+@media (min-width: 768px) {
+  .site-header .nav-links { display: flex; }
+}
 .header-right {
   display: flex;
   align-items: center;
@@ -326,6 +340,7 @@ main { flex: 1 0 auto; width: 100%; }
 
 /* Home-style list cards */
 .category-list {
+  margin-bottom: 32px;
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
