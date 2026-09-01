@@ -5,18 +5,6 @@
 {% block body_class %}has-bottom-nav{% endblock %}
 
 {% block content %}
-<header class="site-header">
-  <div class="container">
-    <span class="material-symbols-outlined icon-btn" aria-label="Menu">spa</span>
-    <h1 class="text-headline-sm accent">Balance</h1>
-    <span class="material-symbols-outlined icon-btn" aria-label="Account">account_circle</span>
-  </div>
-  <nav class="nav-links container">
-    <a href="{{ url_for('home') }}">Home</a>
-    <a class="active" href="{{ url_for('checkin') }}">Check-in</a>
-    <a href="{{ url_for('insights') }}">Insights</a>
-  </nav>
-</header>
 
 <main class="container">
   <div class="page-intro">
@@ -77,18 +65,5 @@
   </form>
 </main>
 
-<nav class="bottom-nav">
-  <a class="bottom-nav-item" href="{{ url_for('home') }}">
-    <span class="material-symbols-outlined">home</span>
-    <span>Home</span>
-  </a>
-  <a class="bottom-nav-item active" href="{{ url_for('checkin') }}">
-    <span class="material-symbols-outlined">rebase_edit</span>
-    <span>Check-in</span>
-  </a>
-  <a class="bottom-nav-item" href="{{ url_for('insights') }}">
-    <span class="material-symbols-outlined">analytics</span>
-    <span>Insights</span>
-  </a>
-</nav>
+
 {% endblock %}
