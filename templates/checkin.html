@@ -12,44 +12,52 @@
     <p class="text-body-lg">Take a moment to log how each part of your day is feeling.</p>
   </div>
 
-  <form class="checkin-form" method="post">
-    <div class="checkin-item">
+  <form class="checkin-form" method="post" data-checkin-form>
+    <div class="checkin-item" id="cat-time">
       <div class="checkin-item-head">
         <span class="material-symbols-outlined">schedule</span>
         <h3 class="text-headline-sm">Time</h3>
+        <span class="checkin-live-label" data-live-label>{{ labels.time[checkin.time - 1] }}</span>
       </div>
       <p class="hint">How manageable does your schedule feel right now?</p>
-      <input class="checkin-slider" type="range" name="time_level" min="1" max="5" value="3">
+      <input class="checkin-slider" type="range" name="time_level" min="1" max="5" value="{{ checkin.time }}"
+             data-labels='{{ labels.time | tojson }}'>
       <div class="checkin-scale"><span>Overloaded</span><span>Balanced</span><span>Light</span></div>
     </div>
 
-    <div class="checkin-item">
+    <div class="checkin-item" id="cat-social">
       <div class="checkin-item-head">
         <span class="material-symbols-outlined">group</span>
         <h3 class="text-headline-sm">Social</h3>
+        <span class="checkin-live-label" data-live-label>{{ labels.social[checkin.social - 1] }}</span>
       </div>
       <p class="hint">How connected have you felt with others today?</p>
-      <input class="checkin-slider" type="range" name="social_level" min="1" max="5" value="3">
+      <input class="checkin-slider" type="range" name="social_level" min="1" max="5" value="{{ checkin.social }}"
+             data-labels='{{ labels.social | tojson }}'>
       <div class="checkin-scale"><span>Isolated</span><span>Neutral</span><span>Connected</span></div>
     </div>
 
-    <div class="checkin-item">
+    <div class="checkin-item" id="cat-physical">
       <div class="checkin-item-head">
         <span class="material-symbols-outlined">fitness_center</span>
         <h3 class="text-headline-sm">Physical</h3>
+        <span class="checkin-live-label" data-live-label>{{ labels.physical[checkin.physical - 1] }}</span>
       </div>
       <p class="hint">How is your body feeling — energy, sleep, movement?</p>
-      <input class="checkin-slider" type="range" name="physical_level" min="1" max="5" value="3">
+      <input class="checkin-slider" type="range" name="physical_level" min="1" max="5" value="{{ checkin.physical }}"
+             data-labels='{{ labels.physical | tojson }}'>
       <div class="checkin-scale"><span>Drained</span><span>Okay</span><span>Energized</span></div>
     </div>
 
-    <div class="checkin-item">
+    <div class="checkin-item" id="cat-mental">
       <div class="checkin-item-head">
         <span class="material-symbols-outlined">psychology</span>
         <h3 class="text-headline-sm">Mental</h3>
+        <span class="checkin-live-label" data-live-label>{{ labels.mental[checkin.mental - 1] }}</span>
       </div>
       <p class="hint">How clear and focused does your mind feel?</p>
-      <input class="checkin-slider" type="range" name="mental_level" min="1" max="5" value="3">
+      <input class="checkin-slider" type="range" name="mental_level" min="1" max="5" value="{{ checkin.mental }}"
+             data-labels='{{ labels.mental | tojson }}'>
       <div class="checkin-scale"><span>Foggy</span><span>Steady</span><span>Sharp</span></div>
     </div>
 
@@ -58,12 +66,11 @@
         <span class="material-symbols-outlined">edit_note</span>
         <h3 class="text-headline-sm">Anything else?</h3>
       </div>
-      <textarea class="checkin-note" name="note" placeholder="Optional notes about your day..."></textarea>
+      <textarea class="checkin-note" name="note" placeholder="Optional notes about your day...">{{ checkin.note }}</textarea>
     </div>
 
     <button type="submit" class="btn btn-primary btn-block">Save check-in</button>
   </form>
 </main>
-
 
 {% endblock %}

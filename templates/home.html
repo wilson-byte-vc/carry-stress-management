@@ -6,10 +6,13 @@
 
 {% block content %}
 
-<main class="container">
+<main class="container" {% if just_saved %}data-just-saved{% endif %}>
   <section class="hero">
-    <h2 class="text-headline-md">You're at <span class="accent">78%</span> this week</h2>
-    <p class="text-body-md">Looking good. Remember to take a breath.</p>
+    <h2 class="text-headline-md">You're at <span class="accent">{{ capacity }}%</span> this week</h2>
+    <p class="text-body-md">
+      {%- if checkin.note %}"{{ checkin.note }}"
+      {%- else %}Looking good. Remember to take a breath.{% endif %}
+    </p>
   </section>
 
   <section class="capacity-section">
@@ -17,57 +20,57 @@
       <div class="pulse-ring-outer"></div>
       <div class="pulse-ring-inner"></div>
       <div class="pulse-inner-core">
-        <span class="value text-display-lg-mobile">78%</span>
+        <span class="value text-display-lg-mobile">{{ capacity }}%</span>
         <span class="label text-label-sm">Capacity</span>
       </div>
     </div>
   </section>
 
-  <section class="category-list" >
+  <section class="category-list">
 
-    <button class="category-row">
+    <a class="category-row" href="{{ url_for('checkin') }}#cat-time">
       <div class="category-row-left">
         <span class="category-row-icon material-symbols-outlined">schedule</span>
         <div>
           <h3 class="text-headline-sm">Time</h3>
-          <p>Moderate capacity</p>
+          <p>{{ labels.time[checkin.time - 1] }}</p>
         </div>
       </div>
-      <span class="material-symbols-outlined chevron">expand_more</span>
-    </button>
+      <span class="material-symbols-outlined chevron">chevron_right</span>
+    </a>
 
-    <button class="category-row">
+    <a class="category-row" href="{{ url_for('checkin') }}#cat-social">
       <div class="category-row-left">
         <span class="category-row-icon material-symbols-outlined">groups</span>
         <div>
           <h3 class="text-headline-sm">Social</h3>
-          <p>Low energy</p>
+          <p>{{ labels.social[checkin.social - 1] }}</p>
         </div>
       </div>
-      <span class="material-symbols-outlined chevron">expand_more</span>
-    </button>
+      <span class="material-symbols-outlined chevron">chevron_right</span>
+    </a>
 
-    <button class="category-row">
+    <a class="category-row" href="{{ url_for('checkin') }}#cat-physical">
       <div class="category-row-left">
         <span class="category-row-icon material-symbols-outlined">directions_run</span>
         <div>
           <h3 class="text-headline-sm">Physical</h3>
-          <p>Feeling rested</p>
+          <p>{{ labels.physical[checkin.physical - 1] }}</p>
         </div>
       </div>
-      <span class="material-symbols-outlined chevron">expand_more</span>
-    </button>
+      <span class="material-symbols-outlined chevron">chevron_right</span>
+    </a>
 
-    <button class="category-row">
+    <a class="category-row" href="{{ url_for('checkin') }}#cat-mental">
       <div class="category-row-left">
         <span class="category-row-icon material-symbols-outlined">psychology</span>
         <div>
           <h3 class="text-headline-sm">Mental</h3>
-          <p>High focus</p>
+          <p>{{ labels.mental[checkin.mental - 1] }}</p>
         </div>
       </div>
-      <span class="material-symbols-outlined chevron">expand_more</span>
-    </button>
+      <span class="material-symbols-outlined chevron">chevron_right</span>
+    </a>
 
   </section>
 </main>

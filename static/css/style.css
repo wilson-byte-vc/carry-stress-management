@@ -682,3 +682,91 @@ body.has-bottom-nav { padding-bottom: 96px; }
   padding: 10px 22px;
 }
 .chat-send:disabled { opacity: 0.5; cursor: default; }
+
+/* ===== Check-in: live label + landing highlight ===== */
+.checkin-item-head { justify-content: space-between; }
+.checkin-item-head h3 { flex: 1; }
+.checkin-live-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+  background-color: var(--color-surface-container-low);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+}
+@keyframes checkin-label-pulse {
+  0% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.checkin-live-label-pulse { animation: checkin-label-pulse 0.2s ease-out; }
+
+.checkin-item {
+  scroll-margin-top: 96px;
+  transition: box-shadow 0.4s ease, border-color 0.4s ease;
+}
+.checkin-item-highlight {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(40, 102, 83, 0.15);
+}
+
+/* ===== Toasts ===== */
+.toast-layer {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+@media (min-width: 768px) {
+  .toast-layer { bottom: 32px; }
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--color-on-background);
+  color: var(--color-background);
+  padding: 12px 20px;
+  border-radius: var(--radius-full);
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.toast .material-symbols-outlined { font-size: 20px; color: #94d3bb; }
+.toast-visible { opacity: 1; transform: translateY(0); }
+
+/* ===== Insight action buttons: click feedback ===== */
+.btn.is-done {
+  background-color: var(--color-surface-container-high) !important;
+  color: var(--color-on-surface-variant) !important;
+  border-color: var(--color-outline-variant) !important;
+  cursor: default;
+}
+.btn.is-done .material-symbols-outlined { color: var(--color-primary); }
+
+/* ===== Insight card: expandable detail ===== */
+.insight-detail {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.3s ease, margin-top 0.3s ease;
+}
+.insight-detail.is-open {
+  max-height: 240px;
+  opacity: 1;
+  margin-top: var(--space-sm);
+}
+.btn-ghost .material-symbols-outlined {
+  transition: transform 0.2s ease;
+}
+.btn-ghost.is-open .material-symbols-outlined {
+  transform: rotate(90deg);
+}
