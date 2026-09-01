@@ -10,7 +10,7 @@ app = Flask(__name__)
 # --- Public Pages ---
 
 @app.route("/")
-def home():
+def index():
     return render_template("index.html")
 
 @app.route("/home")
@@ -18,11 +18,11 @@ def home():
     return render_template("home.html")
 
 @app.route("/checkin")
-def home():
+def checkin():
     return render_template("checkin.html")
 
 @app.route("/insights")
-def home():
+def insights():
     return render_template("insights.html")
 
 if __name__ == "__main__":
