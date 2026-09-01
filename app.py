@@ -13,5 +13,17 @@ app = Flask(__name__)
 def home():
     return render_template("index.html")
 
+@app.route("/home")
+def home():
+    return render_template("home.html")
+
+@app.route("/checkin")
+def home():
+    return render_template("checkin.html")
+
+@app.route("/insights")
+def home():
+    return render_template("insights.html")
+
 if __name__ == "__main__":
     app.run(debug=False, port=5000)
