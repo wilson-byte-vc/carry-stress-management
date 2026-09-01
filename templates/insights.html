@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Equilibrium - Insights</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&amp;family=Literata:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed": "#341100",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "surface-container-highest": "#e7e2da",
+                      "secondary-fixed": "#e5deff",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed-dim": "#ffb690",
+                      "on-primary-container": "#f5fff8",
+                      "on-error-container": "#93000a",
+                      "on-background": "#1d1b17",
+                      "on-tertiary-container": "#fffbff",
+                      "on-surface": "#1d1b17",
+                      "outline-variant": "#bfc9c3",
+                      "on-tertiary-fixed-variant": "#74350c",
+                      "on-primary-fixed-variant": "#0a513f",
+                      "on-secondary-fixed-variant": "#473e7b",
+                      "background": "#fef9f1",
+                      "secondary": "#5f5694",
+                      "primary-container": "#43806b",
+                      "inverse-primary": "#94d3bb",
+                      "tertiary": "#8f4920",
+                      "inverse-surface": "#32302b",
+                      "surface-container-high": "#ede7e0",
+                      "surface-dim": "#ded9d2",
+                      "tertiary-fixed": "#ffdbca",
+                      "secondary-container": "#c3b8fe",
+                      "error": "#ba1a1a",
+                      "primary": "#286653",
+                      "on-secondary": "#ffffff",
+                      "on-primary-fixed": "#002117",
+                      "surface-container-low": "#f8f3eb",
+                      "tertiary-container": "#ad6135",
+                      "inverse-on-surface": "#f5f0e8",
+                      "surface-tint": "#2b6956",
+                      "surface-variant": "#e7e2da",
+                      "on-error": "#ffffff",
+                      "surface-container": "#f2ede6",
+                      "primary-fixed-dim": "#94d3bb",
+                      "secondary-fixed-dim": "#c9bfff",
+                      "primary-fixed": "#b0f0d7",
+                      "on-secondary-fixed": "#1b0f4d",
+                      "on-secondary-container": "#504684",
+                      "on-surface-variant": "#404944",
+                      "surface-bright": "#fef9f1",
+                      "surface": "#fef9f1",
+                      "outline": "#707974"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "base": "8px",
+                      "xl": "64px",
+                      "gutter": "20px",
+                      "md": "24px",
+                      "xs": "4px",
+                      "sm": "12px",
+                      "margin-mobile": "16px",
+                      "lg": "48px",
+                      "margin-desktop": "40px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-md": [
+                              "Literata"
+                      ],
+                      "display-lg-mobile": [
+                              "Literata"
+                      ],
+                      "headline-sm": [
+                              "Literata"
+                      ],
+                      "label-sm": [
+                              "Hanken Grotesk"
+                      ],
+                      "display-lg": [
+                              "Literata"
+                      ],
+                      "body-md": [
+                              "Hanken Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-sm": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .pulse-container {
+            position: relative;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .pulse-ring {
+            position: absolute;
+            border-radius: 50%;
+            background-color: theme('colors.secondary');
+            opacity: 0.2;
+            animation: pulse 4s infinite cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .pulse-ring:nth-child(2) {
+            animation-delay: 1s;
+        }
+        
+        .pulse-ring:nth-child(3) {
+            animation-delay: 2s;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 0.1;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+      </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="w-full top-0 bg-background dark:bg-background z-40 sticky">
+<div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-base max-w-[1280px] mx-auto">
+<button aria-label="Menu" class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center w-10 h-10 rounded-full">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">spa</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm text-primary dark:text-primary-fixed-dim">Balance</h1>
+<button aria-label="Profile" class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center w-10 h-10 rounded-full">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_circle</span>
+</button>
+</div>
+<!-- Desktop Navigation (Hidden on Mobile) -->
+<nav class="hidden md:flex justify-center space-x-8 pb-4 border-b border-surface-container-highest">
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors py-2 px-4 font-label-md text-label-md" href="#">Home</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors py-2 px-4 font-label-md text-label-md" href="#">Check-in</a>
+<a class="text-primary dark:text-primary-fixed-dim font-bold border-b-2 border-primary py-2 px-4 font-label-md text-label-md active:scale-95 transition-transform duration-150" href="#">Insights</a>
+</nav>
+</header>
+<main class="flex-grow w-full max-w-[1280px] mx-auto px-margin-mobile md:px-margin-desktop py-lg">
+<!-- Breathable Header Zone -->
+<div class="mb-lg max-w-2xl">
+<h2 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-background mb-4">Your Patterns</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Here is what we've noticed about your energy levels and academic load over the past week.</p>
+</div>
+<!-- Insights Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+<!-- Insight Card 1: The Main Spike (Focus) -->
+<article class="col-span-1 md:col-span-2 bg-surface-container-lowest border border-on-surface/10 rounded-xl p-md flex flex-col justify-between hover:border-primary transition-colors duration-300 relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-br from-tertiary-fixed/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+<div class="mb-lg relative z-10">
+<div class="flex items-center gap-sm mb-4">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-tertiary">Stress Pattern Detected</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-background mb-4 leading-tight">3 of your last 5 stress spikes came from group project deadlines.</h3>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-prose">Your energy levels dipped consistently the day before 'Marketing Strategy' deliverables were due. The data suggests these collaborative tasks are draining your reserves faster than individual study.</p>
+</div>
+<div class="flex flex-wrap items-center gap-4 mt-auto relative z-10">
+<button class="bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md py-3 px-6 rounded-full transition-colors">
+                        Schedule a 15-min walk
+                    </button>
+<button class="text-tertiary hover:text-tertiary-container font-label-md text-label-md py-3 px-4 transition-colors flex items-center gap-2">
+                        View detail <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</article>
+<!-- Insight Card 2: The Soft Win (Pulse Component) -->
+<article class="bg-surface-container-lowest border border-on-surface/10 rounded-xl p-md flex flex-col items-center text-center justify-center hover:border-secondary transition-colors duration-300">
+<div class="pulse-container w-32 h-32 mb-6">
+<div class="pulse-ring w-full h-full"></div>
+<div class="pulse-ring w-4/5 h-4/5"></div>
+<div class="pulse-ring w-3/5 h-3/5"></div>
+<div class="w-16 h-16 bg-secondary-container rounded-full flex items-center justify-center z-10 shadow-sm">
+<span class="material-symbols-outlined text-on-secondary-container text-3xl" style="font-variation-settings: 'FILL' 1;">bedtime</span>
+</div>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-background mb-2">Restful Recovery</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">Sleeping 8+ hours on Tuesday boosted your focus by 40% on Wednesday.</p>
+<button class="border-[1.5px] border-secondary text-secondary hover:bg-secondary-container/20 font-label-md text-label-md py-2 px-6 rounded-full transition-colors w-full">
+                    Set a bedtime reminder
+                </button>
+</article>
+<!-- Insight Card 3: Workload Warning -->
+<article class="bg-surface-container-lowest border border-on-surface/10 rounded-xl p-md flex flex-col justify-between hover:border-primary transition-colors duration-300">
+<div>
+<div class="flex items-center gap-sm mb-4">
+<span class="inline-flex items-center justify-center bg-[#D46A4E]/20 text-[#D46A4E] px-3 py-1 rounded-full font-label-sm text-label-sm">High Load</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-background mb-4">Upcoming Cram Risk</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">You have 3 major assignments due next week. Historically, this volume leads to skipped meals and late nights.</p>
+</div>
+<div class="mt-8">
+<button class="bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md py-2.5 px-6 rounded-full transition-colors w-full flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-sm">calendar_month</span> Break it down
+                    </button>
+</div>
+</article>
+<!-- Insight Card 4: Environmental Factor -->
+<article class="col-span-1 md:col-span-2 lg:col-span-1 bg-surface-container-lowest border border-on-surface/10 rounded-xl p-md flex flex-col justify-between hover:border-primary transition-colors duration-300">
+<div>
+<div class="flex items-center gap-sm mb-4">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">nature_people</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-background mb-4">The Library Effect</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Your check-ins show 2x higher anxiety when studying in the main library compared to your dorm.</p>
+</div>
+<div class="mt-8">
+<button class="border-[1.5px] border-primary text-primary hover:bg-primary-container/20 font-label-md text-label-md py-2 px-6 rounded-full transition-colors w-full">
+                        Try a new spot tomorrow
+                    </button>
+</div>
+</article>
+</div>
+<!-- Breathable Footer Zone -->
+<div class="mt-xl flex justify-center pb-md md:pb-xl">
+<button class="text-on-surface-variant hover:text-primary transition-colors flex flex-col items-center gap-2 group">
+<span class="material-symbols-outlined p-4 bg-surface-container-highest rounded-full group-hover:bg-primary-container group-hover:text-on-primary-container transition-all duration-300" style="font-variation-settings: 'FILL' 0;">history</span>
+<span class="font-label-sm text-label-sm">View all past insights</span>
+</button>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-4 pt-2 bg-surface-container-low dark:bg-surface-container-low border-t border-on-surface/[0.1] z-50 rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant p-2 hover:bg-surface-variant dark:hover:bg-surface-variant rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">home</span>
+<span class="font-label-md text-label-md text-xs">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant p-2 hover:bg-surface-variant dark:hover:bg-surface-variant rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">rebase_edit</span>
+<span class="font-label-md text-label-md text-xs">Check-in</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container dark:bg-primary-container text-on-primary-container dark:text-on-primary-container rounded-full px-sm py-xs active:scale-95 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="font-label-md text-label-md text-xs">Insights</span>
+</a>
+</nav>
+</body></html>

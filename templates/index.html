@@ -1,11 +1,13 @@
-<!DOCTYPE html><html class="light" lang="en"><head>
-<meta charset="utf-8">
-<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Equilibrium Dashboard</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,600;7..72,700&amp;family=Hanken+Grotesk:wght@400;500;600&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,600;7..72,700&amp;family=Hanken+Grotesk:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -45,7 +47,7 @@
                         "tertiary-container": "#ad6135",
                         "background": "#fef9f1",
                         "secondary": "#5f5694",
-                        "primary": "#286653",
+                        "primary": "#4F8C77",
                         "on-surface": "#1d1b17",
                         "surface-container-high": "#ede7e0",
                         "tertiary-fixed": "#ffdbca",
@@ -110,7 +112,7 @@
 <style>
         body { background-color: #F7F2EA; color: #1d1b17; }
         .card-border { border: 1px solid rgba(58, 56, 51, 0.1); }
-        .card-focus:hover { border: 2px solid #286653; transform: translateY(-2px); transition: all 0.2s ease-in-out; }
+        .card-focus:hover { border: 2px solid #4F8C77; transform: translateY(-2px); transition: all 0.2s ease-in-out; }
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col font-body-md text-body-md">
@@ -120,6 +122,11 @@
                 Equilibrium
             </div>
 <div class="flex items-center space-x-md">
+<nav class="hidden md:flex items-center space-x-md mr-md font-label-md text-label-md text-on-surface-variant">
+<a class="hover:text-primary transition-colors cursor-pointer" href="#">Home</a>
+<a class="hover:text-primary transition-colors cursor-pointer" href="#">Check-in</a>
+<a class="hover:text-primary transition-colors cursor-pointer" href="#">Insights</a>
+</nav>
 <span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors duration-200 text-on-surface-variant active:opacity-70 text-3xl" data-icon="account_circle" style="font-variation-settings: 'FILL' 0;">account_circle</span>
 </div>
 </div>
@@ -132,7 +139,7 @@
 </section>
 <section class="flex justify-center items-center py-lg">
 <div class="relative w-64 h-64 md:w-80 md:h-80 flex items-center justify-center">
-<svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
 <circle cx="50" cy="50" fill="none" r="45" stroke="#e7e2da" stroke-width="10"></circle>
 <circle class="transition-all duration-1000 ease-out" cx="50" cy="50" fill="none" r="45" stroke="#E0A83F" stroke-dasharray="282.7" stroke-dashoffset="62.2" stroke-width="10"></circle>
 </svg>
@@ -144,35 +151,46 @@
 </section>
 <div class="py-lg w-full"></div>
 <section class="grid grid-cols-1 md:grid-cols-3 gap-gutter lg:grid-cols-4 justify-center">
-<button class="bg-surface-container-lowest rounded-xl p-md card-border card-focus flex flex-col items-start space-y-sm text-left group">
+<button class="bg-surface-container-lowest rounded-xl p-md card-border card-focus flex flex-col items-start space-y-sm text-left group w-full">
+<div class="w-full flex justify-between items-start">
 <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 0;">schedule</span>
+<span class="material-symbols-outlined text-on-surface-variant opacity-50 group-hover:opacity-100 transition-opacity">expand_more</span>
+</div>
 <span class="font-headline-sm text-headline-sm text-on-surface">Time</span>
 <div class="inline-flex items-center space-x-xs px-2 py-1 rounded-full bg-brand-medium/20 text-brand-medium-text">
 <span class="font-label-sm text-label-sm">Moderate Load</span>
 </div>
 </button>
-<button class="bg-surface-container-lowest rounded-xl p-md card-border card-focus flex flex-col items-start space-y-sm text-left group">
+<button class="bg-surface-container-lowest rounded-xl p-md card-border card-focus flex flex-col items-start space-y-sm text-left group w-full">
+<div class="w-full flex justify-between items-start">
 <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 0;">group</span>
+<span class="material-symbols-outlined text-on-surface-variant opacity-50 group-hover:opacity-100 transition-opacity">expand_more</span>
+</div>
 <span class="font-headline-sm text-headline-sm text-on-surface">Social</span>
 <div class="inline-flex items-center space-x-xs px-2 py-1 rounded-full bg-brand-low/20 text-brand-low-text">
 <span class="font-label-sm text-label-sm">Low Energy</span>
 </div>
 </button>
-<button class="bg-surface-container-lowest rounded-xl p-md card-border card-focus flex flex-col items-start space-y-sm text-left group">
+<button class="bg-surface-container-lowest rounded-xl p-md card-border card-focus flex flex-col items-start space-y-sm text-left group w-full">
+<div class="w-full flex justify-between items-start">
 <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 0;">fitness_center</span>
+<span class="material-symbols-outlined text-on-surface-variant opacity-50 group-hover:opacity-100 transition-opacity">expand_more</span>
+</div>
 <span class="font-headline-sm text-headline-sm text-on-surface">Physical</span>
 <div class="inline-flex items-center space-x-xs px-2 py-1 rounded-full bg-brand-high/20 text-brand-high-text">
 <span class="font-label-sm text-label-sm">High Effort</span>
 </div>
 </button>
-<button class="bg-surface-container-lowest rounded-xl p-md card-border card-focus flex flex-col items-start space-y-sm text-left group">
+<button class="bg-surface-container-lowest rounded-xl p-md card-border card-focus flex flex-col items-start space-y-sm text-left group w-full">
+<div class="w-full flex justify-between items-start">
 <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 0;">psychology</span>
+<span class="material-symbols-outlined text-on-surface-variant opacity-50 group-hover:opacity-100 transition-opacity">expand_more</span>
+</div>
 <span class="font-headline-sm text-headline-sm text-on-surface">Mental</span>
 <div class="inline-flex items-center space-x-xs px-2 py-1 rounded-full bg-brand-medium/20 text-brand-medium-text">
 <span class="font-label-sm text-label-sm">Balanced</span>
 </div>
 </button>
-
 </section>
 </main>
 <footer class="w-full mt-xl bg-surface-container-lowest dark:bg-surface-container-lowest border-t border-on-surface/5">
@@ -186,6 +204,4 @@
 <span class="">© 2024 Equilibrium Student Wellness</span>
 </div>
 </footer>
-
-
 </body></html>
