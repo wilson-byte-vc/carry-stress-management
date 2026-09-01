@@ -1,4 +1,15 @@
+# Environment variables
 .env
+.env.*
+!.env.example
+
+# Python
 __pycache__/
 *.pyc
 instance/
+.venv/
+venv/
+*.egg-info/
+
+# Flask-Migrate
+migrations/versions/__pycache__/
