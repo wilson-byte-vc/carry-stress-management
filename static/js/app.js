@@ -1,6 +1,31 @@
 (function () {
   "use strict";
 
+  // ---------- Dark theme toggle ----------
+  const themeBtn = document.getElementById("theme-toggle");
+  const themeIcon = document.getElementById("theme-toggle-icon");
+
+  function applyThemeIcon() {
+    if (!themeIcon) return;
+    const isDark = document.documentElement.dataset.theme === "dark";
+    themeIcon.textContent = isDark ? "light_mode" : "dark_mode";
+  }
+  applyThemeIcon();
+
+  if (themeBtn) {
+    themeBtn.addEventListener("click", () => {
+      const isDark = document.documentElement.dataset.theme === "dark";
+      if (isDark) {
+        delete document.documentElement.dataset.theme;
+        localStorage.setItem("theme", "light");
+      } else {
+        document.documentElement.dataset.theme = "dark";
+        localStorage.setItem("theme", "dark");
+      }
+      applyThemeIcon();
+    });
+  }
+
   // ---------- Toasts ----------
   function ensureToastLayer() {
     let layer = document.querySelector(".toast-layer");

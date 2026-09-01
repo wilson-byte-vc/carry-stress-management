@@ -32,6 +32,9 @@
   --color-warn: #d46a4e;
   --color-warn-bg: rgba(212, 106, 78, 0.15);
 
+  --color-border: rgba(29, 27, 23, 0.1);
+  --color-border-soft: rgba(29, 27, 23, 0.05);
+
   --font-display: "Literata", Georgia, serif;
   --font-body: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
 
@@ -53,12 +56,58 @@
   --max-width: 1280px;
 }
 
+/* Dark theme -- toggled by JS via data-theme="dark" on <html> (see app.js).
+   Same token names, dark-grey values, so every component that already reads
+   the tokens above repaints automatically with no per-component overrides. */
+:root[data-theme="dark"] {
+  --color-primary: #6fc9ab;
+  --color-primary-container: #2f5a4a;
+  --color-on-primary: #06251c;
+  --color-on-primary-container: #d3f5e6;
+
+  --color-secondary: #b3a6ff;
+  --color-secondary-container: #3f3868;
+  --color-on-secondary-container: #e3ddff;
+
+  --color-tertiary: #e8a06f;
+  --color-tertiary-container: #a8703f;
+  --color-tertiary-fixed: #4a2f1a;
+  --color-on-tertiary-container: #ffe8d6;
+
+  --color-background: #19191a;
+  --color-on-background: #ececea;
+
+  --color-surface: #19191a;
+  --color-surface-container-lowest: #121213;
+  --color-surface-container-low: #1e1e20;
+  --color-surface-container: #232326;
+  --color-surface-container-high: #2a2a2d;
+  --color-surface-container-highest: #333336;
+
+  --color-on-surface: #ececea;
+  --color-on-surface-variant: #b4b4b0;
+  --color-outline: #8a8a86;
+  --color-outline-variant: #46464a;
+
+  --color-warn: #ff8a68;
+  --color-warn-bg: rgba(255, 138, 104, 0.18);
+
+  --color-border: rgba(236, 236, 234, 0.12);
+  --color-border-soft: rgba(236, 236, 234, 0.06);
+}
+
 /* ===== Reset ===== */
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
+html {
+  background-color: var(--color-background);
+  color-scheme: light;
+}
+:root[data-theme="dark"] { color-scheme: dark; }
 body {
   background-color: var(--color-background);
   color: var(--color-on-background);
+  transition: background-color 0.2s ease, color 0.2s ease;
   font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.5;
@@ -106,15 +155,21 @@ main { flex: 1 0 auto; width: 100%; }
   top: 0;
   z-index: 50;
   background-color: var(--color-background);
-  border-bottom: 1px solid rgba(29, 27, 23, 0.1);
+  border-bottom: 1px solid var(--color-border);
 }
 .site-header .container {
-  display: flex;
-  justify-content: space-between;
+  /* Grid instead of flex space-between: with unequal-width icon groups on
+     each side (e.g. one icon on the left, two on the right), space-between
+     drifts the middle title off-center. Two equal 1fr flanks keep the auto
+     middle column mathematically centered regardless of flank width. */
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   padding-top: var(--space-base);
   padding-bottom: var(--space-base);
 }
+.site-header .container > *:first-child { justify-self: start; }
+.site-header .container > *:last-child { justify-self: end; }
 .brand {
   display: flex;
   align-items: center;
@@ -176,6 +231,10 @@ main { flex: 1 0 auto; width: 100%; }
 .icon-btn:hover {
   background-color: var(--color-surface-container-highest);
   color: var(--color-primary);
+}
+.icon-btn.active {
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
 }
 
 /* ===== Hero ===== */
@@ -266,7 +325,7 @@ main { flex: 1 0 auto; width: 100%; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(29, 27, 23, 0.1);
+  border: 1px solid var(--color-border);
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
   z-index: 1;
 }
@@ -303,7 +362,7 @@ main { flex: 1 0 auto; width: 100%; }
   background-color: var(--color-surface-container-lowest);
   border-radius: var(--radius-xl);
   padding: var(--space-md);
-  border: 1px solid rgba(29, 27, 23, 0.1);
+  border: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -350,7 +409,7 @@ main { flex: 1 0 auto; width: 100%; }
   background-color: var(--color-surface-container-lowest);
   border-radius: var(--radius-xl);
   padding: var(--space-md) 16px;
-  border: 1px solid rgba(29, 27, 23, 0.1);
+  border: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -420,7 +479,7 @@ main { flex: 1 0 auto; width: 100%; }
 .site-footer {
   margin-top: var(--space-xl);
   background-color: var(--color-surface-container-lowest);
-  border-top: 1px solid rgba(29, 27, 23, 0.05);
+  border-top: 1px solid var(--color-border-soft);
 }
 .site-footer .container {
   display: flex;
@@ -446,7 +505,7 @@ main { flex: 1 0 auto; width: 100%; }
   width: 100%;
   z-index: 50;
   background-color: var(--color-surface-container-low);
-  border-top: 1px solid rgba(29, 27, 23, 0.1);
+  border-top: 1px solid var(--color-border);
   border-top-left-radius: var(--radius-xl);
   border-top-right-radius: var(--radius-xl);
   display: flex;
@@ -499,7 +558,7 @@ body.has-bottom-nav { padding-bottom: 96px; }
 }
 .insight-card {
   background-color: var(--color-surface-container-lowest);
-  border: 1px solid rgba(29, 27, 23, 0.1);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   padding: var(--space-md);
   display: flex;
@@ -551,7 +610,7 @@ body.has-bottom-nav { padding-bottom: 96px; }
 }
 .checkin-item {
   background-color: var(--color-surface-container-lowest);
-  border: 1px solid rgba(29, 27, 23, 0.1);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   padding: var(--space-md);
 }
@@ -603,7 +662,7 @@ body.has-bottom-nav { padding-bottom: 96px; }
   height: calc(100vh - 200px);
   min-height: 420px;
   background-color: var(--color-surface-container-lowest);
-  border: 1px solid rgba(29, 27, 23, 0.1);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   overflow: hidden;
 }
@@ -612,7 +671,7 @@ body.has-bottom-nav { padding-bottom: 96px; }
   align-items: center;
   justify-content: space-between;
   padding: var(--space-sm) var(--space-md);
-  border-bottom: 1px solid rgba(29, 27, 23, 0.1);
+  border-bottom: 1px solid var(--color-border);
 }
 .chat-header h3 { color: var(--color-primary); }
 .chat-reset {
@@ -664,7 +723,7 @@ body.has-bottom-nav { padding-bottom: 96px; }
   display: flex;
   gap: var(--space-sm);
   padding: var(--space-sm);
-  border-top: 1px solid rgba(29, 27, 23, 0.1);
+  border-top: 1px solid var(--color-border);
 }
 .chat-input {
   flex: 1;

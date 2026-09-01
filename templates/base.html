@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Equilibrium{% endblock %}</title>
 
+    <script>
+      // Set the theme before first paint so there's no light-theme flash
+      // on load for users who've already chosen dark.
+      (function () {
+        var saved = localStorage.getItem("theme");
+        if (saved === "dark") document.documentElement.dataset.theme = "dark";
+      })();
+    </script>
+
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block" rel="stylesheet">
 
@@ -12,13 +21,21 @@
     {% block styles %}{% endblock %}
 </head>
 
-<body>
+<body class="{% block body_class %}{% endblock %}">
     {% block topnav %}
       <header class="site-header">
         <div class="container">
           <span class="material-symbols-outlined icon-btn" aria-label="Menu">spa</span>
           <h1 class="text-headline-sm accent">Balance</h1>
-          <span class="material-symbols-outlined icon-btn" aria-label="Account">account_circle</span>
+          <div class="header-right">
+            <a class="icon-btn {% if request.endpoint == 'assistant' %}active{% endif %}" href="{{ url_for('assistant') }}" aria-label="AI assistant">
+              <span class="material-symbols-outlined">smart_toy</span>
+            </a>
+            <button type="button" class="icon-btn" id="theme-toggle" aria-label="Toggle dark theme">
+              <span class="material-symbols-outlined" id="theme-toggle-icon">dark_mode</span>
+            </button>
+            <span class="material-symbols-outlined icon-btn" aria-label="Account">account_circle</span>
+          </div>
         </div>
 
         <nav class="nav-links container">
@@ -45,6 +62,10 @@
         <a class="bottom-nav-item {% if request.endpoint == 'insights' %}active{% endif %}" href="{{ url_for('insights') }}">
           <span class="material-symbols-outlined">analytics</span>
           <span>Insights</span>
+        </a>
+        <a class="bottom-nav-item {% if request.endpoint == 'assistant' %}active{% endif %}" href="{{ url_for('assistant') }}">
+          <span class="material-symbols-outlined">smart_toy</span>
+          <span>Assistant</span>
         </a>
       </nav>
     {% endblock %}
