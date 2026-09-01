@@ -1,16 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"
+      {% if current_user.is_authenticated and current_user.theme == 'dark' %}data-theme="dark"{% endif %}
+      data-authed="{{ '1' if current_user.is_authenticated else '0' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Equilibrium{% endblock %}</title>
 
     <script>
-      // Set the theme before first paint so there's no light-theme flash
-      // on load for users who've already chosen dark.
+      // Set the theme before first paint so there's no light-theme flash on
+      // load. Signed-in users get their saved preference straight off the
+      // <html> tag above (server is the source of truth); anonymous visitors
+      // fall back to whatever they last picked in this browser.
       (function () {
-        var saved = localStorage.getItem("theme");
-        if (saved === "dark") document.documentElement.dataset.theme = "dark";
+        if (document.documentElement.dataset.authed === "1") return;
+        if (localStorage.getItem("theme") === "dark") {
+          document.documentElement.dataset.theme = "dark";
+        }
       })();
     </script>
 
@@ -22,27 +28,101 @@
 </head>
 
 <body class="{% block body_class %}{% endblock %}">
+
+    {# Flashed messages are handed to app.js, which shows them as toasts. #}
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <script type="application/json" id="flash-data">{{ messages | tojson }}</script>
+      {% endif %}
+    {% endwith %}
+
     {% block topnav %}
       <header class="site-header">
         <div class="container">
-          <span class="material-symbols-outlined icon-btn" aria-label="Menu">spa</span>
+
+          {% if current_user.is_authenticated %}
+            <div class="settings-menu">
+              <button type="button" class="icon-btn" id="settings-toggle"
+                      aria-label="Settings" aria-expanded="false" aria-controls="settings-panel">
+                <span class="material-symbols-outlined">settings</span>
+              </button>
+
+              <div class="settings-panel" id="settings-panel" hidden>
+                <div class="settings-identity">
+                  <span class="settings-name">{{ current_user.display_name }}</span>
+                  <span class="settings-email">{{ current_user.email }}</span>
+                  {% if current_user.is_admin %}<span class="settings-badge">Admin</span>{% endif %}
+                </div>
+
+                <form class="settings-section" method="post" action="{{ url_for('settings') }}">
+                  <label class="settings-label" for="display-name-input">Display name</label>
+                  <div class="settings-row">
+                    <input class="settings-input" id="display-name-input" type="text"
+                           name="display_name" value="{{ current_user.display_name }}"
+                           maxlength="80" required>
+                    <button type="submit" class="btn btn-primary settings-save">Save</button>
+                  </div>
+                </form>
+
+                <div class="settings-section">
+                  <span class="settings-label">Appearance</span>
+                  <div class="settings-theme-group" role="group" aria-label="Theme">
+                    <button type="button" class="settings-theme-btn" data-set-theme="light">
+                      <span class="material-symbols-outlined">light_mode</span> Light
+                    </button>
+                    <button type="button" class="settings-theme-btn" data-set-theme="dark">
+                      <span class="material-symbols-outlined">dark_mode</span> Dark
+                    </button>
+                  </div>
+                </div>
+
+                <div class="settings-section settings-links">
+                  {% if current_user.is_admin %}
+                    <a class="settings-link" href="{{ url_for('admin') }}">
+                      <span class="material-symbols-outlined">shield_person</span> Admin panel
+                    </a>
+                  {% endif %}
+                  <form method="post" action="{{ url_for('logout') }}">
+                    <button type="submit" class="settings-link settings-link-danger">
+                      <span class="material-symbols-outlined">logout</span> Log out
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <span class="material-symbols-outlined icon-btn" aria-hidden="true">spa</span>
+          {% endif %}
+
           <h1 class="text-headline-sm accent">Balance</h1>
+
           <div class="header-right">
-            <a class="icon-btn {% if request.endpoint == 'assistant' %}active{% endif %}" href="{{ url_for('assistant') }}" aria-label="AI assistant">
-              <span class="material-symbols-outlined">smart_toy</span>
-            </a>
+            {% if current_user.is_authenticated %}
+              <a class="icon-btn {% if request.endpoint == 'assistant' %}active{% endif %}"
+                 href="{{ url_for('assistant') }}" aria-label="AI assistant">
+                <span class="material-symbols-outlined">smart_toy</span>
+              </a>
+            {% endif %}
             <button type="button" class="icon-btn" id="theme-toggle" aria-label="Toggle dark theme">
               <span class="material-symbols-outlined" id="theme-toggle-icon">dark_mode</span>
             </button>
-            <span class="material-symbols-outlined icon-btn" aria-label="Account">account_circle</span>
+            {% if current_user.is_authenticated %}
+              <span class="material-symbols-outlined icon-btn" aria-label="Account">account_circle</span>
+            {% else %}
+              <a class="icon-btn" href="{{ url_for('login') }}" aria-label="Log in">
+                <span class="material-symbols-outlined">login</span>
+              </a>
+            {% endif %}
           </div>
         </div>
 
-        <nav class="nav-links container">
-          <a class="{% if request.endpoint == 'home' %}active{% endif %}" href="{{ url_for('home') }}">Home</a>
-          <a class="{% if request.endpoint == 'checkin' %}active{% endif %}" href="{{ url_for('checkin') }}">Check-in</a>
-          <a class="{% if request.endpoint == 'insights' %}active{% endif %}" href="{{ url_for('insights') }}">Insights</a>
-        </nav>
+        {% if current_user.is_authenticated %}
+          <nav class="nav-links container">
+            <a class="{% if request.endpoint == 'home' %}active{% endif %}" href="{{ url_for('home') }}">Home</a>
+            <a class="{% if request.endpoint == 'checkin' %}active{% endif %}" href="{{ url_for('checkin') }}">Check-in</a>
+            <a class="{% if request.endpoint == 'insights' %}active{% endif %}" href="{{ url_for('insights') }}">Insights</a>
+          </nav>
+        {% endif %}
       </header>
     {% endblock %}
 
@@ -50,29 +130,29 @@
     {% block content %}{% endblock %}
 
     {% block bottom_nav %}
-      <nav class="bottom-nav">
-        <a class="bottom-nav-item {% if request.endpoint == 'home' %}active{% endif %}" href="{{ url_for('home') }}">
-          <span class="material-symbols-outlined">home</span>
-          <span>Home</span>
-        </a>
-        <a class="bottom-nav-item {% if request.endpoint == 'checkin' %}active{% endif %}" href="{{ url_for('checkin') }}">
-          <span class="material-symbols-outlined">rebase_edit</span>
-          <span>Check-in</span>
-        </a>
-        <a class="bottom-nav-item {% if request.endpoint == 'insights' %}active{% endif %}" href="{{ url_for('insights') }}">
-          <span class="material-symbols-outlined">analytics</span>
-          <span>Insights</span>
-        </a>
-        <a class="bottom-nav-item {% if request.endpoint == 'assistant' %}active{% endif %}" href="{{ url_for('assistant') }}">
-          <span class="material-symbols-outlined">smart_toy</span>
-          <span>Assistant</span>
-        </a>
-      </nav>
+      {% if current_user.is_authenticated %}
+        <nav class="bottom-nav">
+          <a class="bottom-nav-item {% if request.endpoint == 'home' %}active{% endif %}" href="{{ url_for('home') }}">
+            <span class="material-symbols-outlined">home</span>
+            <span>Home</span>
+          </a>
+          <a class="bottom-nav-item {% if request.endpoint == 'checkin' %}active{% endif %}" href="{{ url_for('checkin') }}">
+            <span class="material-symbols-outlined">rebase_edit</span>
+            <span>Check-in</span>
+          </a>
+          <a class="bottom-nav-item {% if request.endpoint == 'insights' %}active{% endif %}" href="{{ url_for('insights') }}">
+            <span class="material-symbols-outlined">analytics</span>
+            <span>Insights</span>
+          </a>
+          <a class="bottom-nav-item {% if request.endpoint == 'assistant' %}active{% endif %}" href="{{ url_for('assistant') }}">
+            <span class="material-symbols-outlined">smart_toy</span>
+            <span>Assistant</span>
+          </a>
+        </nav>
+      {% endif %}
     {% endblock %}
 
-    {% block footer %}
-
-    {% endblock %}
+    {% block footer %}{% endblock %}
 
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
     {% block scripts %}{% endblock %}

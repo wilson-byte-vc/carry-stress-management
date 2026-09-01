@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Equilibrium{% endblock %}
+
+{% block body_class %}has-bottom-nav{% endblock %}
+
+{% block content %}
+<main class="container">
+  <div class="page-intro">
+    <h2 class="text-display-lg-mobile">Admin panel</h2>
+    <p class="text-body-lg">Everyone using Equilibrium, and how much they've logged.</p>
+  </div>
+
+  <div class="admin-stats">
+    <div class="admin-stat">
+      <span class="admin-stat-value">{{ users | length }}</span>
+      <span class="admin-stat-label">Users</span>
+    </div>
+    <div class="admin-stat">
+      <span class="admin-stat-value">{{ total_checkins }}</span>
+      <span class="admin-stat-label">Check-ins</span>
+    </div>
+    <div class="admin-stat">
+      <span class="admin-stat-value">{{ users | selectattr('is_admin') | list | length }}</span>
+      <span class="admin-stat-label">Admins</span>
+    </div>
+  </div>
+
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Joined</th>
+          <th>Check-ins</th>
+          <th>Latest capacity</th>
+          <th>Role</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+          <tr>
+            <td data-label="Name">{{ user.display_name }}</td>
+            <td data-label="Email" class="admin-email">{{ user.email }}</td>
+            <td data-label="Joined">{{ user.created_at.strftime('%d %b %Y') }}</td>
+            <td data-label="Check-ins">{{ user.checkins | length }}</td>
+            <td data-label="Latest capacity">
+              {% if user.latest_checkin %}
+                {{ user.latest_checkin.capacity }}%
+              {% else %}
+                <span class="admin-muted">—</span>
+              {% endif %}
+            </td>
+            <td data-label="Role">
+              {% if user.is_admin %}
+                <span class="settings-badge">Admin</span>
+              {% else %}
+                <span class="admin-muted">Member</span>
+              {% endif %}
+            </td>
+            <td data-label="">
+              {% if user.id != current_user.id %}
+                <form method="post" action="{{ url_for('admin_toggle', user_id=user.id) }}">
+                  <button type="submit" class="btn btn-outline tertiary admin-action">
+                    {{ 'Revoke admin' if user.is_admin else 'Make admin' }}
+                  </button>
+                </form>
+              {% else %}
+                <span class="admin-muted">You</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</main>
+{% endblock %}

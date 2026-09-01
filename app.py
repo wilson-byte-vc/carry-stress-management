@@ -1,11 +1,30 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
-from flask_sqlalchemy import SQLAlchemy
+from functools import wraps
+
+from flask import (
+    Flask,
+    abort,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
+from flask_login import (
+    LoginManager,
+    current_user,
+    login_required,
+    login_user,
+    logout_user,
+)
 from flask_migrate import Migrate
 from dotenv import load_dotenv
 from groq import Groq
 
 import os
-import json
+
+from models import CheckIn, User, db
 
 load_dotenv()
 
@@ -13,8 +32,23 @@ app = Flask(__name__)
 # Sessions are just a signed cookie -- Flask needs a secret key to sign them.
 # Falls back to a dev-only value locally; set a real SECRET_KEY in .env / on
 # Render before this handles anything real, or every restart invalidates
-# everyone's session.
+# everyone's session (and logs everyone out).
 app.secret_key = os.environ.get("SECRET_KEY", "dev-only-change-me")
+
+# Render/Heroku hand out "postgres://" URLs, but SQLAlchemy 2.x only accepts
+# "postgresql://". Fall back to a local SQLite file when DATABASE_URL is unset.
+database_url = os.environ.get("DATABASE_URL", "sqlite:///spaceman.db")
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db.init_app(app)
+migrate = Migrate(app, db)
+
+login_manager = LoginManager(app)
+login_manager.login_view = "login"
+login_manager.login_message = "Please log in to continue."
 
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 # gpt-oss is a reasoning model: it spends some of max_tokens on hidden
@@ -22,7 +56,27 @@ client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 # or short answers can come back empty.
 GROQ_MODEL = "openai/gpt-oss-120b"
 
-# --- Public Pages ---
+
+@login_manager.user_loader
+def load_user(user_id):
+    return db.session.get(User, int(user_id))
+
+
+def admin_required(view):
+    """Gate a route to admins only -- 404 rather than 403 so the existence of
+    the admin page isn't advertised to signed-in non-admins."""
+
+    @wraps(view)
+    @login_required
+    def wrapped(*args, **kwargs):
+        if not current_user.is_admin:
+            abort(404)
+        return view(*args, **kwargs)
+
+    return wrapped
+
+
+# --- Check-in vocabulary ---
 
 # Word each slider position maps to, per category -- used both to render the
 # saved check-in on the home dashboard and to seed the live label in the
@@ -41,9 +95,151 @@ def capacity_percent(checkin):
     return round(sum(levels) / (len(levels) * 5) * 100)
 
 
+def current_checkin():
+    latest = current_user.latest_checkin
+    return latest.as_dict() if latest else DEFAULT_CHECKIN
+
+
+def clamp_level(raw, fallback=3):
+    """Slider values arrive as strings from the form and are attacker-controlled
+    -- coerce to an int inside 1..5 rather than trusting them."""
+    try:
+        return min(5, max(1, int(raw)))
+    except (TypeError, ValueError):
+        return fallback
+
+
+# --- Auth ---
+
+@app.route("/signup", methods=["GET", "POST"])
+def signup():
+    if current_user.is_authenticated:
+        return redirect(url_for("home"))
+
+    if request.method == "POST":
+        display_name = request.form.get("display_name", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+
+        if not display_name or not email or not password:
+            flash("All fields are required.")
+        elif len(password) < 8:
+            flash("Password must be at least 8 characters.")
+        elif db.session.scalar(db.select(User).filter_by(email=email)):
+            flash("That email is already registered. Try logging in.")
+        else:
+            user = User(
+                display_name=display_name,
+                email=email,
+                # The very first account to register becomes the admin -- there's
+                # no other bootstrap path into the admin page.
+                is_admin=db.session.scalar(db.select(db.func.count(User.id))) == 0,
+            )
+            user.set_password(password)
+            db.session.add(user)
+            db.session.commit()
+            login_user(user)
+            flash(f"Welcome, {user.display_name}!")
+            return redirect(url_for("home"))
+
+    return render_template("signup.html")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for("home"))
+
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+        user = db.session.scalar(db.select(User).filter_by(email=email))
+
+        if user and user.check_password(password):
+            login_user(user, remember=bool(request.form.get("remember")))
+            flash(f"Welcome back, {user.display_name}!")
+            # Only honour a relative "next" -- an absolute URL here would let a
+            # crafted link bounce people to another site after login.
+            next_url = request.args.get("next", "")
+            if next_url.startswith("/") and not next_url.startswith("//"):
+                return redirect(next_url)
+            return redirect(url_for("home"))
+
+        # Deliberately vague: don't reveal whether the email exists.
+        flash("Incorrect email or password.")
+
+    return render_template("login.html")
+
+
+@app.route("/logout", methods=["POST"])
+@login_required
+def logout():
+    logout_user()
+    session.pop("chat_history", None)
+    flash("You've been logged out.")
+    return redirect(url_for("login"))
+
+
+# --- Settings ---
+
+@app.route("/settings", methods=["POST"])
+@login_required
+def settings():
+    display_name = request.form.get("display_name", "").strip()
+    if display_name:
+        current_user.display_name = display_name
+        db.session.commit()
+        flash("Preferences saved.")
+    else:
+        flash("Display name can't be empty.")
+    return redirect(request.referrer or url_for("home"))
+
+
+@app.route("/settings/theme", methods=["POST"])
+@login_required
+def settings_theme():
+    theme = (request.json or {}).get("theme")
+    if theme not in ("light", "dark"):
+        return jsonify({"error": "theme must be 'light' or 'dark'"}), 400
+    current_user.theme = theme
+    db.session.commit()
+    return jsonify({"ok": True, "theme": theme})
+
+
+# --- Admin ---
+
+@app.route("/admin")
+@admin_required
+def admin():
+    users = db.session.scalars(db.select(User).order_by(User.created_at)).all()
+    total_checkins = db.session.scalar(db.select(db.func.count(CheckIn.id)))
+    return render_template(
+        "admin.html",
+        users=users,
+        total_checkins=total_checkins,
+    )
+
+
+@app.route("/admin/users/<int:user_id>/toggle-admin", methods=["POST"])
+@admin_required
+def admin_toggle(user_id):
+    user = db.get_or_404(User, user_id)
+    if user.id == current_user.id:
+        flash("You can't remove your own admin access.")
+    else:
+        user.is_admin = not user.is_admin
+        db.session.commit()
+        state = "now an admin" if user.is_admin else "no longer an admin"
+        flash(f"{user.display_name} is {state}.")
+    return redirect(url_for("admin"))
+
+
+# --- App pages ---
+
 @app.route("/")
+@login_required
 def home():
-    checkin = session.get("checkin", DEFAULT_CHECKIN)
+    checkin = current_checkin()
     return render_template(
         "home.html",
         checkin=checkin,
@@ -52,29 +248,38 @@ def home():
         just_saved=request.args.get("saved") == "1",
     )
 
+
 @app.route("/checkin", methods=["GET", "POST"])
+@login_required
 def checkin():
     if request.method == "POST":
-        checkin = {
-            "time": int(request.form.get("time_level", 3)),
-            "social": int(request.form.get("social_level", 3)),
-            "physical": int(request.form.get("physical_level", 3)),
-            "mental": int(request.form.get("mental_level", 3)),
-            "note": request.form.get("note", "").strip(),
-        }
-        session["checkin"] = checkin
+        entry = CheckIn(
+            user_id=current_user.id,
+            time=clamp_level(request.form.get("time_level")),
+            social=clamp_level(request.form.get("social_level")),
+            physical=clamp_level(request.form.get("physical_level")),
+            mental=clamp_level(request.form.get("mental_level")),
+            note=request.form.get("note", "").strip()[:2000],
+        )
+        db.session.add(entry)
+        db.session.commit()
         return redirect(url_for("home", saved=1))
 
-    checkin = session.get("checkin", DEFAULT_CHECKIN)
-    return render_template("checkin.html", checkin=checkin, labels=CATEGORY_LABELS)
+    return render_template("checkin.html", checkin=current_checkin(), labels=CATEGORY_LABELS)
+
 
 @app.route("/insights")
+@login_required
 def insights():
-    return render_template("insights.html")
+    history = current_user.checkins[:7]
+    return render_template("insights.html", history=history)
+
 
 @app.route("/assistant")
+@login_required
 def assistant():
     return render_template("chat.html")
+
 
 # --- Chat with memory ---
 
@@ -91,13 +296,12 @@ CHAT_SYSTEM_PROMPT = {
 
 
 @app.route("/chat", methods=["POST"])
+@login_required
 def chat():
     user_message = request.json.get("message")
     if not user_message:
         return jsonify({"error": "message is required"}), 400
 
-    # Pull this user's history from wherever you're storing it
-    # (session for quick demo, a database table for real persistence)
     history = session.get("chat_history", [])
     history.append({"role": "user", "content": user_message})
 
@@ -121,9 +325,14 @@ def chat():
 
 
 @app.route("/chat/reset", methods=["POST"])
+@login_required
 def chat_reset():
     session.pop("chat_history", None)
     return jsonify({"ok": True})
+
+
+with app.app_context():
+    db.create_all()
 
 
 if __name__ == "__main__":

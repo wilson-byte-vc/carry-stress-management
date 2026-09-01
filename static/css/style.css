@@ -829,3 +829,282 @@ body.has-bottom-nav { padding-bottom: 96px; }
 .btn-ghost.is-open .material-symbols-outlined {
   transform: rotate(90deg);
 }
+
+/* ===== Settings dropdown ===== */
+/* The UA's [hidden] rule is only `display: none` at the lowest specificity,
+   so the `display: flex` below would silently win and leave the panel open.
+   This has to out-specify it. */
+[hidden] { display: none !important; }
+
+.settings-menu { position: relative; }
+.settings-menu #settings-toggle .material-symbols-outlined {
+  transition: transform 0.3s ease;
+}
+.settings-menu.is-open #settings-toggle {
+  background-color: var(--color-surface-container-highest);
+  color: var(--color-primary);
+}
+.settings-menu.is-open #settings-toggle .material-symbols-outlined {
+  transform: rotate(60deg);
+}
+.settings-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 60;
+  width: min(320px, calc(100vw - 32px));
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+  padding: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  animation: settings-drop 0.16s ease-out;
+}
+@keyframes settings-drop {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.settings-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 8px 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+.settings-name {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-on-background);
+}
+.settings-email { font-size: 13px; color: var(--color-on-surface-variant); }
+.settings-badge {
+  align-self: flex-start;
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-on-primary-container);
+  background-color: var(--color-primary-container);
+  padding: 3px 9px;
+  border-radius: var(--radius-full);
+}
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 8px;
+}
+.settings-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-on-surface-variant);
+}
+.settings-row { display: flex; gap: 8px; }
+.settings-input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-lg);
+  padding: 8px 12px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  background-color: var(--color-surface-container-lowest);
+  color: var(--color-on-background);
+}
+.settings-input:focus { outline: 2px solid var(--color-primary); border-color: transparent; }
+.settings-save { padding: 8px 16px; font-size: 13px; }
+
+.settings-theme-group { display: flex; gap: 8px; }
+.settings-theme-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 10px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-lg);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.settings-theme-btn .material-symbols-outlined { font-size: 18px; }
+.settings-theme-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.settings-theme-btn.is-active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.settings-links {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-sm);
+  gap: 2px;
+}
+.settings-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 8px;
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  color: var(--color-on-background);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.settings-link .material-symbols-outlined { font-size: 20px; color: var(--color-on-surface-variant); }
+.settings-link:hover { background-color: var(--color-surface-container-high); color: var(--color-primary); }
+.settings-link:hover .material-symbols-outlined { color: var(--color-primary); }
+.settings-link-danger:hover { color: var(--color-warn); }
+.settings-link-danger:hover .material-symbols-outlined { color: var(--color-warn); }
+
+/* ===== Auth pages ===== */
+.auth-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: var(--space-lg);
+  padding-bottom: var(--space-lg);
+}
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-md);
+}
+.auth-head { text-align: center; margin-bottom: var(--space-md); }
+.auth-mark {
+  font-size: 34px;
+  color: var(--color-primary);
+  margin-bottom: var(--space-base);
+}
+.auth-head h2 { color: var(--color-on-background); margin-bottom: 6px; }
+.auth-head p { color: var(--color-on-surface-variant); }
+.auth-form { display: flex; flex-direction: column; gap: var(--space-sm); }
+.auth-field { display: flex; flex-direction: column; gap: 6px; }
+.auth-input {
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-lg);
+  padding: 11px 14px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  background-color: var(--color-surface-container-lowest);
+  color: var(--color-on-background);
+}
+.auth-input:focus { outline: 2px solid var(--color-primary); border-color: transparent; }
+.auth-hint { font-size: 12px; color: var(--color-on-surface-variant); }
+.auth-remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+}
+.auth-remember input { accent-color: var(--color-primary); }
+.auth-alt {
+  margin-top: var(--space-md);
+  text-align: center;
+  font-size: 14px;
+  color: var(--color-on-surface-variant);
+}
+.auth-alt a { color: var(--color-primary); font-weight: 600; }
+.auth-alt a:hover { text-decoration: underline; }
+
+/* ===== Admin ===== */
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+.admin-stat {
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-sm) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.admin-stat-value {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+.admin-stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-on-surface-variant);
+}
+.admin-table-wrap {
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  overflow-x: auto;
+}
+.admin-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.admin-table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-on-surface-variant);
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+.admin-table td {
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-border-soft);
+  color: var(--color-on-background);
+  vertical-align: middle;
+}
+.admin-table tr:last-child td { border-bottom: none; }
+.admin-email { color: var(--color-on-surface-variant); }
+.admin-muted { color: var(--color-on-surface-variant); }
+.admin-action { padding: 6px 14px; font-size: 12px; white-space: nowrap; }
+
+/* On narrow screens the table reflows into stacked cards. */
+@media (max-width: 767px) {
+  .admin-stats { grid-template-columns: 1fr; }
+  .admin-table thead { display: none; }
+  .admin-table, .admin-table tbody, .admin-table tr, .admin-table td { display: block; width: 100%; }
+  .admin-table tr {
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--space-sm) 0;
+  }
+  .admin-table tr:last-child { border-bottom: none; }
+  .admin-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-md);
+    border-bottom: none;
+    padding: 6px var(--space-md);
+  }
+  .admin-table td::before {
+    content: attr(data-label);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-on-surface-variant);
+  }
+}

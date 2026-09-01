@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Log in - Equilibrium{% endblock %}
+
+{% block content %}
+<main class="container auth-wrap">
+  <div class="auth-card">
+    <div class="auth-head">
+      <span class="material-symbols-outlined auth-mark">spa</span>
+      <h2 class="text-headline-md">Welcome back</h2>
+      <p class="text-body-md">Log in to pick up where you left off.</p>
+    </div>
+
+    <form method="post" class="auth-form">
+      <div class="auth-field">
+        <label class="settings-label" for="email">Email</label>
+        <input class="auth-input" id="email" type="email" name="email"
+               autocomplete="email" required autofocus>
+      </div>
+
+      <div class="auth-field">
+        <label class="settings-label" for="password">Password</label>
+        <input class="auth-input" id="password" type="password" name="password"
+               autocomplete="current-password" required>
+      </div>
+
+      <label class="auth-remember">
+        <input type="checkbox" name="remember" value="1"> Keep me logged in
+      </label>
+
+      <button type="submit" class="btn btn-primary btn-block">Log in</button>
+    </form>
+
+    <p class="auth-alt">
+      New here? <a href="{{ url_for('signup') }}">Create an account</a>
+    </p>
+  </div>
+</main>
+{% endblock %}

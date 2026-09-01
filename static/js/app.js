@@ -1,28 +1,93 @@
 (function () {
   "use strict";
 
-  // ---------- Dark theme toggle ----------
+  const root = document.documentElement;
+  const isAuthed = root.dataset.authed === "1";
+
+  // ---------- Theme ----------
+  // Two controls drive the same state: the header icon and the Light/Dark
+  // buttons inside the settings panel. Both route through setTheme so they
+  // can never disagree.
   const themeBtn = document.getElementById("theme-toggle");
   const themeIcon = document.getElementById("theme-toggle-icon");
+  const themeChoices = document.querySelectorAll("[data-set-theme]");
 
-  function applyThemeIcon() {
-    if (!themeIcon) return;
-    const isDark = document.documentElement.dataset.theme === "dark";
-    themeIcon.textContent = isDark ? "light_mode" : "dark_mode";
+  function currentTheme() {
+    return root.dataset.theme === "dark" ? "dark" : "light";
   }
-  applyThemeIcon();
+
+  function paintThemeControls() {
+    const theme = currentTheme();
+    if (themeIcon) themeIcon.textContent = theme === "dark" ? "light_mode" : "dark_mode";
+    themeChoices.forEach((btn) => {
+      btn.classList.toggle("is-active", btn.dataset.setTheme === theme);
+    });
+  }
+
+  function setTheme(theme) {
+    if (theme === "dark") {
+      root.dataset.theme = "dark";
+    } else {
+      delete root.dataset.theme;
+    }
+    // Keep localStorage current either way -- it's what a logged-out visitor
+    // (or a pre-paint load) reads back.
+    try {
+      localStorage.setItem("theme", theme);
+    } catch (e) {
+      /* private mode / storage disabled -- theme just won't persist */
+    }
+    paintThemeControls();
+
+    // Signed in? Persist server-side so the preference follows the account.
+    if (isAuthed) {
+      fetch("/settings/theme", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ theme: theme }),
+      }).catch(() => {
+        /* offline -- localStorage still holds it for this browser */
+      });
+    }
+  }
+
+  paintThemeControls();
 
   if (themeBtn) {
     themeBtn.addEventListener("click", () => {
-      const isDark = document.documentElement.dataset.theme === "dark";
-      if (isDark) {
-        delete document.documentElement.dataset.theme;
-        localStorage.setItem("theme", "light");
-      } else {
-        document.documentElement.dataset.theme = "dark";
-        localStorage.setItem("theme", "dark");
+      setTheme(currentTheme() === "dark" ? "light" : "dark");
+    });
+  }
+  themeChoices.forEach((btn) => {
+    btn.addEventListener("click", () => setTheme(btn.dataset.setTheme));
+  });
+
+  // ---------- Settings dropdown ----------
+  const settingsMenu = document.querySelector(".settings-menu");
+  const settingsToggle = document.getElementById("settings-toggle");
+  const settingsPanel = document.getElementById("settings-panel");
+
+  if (settingsMenu && settingsToggle && settingsPanel) {
+    const setOpen = (open) => {
+      settingsPanel.hidden = !open;
+      settingsMenu.classList.toggle("is-open", open);
+      settingsToggle.setAttribute("aria-expanded", String(open));
+    };
+
+    settingsToggle.addEventListener("click", (event) => {
+      event.stopPropagation();
+      setOpen(settingsPanel.hidden);
+    });
+
+    // Click anywhere outside (or Escape) closes it.
+    document.addEventListener("click", (event) => {
+      if (!settingsPanel.hidden && !settingsMenu.contains(event.target)) setOpen(false);
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !settingsPanel.hidden) {
+        setOpen(false);
+        settingsToggle.focus();
       }
-      applyThemeIcon();
     });
   }
 
@@ -57,6 +122,18 @@
     setTimeout(remove, opts.duration || 2600);
   }
   window.showToast = showToast;
+
+  // ---------- Server-side flash messages -> toasts ----------
+  const flashEl = document.getElementById("flash-data");
+  if (flashEl) {
+    try {
+      JSON.parse(flashEl.textContent).forEach((message, i) => {
+        setTimeout(() => showToast(message, { icon: "info" }), i * 300);
+      });
+    } catch (e) {
+      /* malformed payload -- not worth breaking the page over */
+    }
+  }
 
   // ---------- Live slider labels (check-in page) ----------
   document.querySelectorAll(".checkin-slider").forEach((slider) => {

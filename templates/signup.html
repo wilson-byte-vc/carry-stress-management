@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Sign up - Equilibrium{% endblock %}
+
+{% block content %}
+<main class="container auth-wrap">
+  <div class="auth-card">
+    <div class="auth-head">
+      <span class="material-symbols-outlined auth-mark">spa</span>
+      <h2 class="text-headline-md">Create your account</h2>
+      <p class="text-body-md">Track your capacity and spot your patterns over time.</p>
+    </div>
+
+    <form method="post" class="auth-form">
+      <div class="auth-field">
+        <label class="settings-label" for="display_name">Name</label>
+        <input class="auth-input" id="display_name" type="text" name="display_name"
+               maxlength="80" autocomplete="name" required autofocus>
+      </div>
+
+      <div class="auth-field">
+        <label class="settings-label" for="email">Email</label>
+        <input class="auth-input" id="email" type="email" name="email"
+               autocomplete="email" required>
+      </div>
+
+      <div class="auth-field">
+        <label class="settings-label" for="password">Password</label>
+        <input class="auth-input" id="password" type="password" name="password"
+               autocomplete="new-password" minlength="8" required>
+        <span class="auth-hint">At least 8 characters.</span>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block">Create account</button>
+    </form>
+
+    <p class="auth-alt">
+      Already have an account? <a href="{{ url_for('login') }}">Log in</a>
+    </p>
+  </div>
+</main>
+{% endblock %}
