@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Equilibrium - Assistant{% endblock %}
+
+{% block content %}
+<main class="container" style="padding-top: 32px; padding-bottom: 64px;">
+  <div class="page-intro">
+    <h2 class="text-display-lg-mobile">Talk it out</h2>
+    <p class="text-body-lg">A quick chat about stress and workload. It remembers this conversation as you go.</p>
+  </div>
+
+  <div class="chat-shell">
+    <div class="chat-header">
+      <h3 class="text-headline-sm">Assistant</h3>
+      <button type="button" id="chat-reset" class="chat-reset">New conversation</button>
+    </div>
+
+    <div id="chat-messages" class="chat-messages">
+      <div class="chat-bubble assistant">Hey! What's on your mind — workload, a deadline, exam stress?</div>
+    </div>
+
+    <form id="chat-form" class="chat-input-row">
+      <input id="chat-input" class="chat-input" type="text" placeholder="Type a message..." autocomplete="off" required>
+      <button id="chat-send" type="submit" class="btn btn-primary chat-send">Send</button>
+    </form>
+  </div>
+</main>
+
+<script>
+(function () {
+  const form = document.getElementById("chat-form");
+  const input = document.getElementById("chat-input");
+  const sendBtn = document.getElementById("chat-send");
+  const messages = document.getElementById("chat-messages");
+  const resetBtn = document.getElementById("chat-reset");
+
+  function addBubble(text, role) {
+    const div = document.createElement("div");
+    div.className = "chat-bubble " + role;
+    div.textContent = text;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+    return div;
+  }
+
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+
+    addBubble(text, "user");
+    input.value = "";
+    input.disabled = true;
+    sendBtn.disabled = true;
+
+    const pending = addBubble("Thinking...", "assistant pending");
+
+    try {
+      const res = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text }),
+      });
+      const data = await res.json();
+
+      pending.remove();
+      if (!res.ok) {
+        addBubble(data.error || "Something went wrong.", "error");
+      } else {
+        addBubble(data.reply, "assistant");
+      }
+    } catch (err) {
+      pending.remove();
+      addBubble("Network error: " + err.message, "error");
+    } finally {
+      input.disabled = false;
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  });
+
+  resetBtn.addEventListener("click", async function () {
+    await fetch("/chat/reset", { method: "POST" });
+    messages.innerHTML = "";
+    addBubble("Hey! What's on your mind — workload, a deadline, exam stress?", "assistant");
+  });
+})();
+</script>
+{% endblock %}
