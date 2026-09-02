@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#cfe3da"/>
+      <stop offset="45%" stop-color="#eef0e2"/>
+      <stop offset="75%" stop-color="#fdeeda"/>
+      <stop offset="100%" stop-color="#ffe4cc"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#ffd79a" stop-opacity="0.85"/>
+      <stop offset="60%" stop-color="#ffd79a" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ffd79a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="hill1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#b7d3c5"/>
+      <stop offset="100%" stop-color="#a3c6b6"/>
+    </linearGradient>
+    <linearGradient id="hill2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7fb39a"/>
+      <stop offset="100%" stop-color="#6aa287"/>
+    </linearGradient>
+    <linearGradient id="hill3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4f8c77"/>
+      <stop offset="100%" stop-color="#3d7562"/>
+    </linearGradient>
+    <linearGradient id="hill4" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2b6152"/>
+      <stop offset="100%" stop-color="#1f4a3e"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1440" height="900" fill="url(#sky)"/>
+
+  <!-- sun -->
+  <circle cx="1060" cy="250" r="230" fill="url(#sunGlow)"/>
+  <circle cx="1060" cy="250" r="62" fill="#ffcf8e" opacity="0.95"/>
+
+  <!-- distant mist bands -->
+  <ellipse cx="380" cy="470" rx="330" ry="26" fill="#ffffff" opacity="0.32"/>
+  <ellipse cx="980" cy="505" rx="280" ry="20" fill="#ffffff" opacity="0.26"/>
+
+  <!-- birds -->
+  <g stroke="#5c7f70" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.55">
+    <path d="M300 214 q13 -11 26 0"/>
+    <path d="M326 206 q13 -11 26 0"/>
+    <path d="M352 220 q10 -8 20 0"/>
+  </g>
+
+  <!-- hill layers, back to front -->
+  <path fill="url(#hill1)"
+        d="M0 512 C 190 452, 330 500, 500 470 C 690 436, 830 496, 1010 462 C 1180 430, 1320 476, 1440 452 L1440 900 L0 900 Z"/>
+  <path fill="url(#hill2)"
+        d="M0 596 C 170 540, 300 596, 470 572 C 660 545, 800 610, 980 580 C 1160 550, 1300 600, 1440 574 L1440 900 L0 900 Z"/>
+  <path fill="url(#hill3)"
+        d="M0 690 C 210 640, 340 700, 520 682 C 730 660, 870 716, 1060 692 C 1230 670, 1340 706, 1440 690 L1440 900 L0 900 Z"/>
+  <path fill="url(#hill4)"
+        d="M0 790 C 230 754, 380 800, 560 788 C 780 772, 920 812, 1120 796 C 1280 784, 1370 806, 1440 796 L1440 900 L0 900 Z"/>
+
+  <!-- foreground trees -->
+  <g fill="#173d33" opacity="0.9">
+    <path d="M126 790 l16 -46 l16 46 z"/>
+    <path d="M126 806 l16 -50 l16 50 z"/>
+    <path d="M1288 800 l13 -38 l13 38 z"/>
+    <path d="M1288 814 l13 -42 l13 42 z"/>
+  </g>
+</svg>

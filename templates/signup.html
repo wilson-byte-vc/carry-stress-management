@@ -2,6 +2,13 @@
 
 {% block title %}Sign up - Equilibrium{% endblock %}
 
+{% block body_class %}auth-page{% endblock %}
+
+{# The scenery is the whole point of this page -- no banner or nav over it. #}
+{% block header_nav %}{% endblock %}
+{% block demo_banner %}{% endblock %}
+{% block bottom_nav %}{% endblock %}
+
 {% block content %}
 <main class="container auth-wrap">
   <div class="auth-card">
@@ -36,6 +43,13 @@
 
     <p class="auth-alt">
       Already have an account? <a href="{{ url_for('login') }}">Log in</a>
+    </p>
+
+    <p class="auth-skip">
+      <a href="{{ url_for('home') }}">
+        <span class="material-symbols-outlined">arrow_forward</span>
+        Skip — just look around
+      </a>
     </p>
   </div>
 </main>

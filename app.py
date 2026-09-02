@@ -56,10 +56,25 @@ client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 # or short answers can come back empty.
 GROQ_MODEL = "openai/gpt-oss-120b"
 
+# The assistant is usable in demo mode, but /chat spends real Groq quota and
+# sits on a public URL -- cap what one anonymous session can burn.
+DEMO_CHAT_LIMIT = 10
+
 
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
+
+
+@app.context_processor
+def inject_demo_mode():
+    """Every page can ask whether it's being viewed without an account.
+    The chat limit is exposed too so the account panel quotes the real number
+    instead of a hardcoded one that could drift."""
+    return {
+        "demo_mode": not current_user.is_authenticated,
+        "demo_chat_limit": DEMO_CHAT_LIMIT,
+    }
 
 
 def admin_required(view):
@@ -96,8 +111,12 @@ def capacity_percent(checkin):
 
 
 def current_checkin():
-    latest = current_user.latest_checkin
-    return latest.as_dict() if latest else DEFAULT_CHECKIN
+    """Signed-in users read their latest row; demo visitors get whatever is in
+    their session cookie, so the app is fully usable without an account."""
+    if current_user.is_authenticated:
+        latest = current_user.latest_checkin
+        return latest.as_dict() if latest else DEFAULT_CHECKIN
+    return session.get("checkin", DEFAULT_CHECKIN)
 
 
 def clamp_level(raw, fallback=3):
@@ -237,7 +256,6 @@ def admin_toggle(user_id):
 # --- App pages ---
 
 @app.route("/")
-@login_required
 def home():
     checkin = current_checkin()
     return render_template(
@@ -250,33 +268,34 @@ def home():
 
 
 @app.route("/checkin", methods=["GET", "POST"])
-@login_required
 def checkin():
     if request.method == "POST":
-        entry = CheckIn(
-            user_id=current_user.id,
-            time=clamp_level(request.form.get("time_level")),
-            social=clamp_level(request.form.get("social_level")),
-            physical=clamp_level(request.form.get("physical_level")),
-            mental=clamp_level(request.form.get("mental_level")),
-            note=request.form.get("note", "").strip()[:2000],
-        )
-        db.session.add(entry)
-        db.session.commit()
+        entry = {
+            "time": clamp_level(request.form.get("time_level")),
+            "social": clamp_level(request.form.get("social_level")),
+            "physical": clamp_level(request.form.get("physical_level")),
+            "mental": clamp_level(request.form.get("mental_level")),
+            "note": request.form.get("note", "").strip()[:2000],
+        }
+        if current_user.is_authenticated:
+            db.session.add(CheckIn(user_id=current_user.id, **entry))
+            db.session.commit()
+        else:
+            # Demo mode: keep it in the session cookie. It survives navigation
+            # but not a new browser -- signing up is what makes it durable.
+            session["checkin"] = entry
         return redirect(url_for("home", saved=1))
 
     return render_template("checkin.html", checkin=current_checkin(), labels=CATEGORY_LABELS)
 
 
 @app.route("/insights")
-@login_required
 def insights():
-    history = current_user.checkins[:7]
+    history = current_user.checkins[:7] if current_user.is_authenticated else []
     return render_template("insights.html", history=history)
 
 
 @app.route("/assistant")
-@login_required
 def assistant():
     return render_template("chat.html")
 
@@ -296,11 +315,25 @@ CHAT_SYSTEM_PROMPT = {
 
 
 @app.route("/chat", methods=["POST"])
-@login_required
 def chat():
-    user_message = request.json.get("message")
+    user_message = (request.json or {}).get("message")
     if not user_message:
         return jsonify({"error": "message is required"}), 400
+
+    if not current_user.is_authenticated:
+        used = session.get("demo_chat_count", 0)
+        if used >= DEMO_CHAT_LIMIT:
+            return (
+                jsonify(
+                    {
+                        "error": "You've used all the demo messages. "
+                        "Create a free account to keep chatting.",
+                        "limit_reached": True,
+                    }
+                ),
+                429,
+            )
+        session["demo_chat_count"] = used + 1
 
     history = session.get("chat_history", [])
     history.append({"role": "user", "content": user_message})
@@ -325,7 +358,6 @@ def chat():
 
 
 @app.route("/chat/reset", methods=["POST"])
-@login_required
 def chat_reset():
     session.pop("chat_history", None)
     return jsonify({"ok": True})

@@ -62,31 +62,49 @@
     btn.addEventListener("click", () => setTheme(btn.dataset.setTheme));
   });
 
-  // ---------- Settings dropdown ----------
-  const settingsMenu = document.querySelector(".settings-menu");
-  const settingsToggle = document.getElementById("settings-toggle");
-  const settingsPanel = document.getElementById("settings-panel");
+  // ---------- Header dropdowns (settings + account) ----------
+  // One implementation drives every [data-dropdown]; opening one closes the
+  // others so the two panels can't overlap each other.
+  const dropdowns = [...document.querySelectorAll("[data-dropdown]")].map((menu) => ({
+    menu: menu,
+    toggle: menu.querySelector("[data-dropdown-toggle]"),
+    panel: menu.querySelector("[data-dropdown-panel]"),
+  })).filter((d) => d.toggle && d.panel);
 
-  if (settingsMenu && settingsToggle && settingsPanel) {
-    const setOpen = (open) => {
-      settingsPanel.hidden = !open;
-      settingsMenu.classList.toggle("is-open", open);
-      settingsToggle.setAttribute("aria-expanded", String(open));
-    };
+  function setDropdownOpen(entry, open) {
+    entry.panel.hidden = !open;
+    entry.menu.classList.toggle("is-open", open);
+    entry.toggle.setAttribute("aria-expanded", String(open));
+  }
 
-    settingsToggle.addEventListener("click", (event) => {
-      event.stopPropagation();
-      setOpen(settingsPanel.hidden);
+  function closeAllDropdowns(except) {
+    dropdowns.forEach((d) => {
+      if (d !== except) setDropdownOpen(d, false);
     });
+  }
 
-    // Click anywhere outside (or Escape) closes it.
+  dropdowns.forEach((entry) => {
+    entry.toggle.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const willOpen = entry.panel.hidden;
+      closeAllDropdowns(entry);
+      setDropdownOpen(entry, willOpen);
+    });
+  });
+
+  if (dropdowns.length) {
+    // Click anywhere outside (or Escape) closes whichever is open.
     document.addEventListener("click", (event) => {
-      if (!settingsPanel.hidden && !settingsMenu.contains(event.target)) setOpen(false);
+      dropdowns.forEach((d) => {
+        if (!d.panel.hidden && !d.menu.contains(event.target)) setDropdownOpen(d, false);
+      });
     });
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && !settingsPanel.hidden) {
-        setOpen(false);
-        settingsToggle.focus();
+      if (event.key !== "Escape") return;
+      const open = dropdowns.find((d) => !d.panel.hidden);
+      if (open) {
+        setDropdownOpen(open, false);
+        open.toggle.focus();
       }
     });
   }

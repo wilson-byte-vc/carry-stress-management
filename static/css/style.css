@@ -836,7 +836,67 @@ body.has-bottom-nav { padding-bottom: 96px; }
    This has to out-specify it. */
 [hidden] { display: none !important; }
 
-.settings-menu { position: relative; }
+.settings-menu, .account-menu { position: relative; }
+.account-menu.is-open #account-toggle {
+  background-color: var(--color-surface-container-highest);
+  color: var(--color-primary);
+}
+/* The account panel hangs off the right-hand icon, so it anchors to that edge
+   instead of overflowing the viewport. Two classes deep on purpose: the base
+   .settings-panel rule sets `left: 0` and is declared later in this file, so a
+   single-class selector here would lose the cascade tie and get clipped. */
+.settings-panel.settings-panel-right {
+  left: auto;
+  right: 0;
+  width: min(340px, calc(100vw - 24px));
+}
+/* Tall panels (the guest perk list) shouldn't run off the bottom either. */
+.settings-panel {
+  max-height: calc(100vh - 90px);
+  overflow-y: auto;
+}
+
+.account-stat {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13.5px;
+  color: var(--color-on-surface-variant);
+  padding: 3px 0;
+}
+.account-stat .material-symbols-outlined {
+  font-size: 18px;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.account-perks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.account-perk {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-on-surface-variant);
+}
+.account-perk .material-symbols-outlined {
+  font-size: 17px;
+  color: var(--color-tertiary);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.account-perk strong { color: var(--color-on-background); font-weight: 600; }
+
+.account-cta { gap: 8px; padding-top: var(--space-sm); border-top: 1px solid var(--color-border); }
+.account-cta .btn { padding: 10px 16px; }
+.account-login-link { justify-content: center; font-size: 13px; }
 .settings-menu #settings-toggle .material-symbols-outlined {
   transition: transform 0.3s ease;
 }
@@ -969,21 +1029,58 @@ body.has-bottom-nav { padding-bottom: 96px; }
 .settings-link-danger:hover .material-symbols-outlined { color: var(--color-warn); }
 
 /* ===== Auth pages ===== */
+/* Full-bleed scenery behind a frosted card. The SVGs live in static/image and
+   are swapped per theme; `fixed` keeps the horizon put while the card scrolls. */
+body.auth-page {
+  background-image: url("../image/scenery-light.svg");
+  background-size: cover;
+  background-position: center bottom;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+:root[data-theme="dark"] body.auth-page {
+  background-image: url("../image/scenery-dark.svg");
+}
+/* Let the scenery run behind the header rather than cutting it with a bar. */
+body.auth-page .site-header {
+  background-color: transparent;
+  border-bottom-color: transparent;
+}
+body.auth-page .site-header .accent { color: var(--color-on-background); }
+
 .auth-wrap {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: var(--space-lg);
-  padding-bottom: var(--space-lg);
+  /* No hardcoded header offset -- body is a flex column and main already has
+     `flex: 1 0 auto`, so this fills whatever is left and centres the card
+     regardless of how tall the header happens to be. */
+  padding-top: var(--space-md);
+  padding-bottom: var(--space-md);
 }
 .auth-card {
   width: 100%;
   max-width: 400px;
-  background-color: var(--color-surface-container-lowest);
-  border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   padding: var(--space-md);
+  /* The translucency + blur is the whole look -- the scenery reads through it. */
+  background-color: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(18px) saturate(1.3);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 24px 60px rgba(18, 42, 34, 0.22);
 }
+:root[data-theme="dark"] .auth-card {
+  background-color: rgba(18, 24, 26, 0.62);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+/* Browsers without backdrop-filter get a more solid card so text stays legible. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .auth-card { background-color: rgba(255, 255, 255, 0.93); }
+  :root[data-theme="dark"] .auth-card { background-color: rgba(18, 24, 26, 0.93); }
+}
+
 .auth-head { text-align: center; margin-bottom: var(--space-md); }
 .auth-mark {
   font-size: 34px;
@@ -995,15 +1092,23 @@ body.has-bottom-nav { padding-bottom: 96px; }
 .auth-form { display: flex; flex-direction: column; gap: var(--space-sm); }
 .auth-field { display: flex; flex-direction: column; gap: 6px; }
 .auth-input {
-  border: 1px solid var(--color-outline-variant);
+  border: 1px solid rgba(29, 27, 23, 0.18);
   border-radius: var(--radius-lg);
   padding: 11px 14px;
   font-family: var(--font-body);
   font-size: 15px;
-  background-color: var(--color-surface-container-lowest);
+  background-color: rgba(255, 255, 255, 0.7);
   color: var(--color-on-background);
 }
-.auth-input:focus { outline: 2px solid var(--color-primary); border-color: transparent; }
+:root[data-theme="dark"] .auth-input {
+  background-color: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+.auth-input:focus {
+  outline: 2px solid var(--color-primary);
+  border-color: transparent;
+  background-color: var(--color-surface-container-lowest);
+}
 .auth-hint { font-size: 12px; color: var(--color-on-surface-variant); }
 .auth-remember {
   display: flex;
@@ -1022,6 +1127,49 @@ body.has-bottom-nav { padding-bottom: 96px; }
 }
 .auth-alt a { color: var(--color-primary); font-weight: 600; }
 .auth-alt a:hover { text-decoration: underline; }
+
+/* "Just look around" escape hatch out of the auth pages into demo mode. */
+.auth-skip {
+  margin-top: var(--space-sm);
+  text-align: center;
+}
+.auth-skip a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  /* This is the way into the demo -- keep it clearly readable rather than
+     letting it fade into the frosted card, especially on the dark scenery. */
+  color: var(--color-on-background);
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.auth-skip a:hover { background-color: rgba(0, 0, 0, 0.06); color: var(--color-primary); }
+:root[data-theme="dark"] .auth-skip a:hover { background-color: rgba(255, 255, 255, 0.08); }
+
+/* ===== Demo-mode banner ===== */
+.demo-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  padding: 10px var(--space-md);
+  background-color: var(--color-surface-container-high);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 13.5px;
+  color: var(--color-on-surface-variant);
+  text-align: center;
+}
+.demo-banner .material-symbols-outlined { font-size: 18px; color: var(--color-primary); }
+.demo-banner a {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+.demo-banner a:hover { text-decoration: underline; }
 
 /* ===== Admin ===== */
 .admin-stats {

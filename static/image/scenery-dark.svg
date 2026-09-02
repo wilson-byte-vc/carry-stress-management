@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="skyD" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="45%" stop-color="#16202a"/>
+      <stop offset="78%" stop-color="#1f2f33"/>
+      <stop offset="100%" stop-color="#26383a"/>
+    </linearGradient>
+    <radialGradient id="moonGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#9fd7c2" stop-opacity="0.42"/>
+      <stop offset="60%" stop-color="#9fd7c2" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#9fd7c2" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="hill1D" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2b4340"/>
+      <stop offset="100%" stop-color="#243a38"/>
+    </linearGradient>
+    <linearGradient id="hill2D" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#20343180"/>
+      <stop offset="100%" stop-color="#1b2c2a"/>
+    </linearGradient>
+    <linearGradient id="hill3D" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#172422"/>
+      <stop offset="100%" stop-color="#121d1c"/>
+    </linearGradient>
+    <linearGradient id="hill4D" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0e1716"/>
+      <stop offset="100%" stop-color="#0a1211"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1440" height="900" fill="url(#skyD)"/>
+
+  <!-- stars -->
+  <g fill="#dcefe6">
+    <circle cx="180" cy="120" r="1.8" opacity="0.8"/>
+    <circle cx="320" cy="90" r="1.3" opacity="0.6"/>
+    <circle cx="470" cy="160" r="1.9" opacity="0.75"/>
+    <circle cx="610" cy="70" r="1.2" opacity="0.5"/>
+    <circle cx="760" cy="140" r="1.7" opacity="0.7"/>
+    <circle cx="250" cy="240" r="1.4" opacity="0.55"/>
+    <circle cx="880" cy="210" r="1.3" opacity="0.5"/>
+    <circle cx="1180" cy="120" r="1.8" opacity="0.7"/>
+    <circle cx="1330" cy="215" r="1.4" opacity="0.6"/>
+    <circle cx="520" cy="300" r="1.2" opacity="0.45"/>
+    <circle cx="1010" cy="330" r="1.3" opacity="0.4"/>
+    <circle cx="120" cy="330" r="1.5" opacity="0.5"/>
+  </g>
+
+  <!-- moon -->
+  <circle cx="1060" cy="240" r="210" fill="url(#moonGlow)"/>
+  <circle cx="1060" cy="240" r="54" fill="#e6f3ec" opacity="0.92"/>
+  <circle cx="1038" cy="228" r="9" fill="#cfe3d9" opacity="0.5"/>
+  <circle cx="1074" cy="258" r="6" fill="#cfe3d9" opacity="0.45"/>
+
+  <!-- mist -->
+  <ellipse cx="420" cy="500" rx="340" ry="22" fill="#9fd7c2" opacity="0.07"/>
+  <ellipse cx="1000" cy="530" rx="300" ry="18" fill="#9fd7c2" opacity="0.06"/>
+
+  <!-- hill layers, back to front -->
+  <path fill="url(#hill1D)"
+        d="M0 512 C 190 452, 330 500, 500 470 C 690 436, 830 496, 1010 462 C 1180 430, 1320 476, 1440 452 L1440 900 L0 900 Z"/>
+  <path fill="url(#hill2D)"
+        d="M0 596 C 170 540, 300 596, 470 572 C 660 545, 800 610, 980 580 C 1160 550, 1300 600, 1440 574 L1440 900 L0 900 Z"/>
+  <path fill="url(#hill3D)"
+        d="M0 690 C 210 640, 340 700, 520 682 C 730 660, 870 716, 1060 692 C 1230 670, 1340 706, 1440 690 L1440 900 L0 900 Z"/>
+  <path fill="url(#hill4D)"
+        d="M0 790 C 230 754, 380 800, 560 788 C 780 772, 920 812, 1120 796 C 1280 784, 1370 806, 1440 796 L1440 900 L0 900 Z"/>
+
+  <!-- foreground trees -->
+  <g fill="#060d0c" opacity="0.95">
+    <path d="M126 790 l16 -46 l16 46 z"/>
+    <path d="M126 806 l16 -50 l16 50 z"/>
+    <path d="M1288 800 l13 -38 l13 38 z"/>
+    <path d="M1288 814 l13 -42 l13 42 z"/>
+  </g>
+</svg>
