@@ -109,6 +109,14 @@
           <h1 class="text-headline-sm accent">Balance</h1>
 
           <div class="header-right">
+            <button type="button" class="search-trigger-mobile" data-search-open aria-label="Search">
+              <span class="material-symbols-outlined">search</span>
+            </button>
+            <button type="button" class="search-trigger" data-search-open aria-label="Search">
+              <span class="material-symbols-outlined">search</span>
+              <span class="search-trigger-text">Search</span>
+              <kbd class="search-kbd"><span class="search-kbd-cmd">⌘</span>K</kbd>
+            </button>
             <a class="icon-btn {% if request.endpoint == 'assistant' %}active{% endif %}"
                href="{{ url_for('assistant') }}" aria-label="AI assistant">
               <span class="material-symbols-outlined">smart_toy</span>
@@ -246,7 +254,137 @@
 
     {% block footer %}{% endblock %}
 
+
+    {# ===== Search modal (⌘K / Ctrl+K) =====
+       Ported from the VengeanceUI "search-modal" shadcn registry item into
+       plain markup, since this app is Jinja + vanilla CSS, not React. #}
+    {% block search_modal %}
+      <div class="search-overlay" id="search-overlay" data-search-overlay hidden>
+        <div class="search-backdrop" data-search-close></div>
+
+        <div class="search-panel" role="dialog" aria-modal="true" aria-label="Search">
+
+          <div class="search-bar">
+            <span class="material-symbols-outlined search-bar-icon">search</span>
+            <input type="text" id="search-input" data-search-input autocomplete="off"
+                   placeholder="Search pages, actions and tools" aria-label="Search">
+            <kbd class="search-kbd"><span class="search-kbd-cmd">⌘</span>K</kbd>
+            <button type="button" class="search-close" data-search-close aria-label="Close search">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <div class="search-tags" data-search-tags>
+            <span class="search-tags-label">I'm looking for...</span>
+            <div class="search-tag-row">
+              <span class="search-tag" data-search-tag="pages">
+                <span class="material-symbols-outlined">explore</span>
+                <span>Pages</span>
+                <button type="button" data-search-tag-remove aria-label="Remove Pages filter">
+                  <span class="material-symbols-outlined">close</span>
+                </button>
+              </span>
+              <span class="search-tag" data-search-tag="actions">
+                <span class="material-symbols-outlined">bolt</span>
+                <span>Actions</span>
+                <button type="button" data-search-tag-remove aria-label="Remove Actions filter">
+                  <span class="material-symbols-outlined">close</span>
+                </button>
+              </span>
+              <span class="search-tag" data-search-tag="tools">
+                <span class="material-symbols-outlined">spa</span>
+                <span>Tools</span>
+                <button type="button" data-search-tag-remove aria-label="Remove Tools filter">
+                  <span class="material-symbols-outlined">close</span>
+                </button>
+              </span>
+            </div>
+          </div>
+
+          <div class="search-section" data-search-section="pages">
+            <p class="search-section-label">Pages <span data-search-count>0</span></p>
+            <ul class="search-list">
+              <li>
+                <a class="search-row" data-search-item href="{{ url_for('home') }}">
+                  <span class="search-row-icon"><span class="material-symbols-outlined">home</span></span>
+                  <span class="search-row-text">Home<span class="search-row-meta">today at a glance</span></span>
+                </a>
+              </li>
+              <li>
+                <a class="search-row" data-search-item href="{{ url_for('checkin') }}">
+                  <span class="search-row-icon"><span class="material-symbols-outlined">rebase_edit</span></span>
+                  <span class="search-row-text">Check-in<span class="search-row-meta">log how today felt</span></span>
+                </a>
+              </li>
+              <li>
+                <a class="search-row" data-search-item href="{{ url_for('insights') }}">
+                  <span class="search-row-icon"><span class="material-symbols-outlined">analytics</span></span>
+                  <span class="search-row-text">Insights<span class="search-row-meta">patterns in your history</span></span>
+                </a>
+              </li>
+              <li>
+                <a class="search-row" data-search-item href="{{ url_for('assistant') }}">
+                  <span class="search-row-icon"><span class="material-symbols-outlined">smart_toy</span></span>
+                  <span class="search-row-text">Assistant<span class="search-row-meta">talk it through</span></span>
+                </a>
+              </li>
+              {% if current_user.is_authenticated and current_user.is_admin %}
+                <li>
+                  <a class="search-row" data-search-item href="{{ url_for('admin') }}">
+                    <span class="search-row-icon"><span class="material-symbols-outlined">shield_person</span></span>
+                    <span class="search-row-text">Admin panel<span class="search-row-meta">manage the app</span></span>
+                  </a>
+                </li>
+              {% endif %}
+            </ul>
+          </div>
+
+          <div class="search-section" data-search-section="actions">
+            <p class="search-section-label">Quick actions <span data-search-count>0</span></p>
+            <ul class="search-list">
+              <li>
+                <a class="search-row" data-search-item href="{{ url_for('checkin') }}">
+                  <span class="search-row-icon"><span class="material-symbols-outlined">add</span></span>
+                  <span class="search-row-text">New check-in</span>
+                  <kbd class="search-row-kbd">C</kbd>
+                </a>
+              </li>
+              <li>
+                <a class="search-row" data-search-item href="{{ url_for('assistant') }}">
+                  <span class="search-row-icon"><span class="material-symbols-outlined">forum</span></span>
+                  <span class="search-row-text">Start a chat</span>
+                  <kbd class="search-row-kbd">A</kbd>
+                </a>
+              </li>
+              <li>
+                <button type="button" class="search-row" data-search-item data-search-action="toggle-theme">
+                  <span class="search-row-icon"><span class="material-symbols-outlined">dark_mode</span></span>
+                  <span class="search-row-text">Toggle dark theme</span>
+                  <kbd class="search-row-kbd">D</kbd>
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <div class="search-section" data-search-section="tools">
+            <p class="search-section-label">Tools <span data-search-count>0</span></p>
+            <ul class="search-list">
+              <li>
+                <a class="search-row" data-search-item href="{{ url_for('game') }}">
+                  <span class="search-row-icon"><span class="material-symbols-outlined">sports_esports</span></span>
+                  <span class="search-row-text">Pressure valve<span class="search-row-meta">a minute of decompression</span></span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <p class="search-empty" data-search-empty hidden>Nothing matches that search.</p>
+        </div>
+      </div>
+    {% endblock %}
+
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/search-modal.js') }}"></script>
     {% block scripts %}{% endblock %}
 
 </body>
