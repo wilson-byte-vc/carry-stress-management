@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Pressure Valve — Balance</title>
+
+{# Deliberately does NOT extend base.html. This piece owns the whole viewport:
+   html/body are height:100% overflow:hidden, and it fixes its own chassis to
+   the top and bottom edges. Dropping it inside base.html would stack the app
+   header on its chassis and the bottom nav on its pressure gauge, and the
+   app's scrolling body would fight its overflow:hidden. It gets its own
+   stylesheet for the same reason -- no token collisions with style.css. #}
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@300;500;700;800;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pressure-valve.css') }}">
+</head>
+<body>
+
+  <a class="valve-exit" href="{{ url_for('home') }}">&larr;&nbsp;Balance</a>
+
+  <div id="heat" aria-hidden="true"></div>
+  <div id="grain" aria-hidden="true"></div>
+  <canvas id="fx" aria-hidden="true"></canvas>
+
+  <header class="chassis chassis--top">
+    <div class="mark"><b>PRESSURE VALVE</b><span>UNIT 01</span></div>
+    <div class="spacer"></div>
+    <div class="readout" aria-hidden="true">
+      <i data-dot="0"></i><i data-dot="1"></i><i data-dot="2"></i><i data-dot="3"></i>
+      <em id="stageName">STANDBY</em>
+    </div>
+    <button class="iconbtn" id="soundBtn" aria-pressed="true">Sound&nbsp;On</button>
+  </header>
+
+  <span class="tick tl" aria-hidden="true"></span>
+  <span class="tick tr" aria-hidden="true"></span>
+  <span class="tick bl" aria-hidden="true"></span>
+  <span class="tick br" aria-hidden="true"></span>
+
+  <main id="stages">
+
+    <!-- ============ INTRO ============ -->
+    <section class="stage" data-stage="intro" aria-label="Start">
+      <p class="eyebrow">Vessel pressurised &middot; ready to vent</p>
+      <h1 class="display">SOMETHING'S<br><span class="thin">BUILDING</span> UP.</h1>
+      <p class="note">Four stages, about four minutes. You name it, you scream at it, you break it, then you cool down. <strong>Nothing you type or say leaves this tab</strong> — no account, no upload, no recording kept.</p>
+      <div class="rowctl">
+        <button class="control" id="startBtn">Open the valve</button>
+      </div>
+      <p class="meta" id="priorCount"></p>
+    </section>
+
+    <!-- ============ 01 NAME ============ -->
+    <section class="stage" data-stage="name" aria-label="Name it">
+      <p class="eyebrow">Stage 01 &middot; Identify the source</p>
+      <div class="namewrap">
+        <label class="sr" for="grievance">What is causing the pressure?</label>
+        <input id="grievance" type="text" maxlength="42" autocomplete="off" autocorrect="off"
+               spellcheck="false" placeholder="TYPE IT" aria-describedby="nameHelp">
+        <div class="chips" role="group" aria-label="Quick answers">
+          <button class="chip" type="button">Work</button>
+          <button class="chip" type="button">One specific person</button>
+          <button class="chip" type="button">Money</button>
+          <button class="chip" type="button">Myself</button>
+          <button class="chip" type="button">Everything</button>
+          <button class="chip" type="button">No idea, honestly</button>
+        </div>
+        <p class="meta" id="nameHelp"><span id="charCount">0</span>/42 &middot; press enter to continue</p>
+      </div>
+    </section>
+
+    <!-- ============ 02 SCREAM ============ -->
+    <section class="stage" data-stage="scream" aria-label="Scream at it">
+      <p class="eyebrow" id="screamEyebrow">Stage 02 &middot; Vent</p>
+      <h2 class="target" id="targetWord">IT</h2>
+      <div class="instr" id="instr" hidden>
+        <div class="instr-cell"><label for="lvlOut">Level</label><output id="lvlOut">00</output></div>
+        <div class="instr-cell peak"><label for="peakOut">Peak</label><output id="peakOut">00</output></div>
+      </div>
+      <div class="charge" id="chargeBar" hidden><b id="chargeFill"></b></div>
+      <p class="hint" id="screamHint">Give it everything you've got.</p>
+      <div class="rowctl" id="screamCtl">
+        <button class="control" id="micBtn">Turn on the mic</button>
+        <button class="control ghost" id="silentBtn">Can't be loud — let me mash keys</button>
+      </div>
+    </section>
+
+    <!-- ============ 03 SMASH ============ -->
+    <section class="stage" data-stage="smash" aria-label="Break it">
+      <p class="eyebrow">Stage 03 &middot; Demolition &mdash; <span id="smashCount">0/12</span> broken</p>
+      <div class="yard" id="yard"></div>
+      <p class="hint" id="smashHint">Swipe across them. Or click. Or hold a key down and drag.</p>
+    </section>
+
+    <!-- ============ 04 BREATHE ============ -->
+    <section class="stage" data-stage="breathe" aria-label="Cool down">
+      <p class="eyebrow">Stage 04 &middot; Cooling the vessel</p>
+      <div class="orb" id="orb">
+        <span class="orb-word" id="orbWord">IN</span>
+      </div>
+      <span class="orb-count" id="orbCount">CYCLE 1 OF 3</span>
+      <p class="note" id="breatheNote">Follow the ring. Four in, four held, six out. The room will warm up as you go.</p>
+      <div class="rowctl"><button class="control ghost" id="breatheDone" hidden>That's enough</button></div>
+    </section>
+
+    <!-- ============ OUTRO ============ -->
+    <section class="stage" data-stage="done" aria-label="Finished">
+      <p class="eyebrow">Vessel at zero</p>
+      <h2 class="display">PRESSURE<br>RELEASED.</h2>
+      <dl class="tally">
+        <div><dt>Peak level</dt><dd id="tPeak">0</dd></div>
+        <div><dt>Broken</dt><dd id="tBroke">0</dd></div>
+        <div><dt>Minutes</dt><dd id="tTime">0</dd></div>
+        <div><dt>Sessions</dt><dd id="tRuns">1</dd></div>
+      </dl>
+      <p class="note" id="doneNote">Go get a glass of water. Seriously — that's the part people skip.</p>
+      <div class="rowctl"><button class="control" id="againBtn">Run it again</button></div>
+    </section>
+
+  </main>
+
+  <footer class="chassis chassis--bot">
+    <div class="gauge">
+      <span>Pressure</span>
+      <div class="gauge-track"><span class="gauge-fill" id="gaugeFill"></span></div>
+      <span class="gauge-num" id="gaugeNum">100%</span>
+    </div>
+  </footer>
+
+  <button class="skip" id="skipBtn" hidden>Skip stage &rarr;</button>
+  <p class="sr" id="live" role="status" aria-live="polite"></p>
+<script src="{{ url_for('static', filename='js/pressure-valve.js') }}"></script>
+</body>
+</html>

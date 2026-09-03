@@ -36,7 +36,8 @@
       <p class="text-body-md">
         {%- if checkin.note %}"{{ checkin.note }}"
         {%- else %}{{ energy }}% energy from your last check-in
-          {%- if load_points %}, minus {{ load_pct }}% load from what's coming up{% endif %}.
+          {%- if load_reduction %}, minus {{ load_reduction }}% for a week that's
+            {{ load_pct }}% full{% endif %}.
         {%- endif %}
       </p>
     </section>
@@ -60,8 +61,8 @@
       </div>
       <span class="breakdown-op">−</span>
       <div class="breakdown-item">
-        <span class="breakdown-value">{{ load_pct }}%</span>
-        <span class="breakdown-label">Load ({{ load_points }} pts)</span>
+        <span class="breakdown-value">{{ load_reduction }}%</span>
+        <span class="breakdown-label">Load · {{ load_points }} pts, week {{ load_pct }}% full</span>
       </div>
       <span class="breakdown-op">=</span>
       <div class="breakdown-item is-result">

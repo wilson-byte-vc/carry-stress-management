@@ -487,11 +487,20 @@ def home():
     upcoming = upcoming_commitments(commitments)
     points = load_points(commitments)
 
+    capacity = compute_capacity(checkin, commitments)
+    energy = energy_percent(checkin) if checkin else None
+    # The formula scales energy rather than subtracting from it, so show the
+    # actual points lost. Printing the load *ratio* here would render as
+    # "80% - 57% = 57%", which is plainly wrong arithmetic and makes the whole
+    # number look untrustworthy.
+    load_reduction = (energy - capacity) if capacity is not None else None
+
     return render_template(
         "home.html",
         checkin=checkin,
-        capacity=compute_capacity(checkin, commitments),
-        energy=energy_percent(checkin) if checkin else None,
+        capacity=capacity,
+        energy=energy,
+        load_reduction=load_reduction,
         labels=CATEGORY_LABELS,
         commitments=upcoming,
         fixed_count=sum(1 for c in upcoming if not c["movable"]),
@@ -611,6 +620,16 @@ def insights():
 @app.route("/assistant")
 def assistant():
     return render_template("chat.html")
+
+
+@app.route("/valve")
+def pressure_valve():
+    """Full-screen stress-release exercise.
+
+    Renders standalone rather than inside base.html -- see the note at the top
+    of the template. Open to demo visitors too: it stores nothing server-side.
+    """
+    return render_template("pressure_valve.html")
 
 
 # --- Chat with memory ---

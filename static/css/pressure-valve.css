@@ -1,0 +1,592 @@
+/* ============================================================
+   PRESSURE VALVE
+   A machine you operate to bleed off pressure.
+   Single committed visual world: the page runs hot, then cools.
+   ============================================================ */
+
+:root{
+  /* temperature-driven tokens — JS lerps these across the session */
+  --ground:      #0B0B0D;
+  --ground-2:    #131316;
+  --chalk:       #E8E6E1;
+  --steel:       #7A7E86;
+  --hairline:    #23242A;
+
+  /* fixed */
+  --signal:      #FF3B14;
+  --ember:       #FFB03A;
+  --sage:        #3E6B5C;
+
+  --display: "Big Shoulders Display", "Big Shoulders", "Oswald", "Arial Narrow", sans-serif;
+  --mono: "IBM Plex Mono", "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
+
+  --chassis: 46px;
+  --ease: cubic-bezier(.22,.61,.36,1);
+  --ease-snap: cubic-bezier(.16,1,.3,1);
+}
+
+*{ box-sizing: border-box; }
+
+/* class-level display:flex outranks the UA's [hidden] rule, which would
+   otherwise leave .rowctl / .instr on screen when toggled off in JS. */
+[hidden]{ display: none !important; }
+
+html, body{
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body{
+  background: var(--ground);
+  color: var(--chalk);
+  font-family: var(--mono);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  touch-action: manipulation;
+  transition: background-color .4s linear;
+}
+
+/* -------- ambient layers -------- */
+#grain{
+  position: fixed; inset: -50%;
+  width: 200%; height: 200%;
+  pointer-events: none;
+  z-index: 1;
+  opacity: .06;
+  background-repeat: repeat;
+  animation: drift 6s steps(6) infinite;
+}
+@keyframes drift{
+  0%   { transform: translate(0,0) }
+  20%  { transform: translate(-2%,1%) }
+  40%  { transform: translate(1%,-2%) }
+  60%  { transform: translate(-1%,-1%) }
+  80%  { transform: translate(2%,1%) }
+  100% { transform: translate(0,0) }
+}
+
+#heat{
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(70% 60% at 50% 55%, rgba(255,59,20,var(--heat,0)) 0%, transparent 70%);
+  transition: background .18s linear;
+}
+
+#fx{
+  position: fixed; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 6;
+}
+
+/* -------- machined chassis -------- */
+.chassis{
+  position: fixed;
+  left: 0; right: 0;
+  height: var(--chassis);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 clamp(14px, 3vw, 34px);
+  font-size: 11px;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--steel);
+  transition: color .4s linear, border-color .4s linear;
+}
+.chassis--top{ top: 0; border-bottom: 1px solid var(--hairline); }
+.chassis--bot{ bottom: 0; border-top: 1px solid var(--hairline); }
+
+.mark{
+  display: flex; align-items: baseline; gap: 9px;
+  color: var(--chalk);
+  transition: color .4s linear;
+}
+.mark b{
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 19px;
+  letter-spacing: .1em;
+  line-height: 1;
+}
+.mark span{ font-size: 10px; letter-spacing: .16em; color: var(--steel); }
+.spacer{ flex: 1 1 auto; }
+
+/* stage readout */
+.readout{ display: flex; gap: 3px; align-items: center; font-variant-numeric: tabular-nums; }
+.readout i{
+  font-style: normal;
+  width: 7px; height: 7px;
+  border: 1px solid var(--steel);
+  display: inline-block;
+  transition: background .3s var(--ease), border-color .3s var(--ease);
+}
+.readout i.on{ background: var(--signal); border-color: var(--signal); }
+.readout i.done{ background: var(--steel); }
+.readout em{ font-style: normal; margin-left: 8px; }
+
+/* sound toggle */
+.iconbtn{
+  appearance: none;
+  background: none;
+  border: 1px solid var(--hairline);
+  color: var(--steel);
+  font: inherit;
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: color .18s, border-color .18s, background .18s;
+}
+.iconbtn:hover{ color: var(--chalk); border-color: var(--steel); }
+.iconbtn:focus-visible{ outline: 2px solid var(--signal); outline-offset: 2px; }
+.iconbtn[aria-pressed="true"]{ color: var(--chalk); border-color: var(--steel); }
+
+/* pressure gauge — drains across the entire session */
+.gauge{ display: flex; align-items: center; gap: 12px; flex: 1 1 auto; }
+.gauge-track{
+  position: relative;
+  flex: 1 1 auto;
+  height: 9px;
+  border: 1px solid var(--hairline);
+  overflow: hidden;
+  transition: border-color .4s linear;
+}
+.gauge-fill{
+  position: absolute; inset: 0;
+  transform-origin: left center;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--signal) 0 2px,
+    transparent 2px 5px
+  );
+  transition: transform .7s var(--ease-snap), background .5s linear;
+}
+.gauge-num{
+  font-variant-numeric: tabular-nums;
+  color: var(--chalk);
+  min-width: 4ch;
+  text-align: right;
+  transition: color .4s linear;
+}
+
+/* corner bezel ticks */
+.tick{
+  position: fixed;
+  width: 9px; height: 9px;
+  z-index: 11;
+  pointer-events: none;
+  border: 0 solid var(--hairline);
+  transition: border-color .4s linear;
+}
+.tick.tl{ top: calc(var(--chassis) + 12px); left: 12px; border-top-width:1px; border-left-width:1px; }
+.tick.tr{ top: calc(var(--chassis) + 12px); right: 12px; border-top-width:1px; border-right-width:1px; }
+.tick.bl{ bottom: calc(var(--chassis) + 12px); left: 12px; border-bottom-width:1px; border-left-width:1px; }
+.tick.br{ bottom: calc(var(--chassis) + 12px); right: 12px; border-bottom-width:1px; border-right-width:1px; }
+
+/* -------- stages -------- */
+#stages{
+  position: fixed;
+  inset: var(--chassis) 0;
+  z-index: 5;
+}
+.stage{
+  position: absolute; inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* centered flex content clips at the TOP when it overflows; `safe` falls
+     back to flex-start instead. Unsupported values drop to the line above. */
+  justify-content: safe center;
+  overflow-y: auto;
+  overflow-x: hidden;  /* else it computes to auto and letter-shake can add a bar */
+  gap: 26px;
+  padding: 24px clamp(18px, 5vw, 60px);
+  text-align: center;
+}
+.stage.live{ display: flex; }
+.stage.entering{ animation: rise .55s var(--ease-snap) both; }
+@keyframes rise{
+  from{ opacity: 0; transform: translateY(14px); filter: blur(6px); }
+  to  { opacity: 1; transform: none; filter: none; }
+}
+
+/* -------- type system -------- */
+.eyebrow{
+  font-size: 10px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--steel);
+  margin: 0;
+  transition: color .4s linear;
+}
+.display{
+  font-family: var(--display);
+  font-weight: 800;
+  line-height: .84;
+  letter-spacing: -.005em;
+  text-transform: uppercase;
+  margin: 0;
+  text-wrap: balance;
+  font-size: clamp(3rem, 13vw, 9.5rem);
+}
+.display .thin{ font-weight: 300; color: var(--steel); }
+.note{
+  max-width: 46ch;
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.75;
+  color: var(--steel);
+  transition: color .4s linear;
+}
+.note strong{ color: var(--chalk); font-weight: 500; transition: color .4s linear; }
+
+/* -------- primary control -------- */
+.control{
+  position: relative;
+  appearance: none;
+  background: none;
+  border: 1px solid var(--chalk);
+  color: var(--chalk);
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(1.05rem, 2.4vw, 1.5rem);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: 15px 40px 12px;
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  transition: color .28s var(--ease), border-color .28s var(--ease);
+}
+.control::before{
+  content: "";
+  position: absolute; inset: 0;
+  background: var(--signal);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform .34s var(--ease-snap);
+  z-index: -1;
+}
+.control:hover::before, .control:focus-visible::before{ transform: scaleY(1); }
+.control:hover, .control:focus-visible{ color: #0B0B0D; border-color: var(--signal); }
+.control:focus-visible{ outline: none; box-shadow: 0 0 0 3px rgba(255,59,20,.28); }
+.control:active{ transform: translateY(1px); }
+.control.ghost{ border-color: var(--hairline); color: var(--steel); font-size: 12px; padding: 10px 20px 8px; }
+.control.ghost::before{ background: var(--chalk); }
+.control.ghost:hover, .control.ghost:focus-visible{ color: var(--ground); border-color: var(--chalk); }
+
+.rowctl{ display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center; }
+
+/* -------- 01 NAME -------- */
+.namewrap{ width: min(920px, 100%); display: flex; flex-direction: column; align-items: center; gap: 18px; }
+#grievance{
+  width: 100%;
+  appearance: none;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--hairline);
+  color: var(--chalk);
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(2.1rem, 8vw, 5.6rem);
+  line-height: 1.05;
+  letter-spacing: -.01em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 4px 0 10px;
+  caret-color: var(--signal);
+  transition: border-color .3s var(--ease);
+}
+#grievance::placeholder{ color: #5A5D66; }
+#grievance:focus{ outline: none; border-bottom-color: var(--signal); }
+
+.chips{ display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; }
+.chip{
+  appearance: none;
+  background: none;
+  border: 1px solid var(--hairline);
+  color: var(--steel);
+  font: inherit;
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: 7px 12px;
+  cursor: pointer;
+  transition: color .18s, border-color .18s, transform .18s var(--ease-snap);
+}
+.chip:hover{ color: var(--chalk); border-color: var(--steel); transform: translateY(-2px); }
+.chip:focus-visible{ outline: 2px solid var(--signal); outline-offset: 2px; }
+
+.meta{ font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--steel); font-variant-numeric: tabular-nums; }
+
+/* -------- 02 SCREAM -------- */
+.target{
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: clamp(2.6rem, 11vw, 8rem);
+  line-height: .86;
+  text-transform: uppercase;
+  letter-spacing: -.01em;
+  /* must NOT be font-relative: fitTarget() shrinks font-size, and a ch/em
+     max-width would shrink with it and never converge. */
+  max-width: min(1000px, 100%);
+  width: 100%;
+  margin: 0;
+  position: relative;
+  will-change: transform, filter;
+}
+/* words never break mid-word; letters inside stay individually throwable */
+.target .wd{ display: inline-block; white-space: nowrap; }
+.target .ltr{ display: inline-block; will-change: transform; }
+
+.dial{ position: relative; display: grid; place-items: center; }
+.dial canvas{ display: block; }
+
+.instr{
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(18px, 5vw, 44px);
+  font-variant-numeric: tabular-nums;
+}
+.instr-cell{ display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.instr-cell label{
+  font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--steel);
+}
+.instr-cell output{
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  line-height: .9;
+  letter-spacing: .01em;
+}
+.instr-cell.peak output{ color: var(--ember); }
+
+.charge{
+  width: min(560px, 90%);
+  height: 3px;
+  background: var(--hairline);
+  position: relative;
+  overflow: hidden;
+}
+.charge b{
+  position: absolute; inset: 0;
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: left;
+  display: block;
+}
+.hint{
+  font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--steel);
+  min-height: 1.2em;
+}
+.hint.hot{ color: var(--signal); }
+
+/* -------- 03 SMASH -------- */
+.yard{
+  touch-action: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap: clamp(8px, 1.4vw, 14px);
+  width: min(880px, 100%);
+}
+@media (max-width: 560px){ .yard{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
+
+.block{
+  appearance: none;
+  position: relative;
+  aspect-ratio: 5 / 3;
+  display: grid;
+  place-items: center;
+  padding: 6px;
+  background: linear-gradient(158deg, #1C1D22 0%, #101116 100%);
+  border: 1px solid #2A2B31;
+  color: var(--chalk);
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(.85rem, 2.1vw, 1.5rem);
+  line-height: .95;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  overflow: hidden;
+  word-break: break-word;
+  cursor: crosshair;
+  transition: transform .1s var(--ease), background .1s, border-color .1s;
+}
+.block::after{
+  content:"";
+  position: absolute; inset: 0;
+  background: linear-gradient(115deg, transparent 42%, rgba(232,230,225,.09) 50%, transparent 58%);
+  transform: translateX(-120%);
+  transition: transform .5s var(--ease);
+}
+.block:hover::after{ transform: translateX(120%); }
+.block:hover{ border-color: var(--signal); }
+.block:focus-visible{ outline: 2px solid var(--signal); outline-offset: 2px; }
+.block.hit{ visibility: hidden; pointer-events: none; }
+.block.cracked{ background: #26161200; border-color: var(--signal); }
+
+/* -------- 04 BREATHE -------- */
+.orb{
+  position: relative;
+  width: clamp(150px, 34vh, 260px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid var(--sage);
+  display: grid;
+  place-items: center;
+  transform: scale(.62);
+  will-change: transform;
+}
+.orb::before{
+  content:"";
+  position: absolute; inset: 8%;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--sage) 34%, transparent) 0%, transparent 72%);
+}
+.orb-word{
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(1.2rem, 3.4vw, 2rem);
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--sage);
+  z-index: 1;
+}
+/* deliberately a sibling of .orb, not a child: inside the orb it would be
+   scaled by the breathing transform and collide with the note below. */
+.orb-count{
+  font-size: 11px;
+  letter-spacing: .2em;
+  color: var(--steel);
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------- OUTRO -------- */
+.tally{
+  display: flex;
+  gap: clamp(22px, 6vw, 60px);
+  flex-wrap: wrap;
+  justify-content: center;
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+  padding: 20px 0;
+  transition: border-color .4s linear;
+}
+.tally div{ display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.tally dt{ font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--steel); margin: 0; }
+.tally dd{
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(1.9rem, 5.5vw, 3rem);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* -------- utility -------- */
+.skip{
+  position: fixed;
+  right: clamp(14px, 3vw, 34px);
+  bottom: calc(var(--chassis) + 16px);
+  z-index: 12;
+  appearance: none;
+  background: none;
+  border: none;
+  color: var(--steel);
+  font: inherit;
+  font-size: 10px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 8px;
+  opacity: .6;
+  transition: opacity .2s, color .2s;
+}
+.skip:hover{ opacity: 1; color: var(--chalk); }
+.skip:focus-visible{ outline: 2px solid var(--signal); outline-offset: 2px; }
+.skip[hidden]{ display: none; }
+
+.sr{
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.shake{ animation: shake .26s var(--ease); }
+@keyframes shake{
+  0%,100%{ transform: translate(0,0) }
+  20%{ transform: translate(-5px, 3px) }
+  40%{ transform: translate(4px, -4px) }
+  60%{ transform: translate(-3px, -2px) }
+  80%{ transform: translate(3px, 2px) }
+}
+
+@media (max-width: 560px){
+  .chassis{ gap: 10px; padding: 0 12px; }
+  .mark b{ font-size: 16px; }
+  .mark span{ display: none; }   /* "UNIT 01" is flavour, not information */
+  .readout em{ display: none; }  /* stage name is redundant with the dots */
+  .iconbtn{ padding: 6px 8px; letter-spacing: .1em; }
+  .gauge{ gap: 8px; }
+  .tick{ display: none; }
+}
+
+/* Short viewports (landscape phone, split window): the display type is sized
+   off vw, which says nothing about available height, so it overflows and
+   clips under the chassis. Give height a vote. */
+@media (max-height: 620px){
+  :root{ --chassis: 40px; }
+  .stage{ gap: 14px; }
+  .display{ font-size: clamp(2rem, min(13vw, 11vh), 9.5rem); }
+  .target{ font-size: clamp(1.6rem, min(11vw, 13vh), 8rem); }
+  #grievance{ font-size: clamp(1.6rem, min(8vw, 13vh), 5.6rem); }
+  .note{ font-size: 11.5px; line-height: 1.55; }
+  .instr-cell output{ font-size: clamp(1.5rem, 7vh, 3.4rem); }
+  .control{ padding: 11px 28px 9px; }
+  .orb{ width: clamp(96px, 30vh, 260px); }
+  .tally{ padding: 12px 0; }
+  .tally dd{ font-size: clamp(1.5rem, 6vh, 3rem); }
+}
+
+/* Landscape: 12 blocks as 4x3 is far too tall. Same twelve, laid out wide. */
+@media (max-height: 620px) and (min-width: 700px){
+  .yard{ grid-template-columns: repeat(6, minmax(0,1fr)); }
+}
+
+
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+  #grain{ animation: none; }
+}
+
+/* -------- way back into the app --------
+   Sits opposite .skip on the bottom rail, in the chassis' own type. Tucked
+   left so it never lands under the skip control on a narrow screen. */
+.valve-exit{
+  position: fixed;
+  left: clamp(14px, 3vw, 34px);
+  bottom: calc(var(--chassis) + 16px);
+  z-index: 12;
+  color: var(--steel);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 8px;
+  opacity: .6;
+  transition: opacity .2s, color .2s;
+}
+.valve-exit:hover{ opacity: 1; color: var(--chalk); }
+.valve-exit:focus-visible{ outline: 2px solid var(--signal); outline-offset: 2px; }
