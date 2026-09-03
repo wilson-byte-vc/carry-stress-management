@@ -5,12 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Pressure Valve — Balance</title>
 
-{# Deliberately does NOT extend base.html. This piece owns the whole viewport:
-   html/body are height:100% overflow:hidden, and it fixes its own chassis to
-   the top and bottom edges. Dropping it inside base.html would stack the app
-   header on its chassis and the bottom nav on its pressure gauge, and the
-   app's scrolling body would fight its overflow:hidden. It gets its own
-   stylesheet for the same reason -- no token collisions with style.css. #}
+
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@300;500;700;800;900&display=swap">
