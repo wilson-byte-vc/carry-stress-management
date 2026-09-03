@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Confirm your email - Equilibrium{% endblock %}
+
+{% block body_class %}auth-page{% endblock %}
+
+{% block header_nav %}{% endblock %}
+{% block demo_banner %}{% endblock %}
+{% block bottom_nav %}{% endblock %}
+
+{% block content %}
+<main class="container auth-wrap">
+  <div class="auth-card">
+    <div class="auth-head">
+      <span class="material-symbols-outlined auth-mark">mark_email_unread</span>
+      <h2 class="text-headline-md">Check your inbox</h2>
+      <p class="text-body-md">
+        We sent a confirmation link to <strong>{{ email }}</strong>.
+        Click it and you'll be signed in automatically.
+      </p>
+    </div>
+
+    <div class="auth-note">
+      <span class="material-symbols-outlined">info</span>
+      <span>Nothing there? Give it a minute, then check spam — confirmation
+      mail often lands there the first time.</span>
+    </div>
+
+    <p class="auth-alt">
+      Already confirmed? <a href="{{ url_for('login') }}">Log in</a>
+    </p>
+
+    <p class="auth-skip">
+      <a href="{{ url_for('home') }}">
+        <span class="material-symbols-outlined">arrow_forward</span>
+        Keep looking around meanwhile
+      </a>
+    </p>
+  </div>
+</main>
+{% endblock %}

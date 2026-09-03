@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Signing you in - Equilibrium{% endblock %}
+
+{% block body_class %}auth-page{% endblock %}
+
+{% block header_nav %}{% endblock %}
+{% block demo_banner %}{% endblock %}
+{% block bottom_nav %}{% endblock %}
+
+{% block content %}
+<main class="container auth-wrap">
+  <div class="auth-card">
+    <div class="auth-head">
+      <span class="material-symbols-outlined auth-mark auth-spinning" id="cb-icon">progress_activity</span>
+      <h2 class="text-headline-md" id="cb-title">Signing you in…</h2>
+      <p class="text-body-md" id="cb-message">One moment while we finish up.</p>
+    </div>
+
+    <p class="auth-alt" id="cb-actions" hidden>
+      <a href="{{ url_for('login') }}">Back to log in</a>
+    </p>
+  </div>
+</main>
+
+<script>
+(function () {
+  const icon = document.getElementById("cb-icon");
+  const title = document.getElementById("cb-title");
+  const message = document.getElementById("cb-message");
+  const actions = document.getElementById("cb-actions");
+
+  function fail(text) {
+    icon.textContent = "error";
+    icon.classList.remove("auth-spinning");
+    icon.classList.add("is-error");
+    title.textContent = "That didn't work";
+    message.textContent = text;
+    actions.hidden = false;
+  }
+
+  // Supabase returns tokens in the URL fragment, which never reaches the
+  // server -- read them here and hand the access token over to be verified.
+  const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
+  const query = new URLSearchParams(location.search);
+
+  const errorDesc = hash.get("error_description") || query.get("error_description");
+  if (errorDesc) {
+    fail(errorDesc.replace(/\+/g, " "));
+    return;
+  }
+
+  const token = hash.get("access_token");
+  if (!token) {
+    fail("This link is missing its sign-in details. It may have already been used, or expired.");
+    return;
+  }
+
+  fetch("/auth/session", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ access_token: token }),
+  })
+    .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+    .then(({ ok, data }) => {
+      if (!ok) {
+        fail(data.error || "We couldn't verify that sign-in link.");
+        return;
+      }
+      // Drop the tokens out of the address bar before moving on.
+      history.replaceState(null, "", location.pathname);
+      location.href = data.redirect || "/";
+    })
+    .catch((err) => fail("Network error: " + err.message));
+})();
+</script>
+{% endblock %}

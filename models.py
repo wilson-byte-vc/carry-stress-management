@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import check_password_hash, generate_password_hash
 
 db = SQLAlchemy()
 
@@ -11,14 +10,20 @@ def utcnow():
     return datetime.now(timezone.utc)
 
 
-class User(UserMixin, db.Model):
-    __tablename__ = "users"
+class Profile(UserMixin, db.Model):
+    """Application-side data for a Supabase auth user.
 
-    id = db.Column(db.Integer, primary_key=True)
+    Supabase owns credentials -- there is deliberately no password column here.
+    `id` is the UUID from auth.users, so this table joins straight to it.
+    """
+
+    __tablename__ = "profiles"
+
+    id = db.Column(db.String(36), primary_key=True)  # Supabase auth user UUID
     email = db.Column(db.String(255), unique=True, nullable=False, index=True)
     display_name = db.Column(db.String(80), nullable=False)
-    # Only ever the hash -- the raw password is never stored or logged.
-    password_hash = db.Column(db.String(255), nullable=False)
+    # Authorisation lives here, server-side -- never in the JWT, or a user
+    # could edit their own token claims and promote themselves.
     is_admin = db.Column(db.Boolean, default=False, nullable=False)
     theme = db.Column(db.String(10), default="light", nullable=False)
     created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
@@ -30,25 +35,25 @@ class User(UserMixin, db.Model):
         order_by="CheckIn.created_at.desc()",
     )
 
-    def set_password(self, raw_password):
-        self.password_hash = generate_password_hash(raw_password)
-
-    def check_password(self, raw_password):
-        return check_password_hash(self.password_hash, raw_password)
+    def get_id(self):
+        # Flask-Login stores this in the session cookie; ours is a UUID string.
+        return self.id
 
     @property
     def latest_checkin(self):
         return self.checkins[0] if self.checkins else None
 
     def __repr__(self):
-        return f"<User {self.email}>"
+        return f"<Profile {self.email}>"
 
 
 class CheckIn(db.Model):
     __tablename__ = "checkins"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    user_id = db.Column(
+        db.String(36), db.ForeignKey("profiles.id"), nullable=False, index=True
+    )
 
     time = db.Column(db.Integer, nullable=False)
     social = db.Column(db.Integer, nullable=False)
@@ -57,7 +62,7 @@ class CheckIn(db.Model):
     note = db.Column(db.Text, default="", nullable=False)
     created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
 
-    user = db.relationship("User", back_populates="checkins")
+    user = db.relationship("Profile", back_populates="checkins")
 
     @property
     def capacity(self):

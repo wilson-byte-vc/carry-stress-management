@@ -21,27 +21,28 @@ from flask_login import (
 from flask_migrate import Migrate
 from dotenv import load_dotenv
 from groq import Groq
+from supabase import ClientOptions, create_client
 
 import os
 
-from models import CheckIn, User, db
+from models import CheckIn, Profile, db
 
 load_dotenv()
 
 app = Flask(__name__)
 # Sessions are just a signed cookie -- Flask needs a secret key to sign them.
-# Falls back to a dev-only value locally; set a real SECRET_KEY in .env / on
-# Render before this handles anything real, or every restart invalidates
-# everyone's session (and logs everyone out).
 app.secret_key = os.environ.get("SECRET_KEY", "dev-only-change-me")
 
 # Render/Heroku hand out "postgres://" URLs, but SQLAlchemy 2.x only accepts
-# "postgresql://". Fall back to a local SQLite file when DATABASE_URL is unset.
+# "postgresql://". Falls back to local SQLite when DATABASE_URL is unset.
 database_url = os.environ.get("DATABASE_URL", "sqlite:///spaceman.db")
 if database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+# Supabase's pooler drops idle connections; recycle before it does so we don't
+# hand a dead socket to a request.
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True, "pool_recycle": 280}
 
 db.init_app(app)
 migrate = Migrate(app, db)
@@ -49,6 +50,23 @@ migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 login_manager.login_message = "Please log in to continue."
+
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
+SUPABASE_ANON_KEY = os.environ.get("SUPABASE_ANON_KEY", "")
+SUPABASE_SERVICE_ROLE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
+
+# Implicit flow, not the library default of PKCE. PKCE needs the per-user code
+# verifier that was generated on the way out to still be in memory when the
+# callback comes back -- under gunicorn on Render the callback can hit a
+# different worker, which fails intermittently and is miserable to debug.
+# Implicit keeps the server stateless; /auth/session still verifies the token
+# against Supabase before anyone is logged in, so the browser is never trusted.
+_auth_options = ClientOptions(flow_type="implicit")
+
+# Anon client performs auth on behalf of the visitor. The service-role client
+# bypasses RLS entirely -- server-side only, never expose it to a template.
+supabase = create_client(SUPABASE_URL, SUPABASE_ANON_KEY, options=_auth_options)
+supabase_admin = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 # gpt-oss is a reasoning model: it spends some of max_tokens on hidden
@@ -63,7 +81,7 @@ DEMO_CHAT_LIMIT = 10
 
 @login_manager.user_loader
 def load_user(user_id):
-    return db.session.get(User, int(user_id))
+    return db.session.get(Profile, user_id)
 
 
 @app.context_processor
@@ -93,9 +111,6 @@ def admin_required(view):
 
 # --- Check-in vocabulary ---
 
-# Word each slider position maps to, per category -- used both to render the
-# saved check-in on the home dashboard and to seed the live label in the
-# check-in form's JS (checkin.html reads these off data-labels attributes).
 CATEGORY_LABELS = {
     "time": ["Overloaded", "Busy", "Balanced", "Manageable", "Light"],
     "social": ["Isolated", "Quiet", "Neutral", "Connected", "Very connected"],
@@ -130,6 +145,43 @@ def clamp_level(raw, fallback=3):
 
 # --- Auth ---
 
+def sync_profile(auth_user):
+    """Make sure a Supabase auth user has a matching local profile row.
+
+    Called after any successful sign-in (password, Google, or email
+    confirmation), so a profile exists no matter which route the user took in.
+    """
+    profile = db.session.get(Profile, auth_user.id)
+    metadata = auth_user.user_metadata or {}
+
+    if profile is None:
+        # First profile in the table becomes the admin -- there's no other
+        # bootstrap path into the admin panel.
+        is_first = db.session.scalar(db.select(db.func.count(Profile.id))) == 0
+        display_name = (
+            metadata.get("display_name")
+            or metadata.get("full_name")
+            or metadata.get("name")
+            or (auth_user.email or "there").split("@")[0]
+        )
+        profile = Profile(
+            id=auth_user.id,
+            email=auth_user.email or "",
+            display_name=display_name[:80],
+            is_admin=is_first,
+        )
+        db.session.add(profile)
+    elif auth_user.email and profile.email != auth_user.email:
+        profile.email = auth_user.email
+
+    db.session.commit()
+    return profile
+
+
+def callback_url():
+    return url_for("auth_callback", _external=True)
+
+
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if current_user.is_authenticated:
@@ -144,21 +196,30 @@ def signup():
             flash("All fields are required.")
         elif len(password) < 8:
             flash("Password must be at least 8 characters.")
-        elif db.session.scalar(db.select(User).filter_by(email=email)):
-            flash("That email is already registered. Try logging in.")
         else:
-            user = User(
-                display_name=display_name,
-                email=email,
-                # The very first account to register becomes the admin -- there's
-                # no other bootstrap path into the admin page.
-                is_admin=db.session.scalar(db.select(db.func.count(User.id))) == 0,
-            )
-            user.set_password(password)
-            db.session.add(user)
-            db.session.commit()
-            login_user(user)
-            flash(f"Welcome, {user.display_name}!")
+            try:
+                result = supabase.auth.sign_up(
+                    {
+                        "email": email,
+                        "password": password,
+                        "options": {
+                            "email_redirect_to": callback_url(),
+                            "data": {"display_name": display_name},
+                        },
+                    }
+                )
+            except Exception as e:
+                flash(f"Could not sign you up: {e}")
+                return render_template("signup.html")
+
+            # Email confirmation is on, so sign_up returns a user but no
+            # session -- they have to click the link before they can log in.
+            if result.session is None:
+                return render_template("check_email.html", email=email)
+
+            profile = sync_profile(result.user)
+            login_user(profile)
+            flash(f"Welcome, {profile.display_name}!")
             return redirect(url_for("home"))
 
     return render_template("signup.html")
@@ -172,29 +233,95 @@ def login():
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
-        user = db.session.scalar(db.select(User).filter_by(email=email))
 
-        if user and user.check_password(password):
-            login_user(user, remember=bool(request.form.get("remember")))
-            flash(f"Welcome back, {user.display_name}!")
-            # Only honour a relative "next" -- an absolute URL here would let a
-            # crafted link bounce people to another site after login.
-            next_url = request.args.get("next", "")
-            if next_url.startswith("/") and not next_url.startswith("//"):
-                return redirect(next_url)
-            return redirect(url_for("home"))
+        try:
+            result = supabase.auth.sign_in_with_password(
+                {"email": email, "password": password}
+            )
+        except Exception as e:
+            # Supabase distinguishes these two; everything else stays vague so
+            # we don't confirm whether an address is registered.
+            message = str(e).lower()
+            if "not confirmed" in message:
+                flash("Please confirm your email first — check your inbox.")
+            else:
+                flash("Incorrect email or password.")
+            return render_template("login.html")
 
-        # Deliberately vague: don't reveal whether the email exists.
-        flash("Incorrect email or password.")
+        profile = sync_profile(result.user)
+        login_user(profile, remember=bool(request.form.get("remember")))
+        flash(f"Welcome back, {profile.display_name}!")
+
+        # Only honour a relative "next" -- an absolute URL here would let a
+        # crafted link bounce people to another site after login.
+        next_url = request.args.get("next", "")
+        if next_url.startswith("/") and not next_url.startswith("//"):
+            return redirect(next_url)
+        return redirect(url_for("home"))
 
     return render_template("login.html")
+
+
+@app.route("/auth/google")
+def auth_google():
+    """Kick off Google sign-in; Supabase handles the handshake and sends the
+    user back to /auth/callback."""
+    try:
+        result = supabase.auth.sign_in_with_oauth(
+            {"provider": "google", "options": {"redirect_to": callback_url()}}
+        )
+    except Exception as e:
+        flash(f"Could not start Google sign-in: {e}")
+        return redirect(url_for("login"))
+    return redirect(result.url)
+
+
+@app.route("/auth/callback")
+def auth_callback():
+    """Landing page for email confirmations and OAuth returns.
+
+    Supabase puts the tokens in the URL *fragment*, which never reaches the
+    server, so this page's JS reads them and posts them to /auth/session.
+    """
+    return render_template("auth_callback.html")
+
+
+@app.route("/auth/session", methods=["POST"])
+def auth_session():
+    """Exchange an access token from the callback fragment for a login.
+
+    The token is verified against Supabase before anyone is logged in -- the
+    browser's claim about who it is counts for nothing on its own.
+    """
+    token = (request.json or {}).get("access_token", "")
+    if not token:
+        return jsonify({"error": "access_token is required"}), 400
+
+    try:
+        result = supabase.auth.get_user(token)
+    except Exception as e:
+        return jsonify({"error": f"Could not verify session: {e}"}), 401
+
+    if not result or not result.user:
+        return jsonify({"error": "Invalid or expired token"}), 401
+
+    profile = sync_profile(result.user)
+    login_user(profile, remember=True)
+    flash(f"Welcome, {profile.display_name}!")
+    return jsonify({"ok": True, "redirect": url_for("home")})
 
 
 @app.route("/logout", methods=["POST"])
 @login_required
 def logout():
+    try:
+        supabase.auth.sign_out()
+    except Exception:
+        # Local logout matters more than tidying up the remote session.
+        pass
     logout_user()
     session.pop("chat_history", None)
+    session.pop("demo_chat_count", None)
     flash("You've been logged out.")
     return redirect(url_for("login"))
 
@@ -206,7 +333,7 @@ def logout():
 def settings():
     display_name = request.form.get("display_name", "").strip()
     if display_name:
-        current_user.display_name = display_name
+        current_user.display_name = display_name[:80]
         db.session.commit()
         flash("Preferences saved.")
     else:
@@ -230,19 +357,15 @@ def settings_theme():
 @app.route("/admin")
 @admin_required
 def admin():
-    users = db.session.scalars(db.select(User).order_by(User.created_at)).all()
+    users = db.session.scalars(db.select(Profile).order_by(Profile.created_at)).all()
     total_checkins = db.session.scalar(db.select(db.func.count(CheckIn.id)))
-    return render_template(
-        "admin.html",
-        users=users,
-        total_checkins=total_checkins,
-    )
+    return render_template("admin.html", users=users, total_checkins=total_checkins)
 
 
-@app.route("/admin/users/<int:user_id>/toggle-admin", methods=["POST"])
+@app.route("/admin/users/<user_id>/toggle-admin", methods=["POST"])
 @admin_required
 def admin_toggle(user_id):
-    user = db.get_or_404(User, user_id)
+    user = db.get_or_404(Profile, user_id)
     if user.id == current_user.id:
         flash("You can't remove your own admin access.")
     else:
