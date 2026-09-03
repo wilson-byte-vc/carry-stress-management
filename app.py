@@ -28,6 +28,8 @@ from supabase import ClientOptions, create_client
 
 import os
 
+import uuid
+
 from models import CheckIn, Commitment, Insight, User, db
 
 load_dotenv()
@@ -84,7 +86,11 @@ DEMO_CHAT_LIMIT = 10
 
 @login_manager.user_loader
 def load_user(user_id):
-    return db.session.get(User, user_id)
+    try:
+        uid = uuid.UUID(user_id)
+    except (ValueError, TypeError):
+        return None
+    return db.session.get(User, uid)
 
 
 @app.context_processor
