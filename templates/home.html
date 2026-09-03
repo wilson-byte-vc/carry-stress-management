@@ -7,71 +7,188 @@
 {% block content %}
 
 <main class="container" {% if just_saved %}data-just-saved{% endif %}>
-  <section class="hero">
-    <h2 class="text-headline-md">You're at <span class="accent">{{ capacity }}%</span> this week</h2>
-    <p class="text-body-md">
-      {%- if checkin.note %}"{{ checkin.note }}"
-      {%- else %}Looking good. Remember to take a breath.{% endif %}
-    </p>
-  </section>
 
-  <section class="capacity-section">
-    <div class="pulse-core">
-      <div class="pulse-ring-outer"></div>
-      <div class="pulse-ring-inner"></div>
-      <div class="pulse-inner-core">
-        <span class="value text-display-lg-mobile">{{ capacity }}%</span>
-        <span class="label text-label-sm">Capacity</span>
+  {% if capacity is none %}
+    {# No check-in yet: say so rather than inventing a number. #}
+    <section class="hero">
+      <h2 class="text-headline-md">Nothing logged yet</h2>
+      <p class="text-body-md">
+        Your capacity is worked out from your last check-in and what's coming up.
+        Do a check-in and this fills in.
+      </p>
+    </section>
+
+    <section class="capacity-section">
+      <div class="empty-ring">
+        <span class="material-symbols-outlined">pending</span>
+        <span class="text-label-sm">No data</span>
       </div>
+    </section>
+
+    <section class="empty-cta">
+      <a class="btn btn-primary" href="{{ url_for('checkin') }}">
+        <span class="material-symbols-outlined">rebase_edit</span> Do your first check-in
+      </a>
+    </section>
+  {% else %}
+    <section class="hero">
+      <h2 class="text-headline-md">You're at <span class="accent">{{ capacity }}%</span> capacity</h2>
+      <p class="text-body-md">
+        {%- if checkin.note %}"{{ checkin.note }}"
+        {%- else %}{{ energy }}% energy from your last check-in
+          {%- if load_points %}, minus {{ load_pct }}% load from what's coming up{% endif %}.
+        {%- endif %}
+      </p>
+    </section>
+
+    <section class="capacity-section">
+      <div class="pulse-core">
+        <div class="pulse-ring-outer"></div>
+        <div class="pulse-ring-inner"></div>
+        <div class="pulse-inner-core">
+          <span class="value text-display-lg-mobile">{{ capacity }}%</span>
+          <span class="label text-label-sm">Capacity</span>
+        </div>
+      </div>
+    </section>
+
+    {# How the number was reached, so it isn't a black box. #}
+    <section class="capacity-breakdown">
+      <div class="breakdown-item">
+        <span class="breakdown-value">{{ energy }}%</span>
+        <span class="breakdown-label">Energy</span>
+      </div>
+      <span class="breakdown-op">−</span>
+      <div class="breakdown-item">
+        <span class="breakdown-value">{{ load_pct }}%</span>
+        <span class="breakdown-label">Load ({{ load_points }} pts)</span>
+      </div>
+      <span class="breakdown-op">=</span>
+      <div class="breakdown-item is-result">
+        <span class="breakdown-value">{{ capacity }}%</span>
+        <span class="breakdown-label">Capacity</span>
+      </div>
+    </section>
+
+    <section class="category-list">
+      {% for key, icon in [('time','schedule'), ('social','groups'),
+                           ('physical','directions_run'), ('mental','psychology')] %}
+        <a class="category-row" href="{{ url_for('checkin') }}#cat-{{ key }}">
+          <div class="category-row-left">
+            <span class="category-row-icon material-symbols-outlined">{{ icon }}</span>
+            <div>
+              <h3 class="text-headline-sm">{{ key|capitalize }}</h3>
+              <p>{{ labels[key][checkin[key] - 1] }}</p>
+            </div>
+          </div>
+          <span class="material-symbols-outlined chevron">chevron_right</span>
+        </a>
+      {% endfor %}
+    </section>
+  {% endif %}
+
+  {# ---------------- Commitments ---------------- #}
+  <section class="commitments">
+    <div class="section-head">
+      <h3 class="text-headline-sm">Coming up</h3>
+      {% if commitments %}
+        <span class="section-meta">
+          {{ fixed_count }} fixed · {{ movable_count }} movable
+        </span>
+      {% endif %}
     </div>
-  </section>
 
-  <section class="category-list">
+    {% if commitments %}
+      <ul class="commitment-list">
+        {% for c in commitments %}
+          <li class="commitment {{ 'is-fixed' if not c.movable else '' }}">
+            <form method="post" action="{{ url_for('toggle_commitment', commitment_id=c.id) }}"
+                  class="commitment-check">
+              <button type="submit" aria-label="Mark done">
+                <span class="material-symbols-outlined">check_circle</span>
+              </button>
+            </form>
 
-    <a class="category-row" href="{{ url_for('checkin') }}#cat-time">
-      <div class="category-row-left">
-        <span class="category-row-icon material-symbols-outlined">schedule</span>
-        <div>
-          <h3 class="text-headline-sm">Time</h3>
-          <p>{{ labels.time[checkin.time - 1] }}</p>
+            <div class="commitment-body">
+              <span class="commitment-title">{{ c.title }}</span>
+              <span class="commitment-meta">
+                <span class="commitment-tag {{ 'tag-fixed' if not c.movable else 'tag-movable' }}">
+                  {{ 'Fixed' if not c.movable else 'Movable' }}
+                </span>
+                <span>{{ c.category|capitalize }}</span>
+                <span>·</span>
+                <span>effort {{ c.effort }}/5</span>
+                {% if c.due_at %}
+                  <span>·</span>
+                  <span>due {{ c.due_at.strftime('%d %b') }}</span>
+                {% endif %}
+              </span>
+            </div>
+
+            <form method="post" action="{{ url_for('delete_commitment', commitment_id=c.id) }}"
+                  class="commitment-delete">
+              <button type="submit" aria-label="Remove">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="commitment-empty">
+        Nothing logged for the next {{ load_horizon }} days. Add what's on your
+        plate and it'll count against your capacity.
+      </p>
+    {% endif %}
+
+    <details class="commitment-add">
+      <summary>
+        <span class="material-symbols-outlined">add</span> Add a commitment
+      </summary>
+
+      <form method="post" action="{{ url_for('add_commitment') }}" class="commitment-form">
+        <div class="cf-row">
+          <label class="settings-label" for="c-title">What is it?</label>
+          <input class="auth-input" id="c-title" name="title" type="text"
+                 maxlength="160" placeholder="e.g. CS201 assignment" required>
         </div>
-      </div>
-      <span class="material-symbols-outlined chevron">chevron_right</span>
-    </a>
 
-    <a class="category-row" href="{{ url_for('checkin') }}#cat-social">
-      <div class="category-row-left">
-        <span class="category-row-icon material-symbols-outlined">groups</span>
-        <div>
-          <h3 class="text-headline-sm">Social</h3>
-          <p>{{ labels.social[checkin.social - 1] }}</p>
+        <div class="cf-grid">
+          <div class="cf-row">
+            <label class="settings-label" for="c-category">Category</label>
+            <select class="auth-input" id="c-category" name="category">
+              {% for cat in categories %}
+                <option value="{{ cat }}">{{ cat|capitalize }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="cf-row">
+            <label class="settings-label" for="c-due">Due (optional)</label>
+            <input class="auth-input" id="c-due" name="due_at" type="date" min="{{ today }}">
+          </div>
         </div>
-      </div>
-      <span class="material-symbols-outlined chevron">chevron_right</span>
-    </a>
 
-    <a class="category-row" href="{{ url_for('checkin') }}#cat-physical">
-      <div class="category-row-left">
-        <span class="category-row-icon material-symbols-outlined">directions_run</span>
-        <div>
-          <h3 class="text-headline-sm">Physical</h3>
-          <p>{{ labels.physical[checkin.physical - 1] }}</p>
+        <div class="cf-row">
+          <label class="settings-label" for="c-effort">
+            How draining? <span data-effort-out>3</span>/5
+          </label>
+          <input class="checkin-slider" id="c-effort" name="effort" type="range"
+                 min="1" max="5" value="3" data-effort-input>
         </div>
-      </div>
-      <span class="material-symbols-outlined chevron">chevron_right</span>
-    </a>
 
-    <a class="category-row" href="{{ url_for('checkin') }}#cat-mental">
-      <div class="category-row-left">
-        <span class="category-row-icon material-symbols-outlined">psychology</span>
-        <div>
-          <h3 class="text-headline-sm">Mental</h3>
-          <p>{{ labels.mental[checkin.mental - 1] }}</p>
-        </div>
-      </div>
-      <span class="material-symbols-outlined chevron">chevron_right</span>
-    </a>
+        <label class="cf-toggle">
+          <input type="checkbox" name="movable" value="1" checked>
+          <span>
+            <strong>I can move this</strong>
+            <small>Leave unticked for fixed things like lectures or shifts —
+            only movable ones can be rescheduled to ease a heavy week.</small>
+          </span>
+        </label>
 
+        <button type="submit" class="btn btn-primary btn-block">Add commitment</button>
+      </form>
+    </details>
   </section>
 </main>
 

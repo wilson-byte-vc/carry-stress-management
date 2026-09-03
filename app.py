@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from functools import wraps
 
 from flask import (
@@ -25,7 +26,7 @@ from supabase import ClientOptions, create_client
 
 import os
 
-from models import CheckIn, Profile, db
+from models import CheckIn, Commitment, Insight, User, db
 
 load_dotenv()
 
@@ -81,7 +82,7 @@ DEMO_CHAT_LIMIT = 10
 
 @login_manager.user_loader
 def load_user(user_id):
-    return db.session.get(Profile, user_id)
+    return db.session.get(User, user_id)
 
 
 @app.context_processor
@@ -117,21 +118,72 @@ CATEGORY_LABELS = {
     "physical": ["Drained", "Tired", "Okay", "Good", "Energized"],
     "mental": ["Foggy", "Distracted", "Steady", "Focused", "Sharp"],
 }
+# Only used to seed the check-in sliders before anything is logged. The
+# dashboard never presents these as if they were real readings.
 DEFAULT_CHECKIN = {"time": 3, "social": 3, "physical": 4, "mental": 4, "note": ""}
 
+# Effort points that constitute a "full" week. Load is measured against this,
+# so 30 points of upcoming work reads as completely committed.
+WEEK_EFFORT_BUDGET = 30
+# How much a completely full week can eat into felt energy. At 1.0 a full slate
+# would zero you out regardless of how you feel, which isn't true -- half is a
+# more honest ceiling.
+LOAD_WEIGHT = 0.5
+# Commitments this far ahead count toward current load.
+LOAD_HORIZON_DAYS = 7
 
-def capacity_percent(checkin):
+
+def current_checkin():
+    """The latest real check-in, or None if the user has never logged one.
+
+    Returning None rather than a default is deliberate: the dashboard needs to
+    tell "no data yet" apart from "genuinely middling", and inventing numbers
+    for a new user is exactly what made this a mockup.
+    """
+    if current_user.is_authenticated:
+        latest = current_user.latest_checkin
+        return latest.as_dict() if latest else None
+    return session.get("checkin")
+
+
+def energy_percent(checkin):
+    """How much is in the tank, straight from the last check-in."""
     levels = [checkin["time"], checkin["social"], checkin["physical"], checkin["mental"]]
     return round(sum(levels) / (len(levels) * 5) * 100)
 
 
-def current_checkin():
-    """Signed-in users read their latest row; demo visitors get whatever is in
-    their session cookie, so the app is fully usable without an account."""
-    if current_user.is_authenticated:
-        latest = current_user.latest_checkin
-        return latest.as_dict() if latest else DEFAULT_CHECKIN
-    return session.get("checkin", DEFAULT_CHECKIN)
+def load_points(commitments):
+    """Effort already claimed by what's coming up.
+
+    Counts incomplete commitments falling inside the horizon. Undated ones
+    count too -- work with no date attached is still work.
+    """
+    horizon = datetime.now(timezone.utc) + timedelta(days=LOAD_HORIZON_DAYS)
+    total = 0
+    for c in commitments:
+        if c["completed"]:
+            continue
+        due = c["due_at"]
+        if due is None or due <= horizon:
+            total += c["effort"]
+    return total
+
+
+def compute_capacity(checkin, commitments):
+    """Blend felt energy with committed load into a single percentage.
+
+        energy   = mean(check-in sliders) / 5
+        load     = min(1, upcoming effort / WEEK_EFFORT_BUDGET)
+        capacity = energy * (1 - LOAD_WEIGHT * load)
+
+    Returns None when there's no check-in, because capacity without a check-in
+    would be a guess dressed up as a measurement.
+    """
+    if checkin is None:
+        return None
+    energy = energy_percent(checkin)
+    load = min(1.0, load_points(commitments) / WEEK_EFFORT_BUDGET)
+    return max(0, round(energy * (1 - LOAD_WEIGHT * load)))
 
 
 def clamp_level(raw, fallback=3):
@@ -143,6 +195,56 @@ def clamp_level(raw, fallback=3):
         return fallback
 
 
+# --- Commitments (database when signed in, session cookie in demo mode) ---
+
+def _commitment_dict(c):
+    return {
+        "id": c.id,
+        "title": c.title,
+        "category": c.category,
+        "movable": c.movable,
+        "due_at": c.due_at,
+        "effort": c.effort,
+        "completed": c.completed,
+    }
+
+
+def get_commitments():
+    """Uniform list of dicts so templates don't care where they came from."""
+    if current_user.is_authenticated:
+        return [_commitment_dict(c) for c in current_user.commitments]
+
+    items = []
+    for raw in session.get("commitments", []):
+        item = dict(raw)
+        # Session data round-trips through JSON, so dates come back as strings.
+        if item.get("due_at"):
+            try:
+                item["due_at"] = datetime.fromisoformat(item["due_at"])
+            except ValueError:
+                item["due_at"] = None
+        else:
+            item["due_at"] = None
+        items.append(item)
+    items.sort(key=lambda i: (i["due_at"] is None, i["due_at"] or datetime.max.replace(tzinfo=timezone.utc)))
+    return items
+
+
+def parse_due_date(raw):
+    """<input type="date"> gives YYYY-MM-DD, or empty for no deadline."""
+    raw = (raw or "").strip()
+    if not raw:
+        return None
+    try:
+        return datetime.strptime(raw, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    except ValueError:
+        return None
+
+
+def upcoming_commitments(commitments):
+    return [c for c in commitments if not c["completed"]]
+
+
 # --- Auth ---
 
 def sync_profile(auth_user):
@@ -151,20 +253,20 @@ def sync_profile(auth_user):
     Called after any successful sign-in (password, Google, or email
     confirmation), so a profile exists no matter which route the user took in.
     """
-    profile = db.session.get(Profile, auth_user.id)
+    profile = db.session.get(User, auth_user.id)
     metadata = auth_user.user_metadata or {}
 
     if profile is None:
         # First profile in the table becomes the admin -- there's no other
         # bootstrap path into the admin panel.
-        is_first = db.session.scalar(db.select(db.func.count(Profile.id))) == 0
+        is_first = db.session.scalar(db.select(db.func.count(User.id))) == 0
         display_name = (
             metadata.get("display_name")
             or metadata.get("full_name")
             or metadata.get("name")
             or (auth_user.email or "there").split("@")[0]
         )
-        profile = Profile(
+        profile = User(
             id=auth_user.id,
             email=auth_user.email or "",
             display_name=display_name[:80],
@@ -357,7 +459,7 @@ def settings_theme():
 @app.route("/admin")
 @admin_required
 def admin():
-    users = db.session.scalars(db.select(Profile).order_by(Profile.created_at)).all()
+    users = db.session.scalars(db.select(User).order_by(User.created_at)).all()
     total_checkins = db.session.scalar(db.select(db.func.count(CheckIn.id)))
     return render_template("admin.html", users=users, total_checkins=total_checkins)
 
@@ -365,7 +467,7 @@ def admin():
 @app.route("/admin/users/<user_id>/toggle-admin", methods=["POST"])
 @admin_required
 def admin_toggle(user_id):
-    user = db.get_or_404(Profile, user_id)
+    user = db.get_or_404(User, user_id)
     if user.id == current_user.id:
         flash("You can't remove your own admin access.")
     else:
@@ -381,13 +483,98 @@ def admin_toggle(user_id):
 @app.route("/")
 def home():
     checkin = current_checkin()
+    commitments = get_commitments()
+    upcoming = upcoming_commitments(commitments)
+    points = load_points(commitments)
+
     return render_template(
         "home.html",
         checkin=checkin,
-        capacity=capacity_percent(checkin),
+        capacity=compute_capacity(checkin, commitments),
+        energy=energy_percent(checkin) if checkin else None,
         labels=CATEGORY_LABELS,
+        commitments=upcoming,
+        fixed_count=sum(1 for c in upcoming if not c["movable"]),
+        movable_count=sum(1 for c in upcoming if c["movable"]),
+        load_points=points,
+        load_pct=min(100, round(points / WEEK_EFFORT_BUDGET * 100)),
+        load_horizon=LOAD_HORIZON_DAYS,
+        categories=Commitment.CATEGORIES,
+        today=datetime.now(timezone.utc).date().isoformat(),
         just_saved=request.args.get("saved") == "1",
     )
+
+
+# --- Commitments ---
+
+@app.route("/commitments", methods=["POST"])
+def add_commitment():
+    title = request.form.get("title", "").strip()[:160]
+    if not title:
+        flash("A commitment needs a title.")
+        return redirect(url_for("home"))
+
+    category = request.form.get("category", "academic")
+    if category not in Commitment.CATEGORIES:
+        category = "academic"
+
+    entry = {
+        "title": title,
+        "category": category,
+        # Absent checkbox means unchecked, which here means fixed.
+        "movable": request.form.get("movable") == "1",
+        "due_at": parse_due_date(request.form.get("due_at")),
+        "effort": clamp_level(request.form.get("effort")),
+        "completed": False,
+    }
+
+    if current_user.is_authenticated:
+        db.session.add(Commitment(user_id=current_user.id, **entry))
+        db.session.commit()
+    else:
+        items = session.get("commitments", [])
+        entry_json = dict(entry)
+        entry_json["due_at"] = entry["due_at"].isoformat() if entry["due_at"] else None
+        entry_json["id"] = (max((i["id"] for i in items), default=0) + 1)
+        items.append(entry_json)
+        session["commitments"] = items
+
+    flash(f"Added “{title}”.")
+    return redirect(url_for("home"))
+
+
+@app.route("/commitments/<int:commitment_id>/toggle", methods=["POST"])
+def toggle_commitment(commitment_id):
+    if current_user.is_authenticated:
+        c = db.session.get(Commitment, commitment_id)
+        # Scope by owner as well as id -- otherwise anyone could toggle anyone's.
+        if c is None or c.user_id != current_user.id:
+            abort(404)
+        c.completed = not c.completed
+        db.session.commit()
+    else:
+        items = session.get("commitments", [])
+        for item in items:
+            if item["id"] == commitment_id:
+                item["completed"] = not item["completed"]
+                break
+        session["commitments"] = items
+    return redirect(url_for("home"))
+
+
+@app.route("/commitments/<int:commitment_id>/delete", methods=["POST"])
+def delete_commitment(commitment_id):
+    if current_user.is_authenticated:
+        c = db.session.get(Commitment, commitment_id)
+        if c is None or c.user_id != current_user.id:
+            abort(404)
+        db.session.delete(c)
+        db.session.commit()
+    else:
+        items = [i for i in session.get("commitments", []) if i["id"] != commitment_id]
+        session["commitments"] = items
+    flash("Commitment removed.")
+    return redirect(url_for("home"))
 
 
 @app.route("/checkin", methods=["GET", "POST"])
@@ -409,7 +596,10 @@ def checkin():
             session["checkin"] = entry
         return redirect(url_for("home", saved=1))
 
-    return render_template("checkin.html", checkin=current_checkin(), labels=CATEGORY_LABELS)
+    # Sliders need somewhere to start; that's a form default, not a reading.
+    return render_template(
+        "checkin.html", checkin=current_checkin() or DEFAULT_CHECKIN, labels=CATEGORY_LABELS
+    )
 
 
 @app.route("/insights")

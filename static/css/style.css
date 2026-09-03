@@ -1325,3 +1325,160 @@ body.auth-page .site-header .accent { color: var(--color-on-background); }
     color: var(--color-on-surface-variant);
   }
 }
+
+/* ===== Home: empty state ===== */
+.empty-ring {
+  width: 192px;
+  height: 192px;
+  border-radius: var(--radius-full);
+  border: 2px dashed var(--color-outline-variant);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--color-on-surface-variant);
+}
+.empty-ring .material-symbols-outlined { font-size: 34px; opacity: 0.7; }
+.empty-cta { display: flex; justify-content: center; padding-bottom: var(--space-md); }
+
+/* ===== Home: capacity breakdown ===== */
+/* Shows how the headline number was reached so it isn't a black box. */
+.capacity-breakdown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-sm) var(--space-md);
+  padding: var(--space-md) 0 var(--space-lg);
+}
+.breakdown-item { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.breakdown-value {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-on-surface-variant);
+}
+.breakdown-item.is-result .breakdown-value { color: var(--color-primary); }
+.breakdown-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-on-surface-variant);
+}
+.breakdown-op { font-size: 18px; color: var(--color-outline); }
+
+/* ===== Home: commitments ===== */
+.commitments { padding: var(--space-md) 0 var(--space-xl); }
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+.section-head h3 { color: var(--color-on-background); }
+.section-meta { font-size: 13px; color: var(--color-on-surface-variant); }
+
+.commitment-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.commitment {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-primary);
+  border-radius: var(--radius-xl);
+  padding: 12px var(--space-sm);
+}
+/* Fixed commitments can't be rescheduled, so they read differently. */
+.commitment.is-fixed { border-left-color: var(--color-tertiary); }
+.commitment-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.commitment-title { font-weight: 600; color: var(--color-on-background); }
+.commitment-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+}
+.commitment-tag {
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.tag-movable { background-color: rgba(40, 102, 83, 0.14); color: var(--color-primary); }
+.tag-fixed { background-color: rgba(143, 73, 32, 0.14); color: var(--color-tertiary); }
+:root[data-theme="dark"] .tag-movable { background-color: rgba(111, 201, 171, 0.16); }
+:root[data-theme="dark"] .tag-fixed { background-color: rgba(232, 160, 111, 0.16); }
+
+.commitment-check button, .commitment-delete button {
+  display: flex;
+  align-items: center;
+  color: var(--color-outline-variant);
+  transition: color 0.2s ease;
+}
+.commitment-check button:hover { color: var(--color-primary); }
+.commitment-delete button:hover { color: var(--color-warn); }
+.commitment-empty {
+  color: var(--color-on-surface-variant);
+  font-size: 14px;
+  padding: var(--space-sm) 0 var(--space-md);
+}
+
+.commitment-add { margin-top: var(--space-md); }
+.commitment-add summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-primary);
+  padding: 10px 14px;
+  border: 1px dashed var(--color-outline-variant);
+  border-radius: var(--radius-full);
+  width: fit-content;
+  list-style: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.commitment-add summary::-webkit-details-marker { display: none; }
+.commitment-add summary:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-surface-container-high);
+}
+.commitment-add[open] summary { margin-bottom: var(--space-sm); }
+
+.commitment-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-md);
+}
+.cf-row { display: flex; flex-direction: column; gap: 6px; }
+.cf-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-sm); }
+@media (min-width: 560px) { .cf-grid { grid-template-columns: 1fr 1fr; } }
+.cf-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--color-on-background);
+}
+.cf-toggle input { margin-top: 3px; accent-color: var(--color-primary); flex-shrink: 0; }
+.cf-toggle small {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--color-on-surface-variant);
+}
