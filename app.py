@@ -644,6 +644,10 @@ def offline():
     """Fallback the worker shows when a page load fails with no network."""
     return render_template("offline.html")
 
+@app.route("/.well-known/assetlinks.json")
+def assetlinks():
+    return send_from_directory("static", "assetlinks.json",
+                               mimetype="application/json")
 
 # --- Chat with memory ---
 
@@ -754,4 +758,5 @@ with app.app_context():
 
 
 if __name__ == "__main__":
-    app.run(debug=False, port=5000)
+    app.run(host="0.0.0.0", port=5000)
+
