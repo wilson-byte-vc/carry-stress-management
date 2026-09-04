@@ -70,17 +70,6 @@
                 </div>
               {% endif %}
 
-              <div class="settings-section">
-                <span class="settings-label">Appearance</span>
-                <div class="settings-theme-group" role="group" aria-label="Theme">
-                  <button type="button" class="settings-theme-btn" data-set-theme="light">
-                    <span class="material-symbols-outlined">light_mode</span> Light
-                  </button>
-                  <button type="button" class="settings-theme-btn" data-set-theme="dark">
-                    <span class="material-symbols-outlined">dark_mode</span> Dark
-                  </button>
-                </div>
-              </div>
 
               <div class="settings-section settings-links">
                 {% if current_user.is_authenticated %}
@@ -109,13 +98,7 @@
           <h1 class="text-headline-sm accent">Balance</h1>
 
           <div class="header-right">
-            <a class="icon-btn {% if request.endpoint == 'assistant' %}active{% endif %}"
-               href="{{ url_for('assistant') }}" aria-label="AI assistant">
-              <span class="material-symbols-outlined">smart_toy</span>
-            </a>
-            <button type="button" class="icon-btn" id="theme-toggle" aria-label="Toggle dark theme">
-              <span class="material-symbols-outlined" id="theme-toggle-icon">dark_mode</span>
-            </button>
+
             <div class="account-menu" data-dropdown>
               <button type="button" class="icon-btn" id="account-toggle" data-dropdown-toggle
                       aria-label="Account" aria-expanded="false" aria-controls="account-panel">
