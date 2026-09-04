@@ -16,9 +16,14 @@
     return root.dataset.theme === "dark" ? "dark" : "light";
   }
 
+  // Installed as a PWA, the OS paints the status bar with theme-color, so it
+  // has to follow the toggle or dark mode keeps a light bar above it.
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+
   function paintThemeControls() {
     const theme = currentTheme();
     if (themeIcon) themeIcon.textContent = theme === "dark" ? "light_mode" : "dark_mode";
+    if (themeMeta) themeMeta.content = theme === "dark" ? "#19191a" : "#286653";
     themeChoices.forEach((btn) => {
       btn.classList.toggle("is-active", btn.dataset.setTheme === theme);
     });
@@ -60,6 +65,54 @@
   }
   themeChoices.forEach((btn) => {
     btn.addEventListener("click", () => setTheme(btn.dataset.setTheme));
+  });
+
+  // ---------- Service worker (PWA) ----------
+  // Registered after load so it never competes with the page's own requests
+  // for bandwidth on a first visit.
+  if ("serviceWorker" in navigator) {
+    addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {
+        /* file:// , an unsupported browser, or plain http on a non-localhost
+           host -- the site works fine without it, it just isn't installable */
+      });
+    });
+  }
+
+  // ---------- Install prompt ----------
+  // Chrome fires this instead of showing its own prompt; stash it so the
+  // "Install app" button in the settings panel has something to trigger.
+  let installPrompt = null;
+  const installBtn = document.getElementById("install-app");
+
+  function paintInstallBtn() {
+    if (!installBtn) return;
+    installBtn.hidden = !installPrompt;
+  }
+  paintInstallBtn();
+
+  addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    installPrompt = event;
+    paintInstallBtn();
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener("click", async () => {
+      if (!installPrompt) return;
+      installPrompt.prompt();
+      await installPrompt.userChoice;
+      // The event is single-use -- Chrome fires a fresh one if they decline
+      // and become eligible again.
+      installPrompt = null;
+      paintInstallBtn();
+    });
+  }
+
+  addEventListener("appinstalled", () => {
+    installPrompt = null;
+    paintInstallBtn();
+    showToast("Balance installed", { icon: "check_circle" });
   });
 
   // ---------- Header dropdowns (settings + account) ----------

@@ -1,0 +1,45 @@
+{# Shown by the service worker when a page load fails with no network.
+   Deliberately standalone -- it does NOT extend base.html, because it gets
+   cached at install time and must never contain a signed-in user's details.
+   Everything it needs is inline so it renders even if style.css never cached. #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - Balance</title>
+  <style>
+    :root { color-scheme: light dark; --bg: #fef9f1; --fg: #19191a; --accent: #286653; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #19191a; --fg: #fef9f1; --accent: #6fc9ab; }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; padding: 2rem 1.5rem;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 1rem; text-align: center;
+      background: var(--bg); color: var(--fg);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    img { width: 72px; height: 72px; border-radius: 20px; }
+    h1 { margin: .5rem 0 0; font-size: 1.375rem; }
+    p { margin: 0; max-width: 32ch; line-height: 1.55; opacity: .75; }
+    button {
+      margin-top: .5rem; padding: .7rem 1.5rem; border: 0; border-radius: 999px;
+      background: var(--accent); color: var(--bg);
+      font: inherit; font-weight: 600; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <img src="/static/image/icon-192.png" alt="">
+  <h1>You're offline</h1>
+  <p>Balance needs a connection to load your check-ins. Reconnect and try again.</p>
+  <button type="button" onclick="location.reload()">Try again</button>
+
+  <script>
+    // Reload by itself the moment the connection comes back.
+    addEventListener("online", () => location.reload());
+  </script>
+</body>
+</html>

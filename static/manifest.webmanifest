@@ -1,0 +1,22 @@
+{
+  "id": "/",
+  "name": "Balance - student stress & workload",
+  "short_name": "Balance",
+  "description": "Track your capacity, log what's coming up, and see when your week is overloaded.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fef9f1",
+  "theme_color": "#286653",
+  "categories": ["health", "lifestyle", "productivity"],
+  "icons": [
+    { "src": "/static/image/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/static/image/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/static/image/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Do a check-in", "url": "/checkin" },
+    { "name": "Ask the assistant", "url": "/assistant" }
+  ]
+}

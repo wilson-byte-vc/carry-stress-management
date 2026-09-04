@@ -4,8 +4,18 @@
       data-authed="{{ '1' if current_user.is_authenticated else '0' }}">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>{% block title %}Equilibrium{% endblock %}</title>
+
+    {# --- PWA --- #}
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+    {# Tints the Android status bar; app.js keeps it in step with the theme. #}
+    <meta name="theme-color" content="#286653">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Balance">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='image/apple-touch-icon.png') }}">
 
     <script>
       // Set the theme before first paint so there's no light-theme flash on
@@ -72,6 +82,12 @@
 
 
               <div class="settings-section settings-links">
+                {# Unhidden by app.js only when the browser says the app is
+                   actually installable -- otherwise the button does nothing. #}
+                <button type="button" class="settings-link" id="install-app" hidden>
+                  <span class="material-symbols-outlined">install_mobile</span> Install app
+                </button>
+
                 {% if current_user.is_authenticated %}
                   {% if current_user.is_admin %}
                     <a class="settings-link" href="{{ url_for('admin') }}">

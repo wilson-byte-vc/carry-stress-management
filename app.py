@@ -8,6 +8,7 @@ from flask import (
     jsonify,
     redirect,
     render_template,
+    send_from_directory,
     request,
     session,
     url_for,
@@ -625,6 +626,25 @@ def game():
     return render_template("pressure_valve.html")
 
 
+# --- PWA ---
+# The worker has to be served from the site root: a script under /static/ can
+# only control /static/, so it would never see a page load.
+@app.route("/sw.js")
+def service_worker():
+    response = send_from_directory("static/js", "sw.js")
+    response.headers["Content-Type"] = "application/javascript"
+    # Without this the browser can serve a stale worker for up to 24h, so a
+    # deploy's new cache version would sit unused.
+    response.headers["Cache-Control"] = "no-cache"
+    return response
+
+
+@app.route("/offline")
+def offline():
+    """Fallback the worker shows when a page load fails with no network."""
+    return render_template("offline.html")
+
+
 # --- Chat with memory ---
 
 CHAT_SYSTEM_PROMPT = {
@@ -639,9 +659,44 @@ CHAT_SYSTEM_PROMPT = {
 }
 
 
+# The mobile app has no Flask session to hang a transcript on, so it owns the
+# history and sends the whole thing. Cap the length: the transcript is
+# attacker-controlled and every turn is billed on the way to Groq.
+MAX_CLIENT_HISTORY = 40
+
+
+def _client_history(payload):
+    """Validate a caller-supplied transcript, or None if there isn't one.
+
+    Returns None (rather than raising) when `messages` is absent, so the
+    browser's session-backed path is left alone.
+    """
+    raw = payload.get("messages")
+    if not isinstance(raw, list) or not raw:
+        return None
+
+    cleaned = []
+    for item in raw[-MAX_CLIENT_HISTORY:]:
+        if not isinstance(item, dict):
+            continue
+        role = item.get("role")
+        content = item.get("content")
+        # Only user and assistant turns -- accepting "system" would let a
+        # caller replace the prompt that keeps this on-topic.
+        if role in ("user", "assistant") and isinstance(content, str) and content.strip():
+            cleaned.append({"role": role, "content": content[:4000]})
+
+    if not cleaned or cleaned[-1]["role"] != "user":
+        return None
+    return cleaned
+
+
 @app.route("/chat", methods=["POST"])
 def chat():
-    user_message = (request.json or {}).get("message")
+    payload = request.json or {}
+    client_history = _client_history(payload)
+
+    user_message = client_history[-1]["content"] if client_history else payload.get("message")
     if not user_message:
         return jsonify({"error": "message is required"}), 400
 
@@ -660,8 +715,11 @@ def chat():
             )
         session["demo_chat_count"] = used + 1
 
-    history = session.get("chat_history", [])
-    history.append({"role": "user", "content": user_message})
+    if client_history is not None:
+        history = client_history
+    else:
+        history = session.get("chat_history", [])
+        history.append({"role": "user", "content": user_message})
 
     try:
         response = client.chat.completions.create(
@@ -676,8 +734,11 @@ def chat():
 
     reply = response.choices[0].message.content
 
-    history.append({"role": "assistant", "content": reply})
-    session["chat_history"] = history
+    # A stateless caller keeps its own transcript; only the browser's
+    # session-backed conversation is written back here.
+    if client_history is None:
+        history.append({"role": "assistant", "content": reply})
+        session["chat_history"] = history
 
     return jsonify({"reply": reply})
 
