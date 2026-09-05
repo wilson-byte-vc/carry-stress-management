@@ -681,7 +681,6 @@ def offline():
     """Fallback the worker shows when a page load fails with no network."""
     return render_template("offline.html")
 
-
 # Keep-alive / health check.
 #
 # Two jobs in one request. Hitting it keeps Render's free instance from
@@ -841,4 +840,5 @@ with app.app_context():
 
 
 if __name__ == "__main__":
-    app.run(debug=False, port=5000)
+    app.run(host="0.0.0.0", port=5000)
+
