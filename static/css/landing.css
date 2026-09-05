@@ -126,9 +126,14 @@ button{font:inherit;color:inherit}
   letter-spacing:.16em;text-transform:uppercase;color:var(--n700);align-self:center}
 .ledger-head{font-family:var(--heading);font-weight:800;font-size:12px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--n700);padding-bottom:6px;transition:color .35s}
-.lrow{display:grid;grid-template-columns:58px 1fr auto;align-items:baseline;gap:12px;
+
+.lrow{display:grid;grid-template-columns:36px 58px 1fr auto;align-items:center;gap:12px;
   padding:7px 0;border-top:2px solid var(--rule);opacity:0;
   will-change:transform,opacity;transition:color .35s,border-color .35s}
+
+.lrow .thumb{width:36px;height:36px;object-fit:cover;display:block;
+  border:2px solid var(--rule);background:var(--n200)}
+
 .lrow:last-of-type{border-bottom:2px solid var(--rule)}
 .lrow .d{font-family:var(--heading);font-weight:800;font-size:12px;letter-spacing:.1em}
 .lrow .t{font-size:14px}
