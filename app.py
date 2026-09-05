@@ -526,6 +526,29 @@ def admin_toggle(user_id):
 
 # --- App pages ---
 
+@app.route("/welcome")
+def welcome():
+    """Public hero page for first-time visitors.
+
+    Deliberately kept off "/" so that login-optional demo mode still works:
+    anyone who lands on the root still walks straight into a working week
+    rather than being bounced to a marketing page. landing.html does not
+    extend base.html and carries its own CSS, so it needs nothing from here.
+    """
+    return render_template("landing.html")
+
+
+@app.route("/prototype")
+def prototype():
+    """The five-screen Carry prototype (Today / Cost of Yes / Week / Valve / Trend).
+
+    Entirely client-side: it keeps its week in localStorage and never touches
+    the database. Its view layer is static/js/carry-app.js, deliberately NOT
+    named app.js so it can never shadow the site's own static/js/app.js.
+    """
+    return render_template("index.html")
+
+
 @app.route("/")
 def home():
     checkin = current_checkin()

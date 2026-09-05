@@ -1,0 +1,161 @@
+{# Carry landing page.
+
+   Deliberately does NOT extend base.html. The poster design is full-bleed and
+   owns its own header; inheriting the app chrome (gear/account dropdowns,
+   bottom nav, theme tokens) would fight it. Everything it needs is namespaced
+   in static/css/landing.css, so this page renders the same regardless of the
+   visitor's data-theme and cannot collide with static/css/style.css. #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carry — how much you're carrying this week</title>
+<meta name="description" content="Carry shows students the weight of the week before they agree to it. See it coming, then bleed it off.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&display=swap">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+</head>
+<body>
+
+<header class="top">
+  <span class="wordmark">Carry</span>
+  <div class="hud" data-hud>
+    <span class="kicker" data-hud-label>Day 1 / 7</span>
+    <span class="hud-track"><span class="hud-bar" data-hud-bar></span></span>
+    <span class="hud-day" data-hud-day>Monday</span>
+  </div>
+  <a class="btn btn-accent" href="{{ url_for('home') }}">Open the app</a>
+</header>
+
+<section class="hero">
+  <div class="hero-copy">
+    <span class="kicker">Stress load, for students</span>
+    <h1>You don&rsquo;t decide to burn out. You just say yes eleven times.</h1>
+    <p>Seven days. Seven reasonable yeses. Carry shows you the weight of the week
+       before you agree to it &mdash; then gives you somewhere to put it down.</p>
+    <div class="cue"><span aria-hidden="true">&darr;</span><span>Scroll through one week</span></div>
+  </div>
+  <div class="hero-side">
+    <div class="hero-mark">
+      <svg viewBox="0 0 300 300" width="240" height="240" role="img" aria-label="A capacity ring at 78 percent.">
+        <circle cx="150" cy="150" r="112" fill="none" stroke="#E7E2D8" stroke-width="26"/>
+        <circle cx="150" cy="150" r="112" fill="none" stroke="#D8412F" stroke-width="26"
+                stroke-dasharray="703.7" stroke-dashoffset="154.8" transform="rotate(-90 150 150)"/>
+        <text x="150" y="150" text-anchor="middle" dominant-baseline="central"
+              font-family="Archivo, sans-serif" font-weight="800" font-size="74" fill="#14120F">78%</text>
+      </svg>
+    </div>
+    <div class="stats">
+      <div><div class="big">1 in 3</div><div class="sub">students report burnout in term time</div></div>
+      <div><div class="big">7 days</div><div class="sub">is how long it takes to overcommit</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="week-scroll" data-week aria-label="One week, day by day">
+  <div class="week-stick">
+    <div class="tint" data-tint aria-hidden="true"></div>
+    <div class="field" data-field aria-hidden="true"></div>
+    <div class="stage">
+      <div class="stage-copy">
+
+        <div class="day" data-day="0">
+          <span class="dname">Monday</span>
+          <p class="dline">You say yes to the group project.</p>
+          <p class="dsub">It&rsquo;s three weeks away. Three weeks is ages.</p>
+        </div>
+        <div class="day" data-day="1">
+          <span class="dname">Tuesday</span>
+          <p class="dline">Your manager asks if you can take Thursday nights.</p>
+          <p class="dsub">You can. You need the money.</p>
+        </div>
+        <div class="day" data-day="2">
+          <span class="dname">Wednesday</span>
+          <p class="dline">Someone moves the deadline. Not by much.</p>
+          <p class="dsub">Two days. It&rsquo;s fine.</p>
+        </div>
+        <div class="day" data-day="3">
+          <span class="dname">Thursday</span>
+          <p class="dline">You&rsquo;re on shift. The group chat has 47 messages.</p>
+          <p class="dsub">You&rsquo;ll read them later.</p>
+        </div>
+        <div class="day" data-day="4">
+          <span class="dname">Friday</span>
+          <p class="dline">Your friends are going out. You&rsquo;ve said no twice already.</p>
+          <p class="dsub">You say yes.</p>
+        </div>
+        <div class="day" data-day="5">
+          <span class="dname">Saturday</span>
+          <p class="dline">You don&rsquo;t open your laptop.</p>
+          <p class="dsub">You think about the laptop all day.</p>
+        </div>
+        <div class="day" data-day="6">
+          <span class="dname">Sunday</span>
+          <p class="dline">You open your laptop.</p>
+          <p class="dsub">Everything is due, and it is all due now.</p>
+        </div>
+
+        <div class="statement" data-statement>
+          <p class="s0">Nothing here was a crisis.</p>
+          <p class="s1">That&rsquo;s how it happens.</p>
+        </div>
+      </div>
+
+      <div class="ledger-col" data-ledger-col>
+
+        {# One photo per day, cross-faded by the scroll position. Files are
+           optional: any that is missing hides itself on error and leaves the
+           labelled placeholder showing, so the page is never broken by an
+           absent image. Drop 7 files into static/image/week/ to fill it. #}
+        <div class="photo-frame" data-photo-frame>
+          {% for d in ['mon','tue','wed','thu','fri','sat','sun'] %}
+          <div class="photo" data-photo="{{ loop.index0 }}">
+            <span class="ph">{{ ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][loop.index0] }}</span>
+            <img src="{{ url_for('static', filename='image/week/' ~ d ~ '.jpg') }}"
+                 alt="" loading="lazy" onerror="this.remove()">
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="ledger-body">
+        <div class="ledger-head" data-ledger-head>What you agreed to</div>
+        <div class="lrow" data-lrow="0"><span class="d">MON</span><span class="t">Group project</span><span class="v">+6h</span></div>
+        <div class="lrow" data-lrow="1"><span class="d">TUE</span><span class="t">Thursday night shifts</span><span class="v">+8h</span></div>
+        <div class="lrow" data-lrow="2"><span class="d">WED</span><span class="t">Deadline moved forward</span><span class="v">&minus;2d</span></div>
+        <div class="lrow" data-lrow="3"><span class="d">THU</span><span class="t">47 unread</span><span class="v">later</span></div>
+        <div class="lrow" data-lrow="4"><span class="d">FRI</span><span class="t">Night out</span><span class="v">+5h</span></div>
+        <div class="lrow" data-lrow="5"><span class="d">SAT</span><span class="t">Laptop closed</span><span class="v">0h</span></div>
+        <div class="lrow" data-lrow="6"><span class="d">SUN</span><span class="t">Everything, at once</span><span class="v">19h</span></div>
+        <div class="ltotal" data-ltotal>
+          <span></span><span class="lab">Week load</span><span class="val" data-total-val>134%</span>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="handoff">
+  <div class="l">
+    <h2>So Carry is one number: how much you&rsquo;re carrying this week.</h2>
+  </div>
+  <div class="r">
+    <p>Two verbs. <strong>See it coming</strong> before you say yes,
+       and <strong>bleed it off</strong> when it&rsquo;s already here.</p>
+    <a class="btn btn-lg" href="{{ url_for('home') }}">Open the app &rarr;</a>
+    <p style="font-size:13px">No account needed &mdash; it opens straight into a working week.</p>
+  </div>
+</section>
+
+<footer>
+  <span style="grid-column:1/span 4"><strong style="font-family:var(--heading);color:var(--accent)">Carry</strong></span>
+  <span style="grid-column:5/span 4">Built for students who keep saying yes.</span>
+  <span style="grid-column:9/span 4">CodeNection 2025 &middot; Lifestyle</span>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="{{ url_for('static', filename='js/landing.js') }}"></script>
+</body>
+</html>

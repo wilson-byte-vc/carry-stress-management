@@ -88,6 +88,10 @@
                   <span class="material-symbols-outlined">install_mobile</span> Install app
                 </button>
 
+                <a class="settings-link" href="{{ url_for('welcome') }}">
+                  <span class="material-symbols-outlined">auto_stories</span> What Carry is
+                </a>
+
                 {% if current_user.is_authenticated %}
                   {% if current_user.is_admin %}
                     <a class="settings-link" href="{{ url_for('admin') }}">
