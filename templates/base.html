@@ -99,7 +99,7 @@
                       <span class="material-symbols-outlined">logout</span> Log out
                     </button>
                   </form>
-                {% else %}
+                {% elif auth_enabled %}
                   <a class="settings-link" href="{{ url_for('login') }}">
                     <span class="material-symbols-outlined">login</span> Log in
                   </a>
@@ -115,6 +115,10 @@
 
           <div class="header-right">
 
+            {# Every item in here is about accounts, so the whole control
+               goes while auth is switched off -- an empty dropdown is worse
+               than no dropdown. #}
+            {% if auth_enabled %}
             <div class="account-menu" data-dropdown>
               <button type="button" class="icon-btn" id="account-toggle" data-dropdown-toggle
                       aria-label="Account" aria-expanded="false" aria-controls="account-panel">
@@ -194,6 +198,7 @@
                 {% endif %}
               </div>
             </div>
+            {% endif %}
           </div>
         </div>
 
@@ -210,7 +215,7 @@
     {% endblock %}
 
     {% block demo_banner %}
-      {% if demo_mode %}
+      {% if demo_mode and auth_enabled %}
         <div class="demo-banner">
           <span class="material-symbols-outlined">visibility</span>
           <span>You're trying the demo — nothing is saved to an account yet.</span>

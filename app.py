@@ -85,8 +85,39 @@ GROQ_MODEL = "openai/gpt-oss-120b"
 DEMO_CHAT_LIMIT = 10
 
 
+# --- Auth kill switch ---
+#
+# Off by default: the app runs as a pure guest demo, with signup/login fully
+# disconnected and hidden. None of the auth code is deleted -- routes stay
+# registered (so url_for keeps resolving) but answer 404, the UI that points
+# at them is hidden, and the session loader refuses to resolve anyone.
+#
+# Set AUTH_ENABLED=1 in the environment to turn the whole thing back on.
+AUTH_ENABLED = os.environ.get("AUTH_ENABLED", "0") == "1"
+
+
+def auth_route(view):
+    """404 a route while auth is switched off.
+
+    404 rather than 503: with the UI hidden there is no reason for anyone to
+    be here, and a 404 doesn't advertise that a disabled feature exists.
+    """
+
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if not AUTH_ENABLED:
+            abort(404)
+        return view(*args, **kwargs)
+
+    return wrapped
+
+
 @login_manager.user_loader
 def load_user(user_id):
+    # Auth off -- treat every visitor as a guest, including anyone still
+    # holding a valid session cookie from when it was on.
+    if not AUTH_ENABLED:
+        return None
     try:
         uid = uuid.UUID(user_id)
     except (ValueError, TypeError):
@@ -102,6 +133,7 @@ def inject_demo_mode():
     return {
         "demo_mode": not current_user.is_authenticated,
         "demo_chat_limit": DEMO_CHAT_LIMIT,
+        "auth_enabled": AUTH_ENABLED,
     }
 
 
@@ -294,6 +326,7 @@ def callback_url():
 
 
 @app.route("/signup", methods=["GET", "POST"])
+@auth_route
 def signup():
     if current_user.is_authenticated:
         return redirect(url_for("home"))
@@ -337,6 +370,7 @@ def signup():
 
 
 @app.route("/login", methods=["GET", "POST"])
+@auth_route
 def login():
     if current_user.is_authenticated:
         return redirect(url_for("home"))
@@ -374,6 +408,7 @@ def login():
 
 
 @app.route("/auth/google")
+@auth_route
 def auth_google():
     """Kick off Google sign-in; Supabase handles the handshake and sends the
     user back to /auth/callback."""
@@ -388,6 +423,7 @@ def auth_google():
 
 
 @app.route("/auth/callback")
+@auth_route
 def auth_callback():
     """Landing page for email confirmations and OAuth returns.
 
@@ -398,6 +434,7 @@ def auth_callback():
 
 
 @app.route("/auth/session", methods=["POST"])
+@auth_route
 def auth_session():
     """Exchange an access token from the callback fragment for a login.
 
@@ -643,6 +680,56 @@ def service_worker():
 def offline():
     """Fallback the worker shows when a page load fails with no network."""
     return render_template("offline.html")
+
+
+# Keep-alive / health check.
+#
+# Two jobs in one request. Hitting it keeps Render's free instance from
+# spinning down, and the SELECT 1 puts real traffic on the Supabase
+# connection -- a plain "/" request would do neither for the database, since
+# an anonymous home page is served entirely from the session cookie.
+#
+# 503 on failure is deliberate: the pinger then reports a failure instead of
+# quietly succeeding while the database is unreachable.
+@app.route("/healthz")
+def healthz():
+    try:
+        db.session.execute(db.text("SELECT 1"))
+    except Exception:
+        # No detail in the body -- this endpoint is public, and connection
+        # errors leak host names and credentials fragments.
+        app.logger.exception("health check failed")
+        return jsonify({"status": "error", "database": "unreachable"}), 503
+    return jsonify({"status": "ok", "database": "ok"})
+
+
+# Digital Asset Links: proves this site and the Android APK are published by
+# the same people. Without a match, a Trusted Web Activity still runs but
+# Chrome keeps its address bar pinned to the top, so it looks like a browser
+# rather than an app.
+#
+# The fingerprint comes from whatever key signs the APK -- PWABuilder shows it
+# after generating the package. Kept in the environment because it is tied to
+# the signing key, not to the source.
+@app.route("/.well-known/assetlinks.json")
+def assetlinks():
+    fingerprint = os.environ.get("ANDROID_CERT_FINGERPRINT")
+    if not fingerprint:
+        # Nothing signed yet -- 404 is honest. Serving an empty or placeholder
+        # list would make Chrome cache a failed verification.
+        abort(404)
+    return jsonify([{
+        "relation": ["delegate_permission/common.handle_all_urls"],
+        "target": {
+            "namespace": "android_app",
+            "package_name": os.environ.get(
+                "ANDROID_PACKAGE_NAME", "com.balance.twa"
+            ),
+            "sha256_cert_fingerprints": [
+                f.strip() for f in fingerprint.split(",") if f.strip()
+            ],
+        },
+    }])
 
 
 # --- Chat with memory ---
