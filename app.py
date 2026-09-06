@@ -28,7 +28,8 @@ from groq import Groq
 from supabase import ClientOptions, create_client
 
 import os
-
+import json
+import re
 import uuid
 
 from models import CheckIn, Commitment, Insight, User, db
@@ -79,6 +80,119 @@ client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 # "thinking" before writing the visible reply, so keep max_tokens generous
 # or short answers can come back empty.
 GROQ_MODEL = "openai/gpt-oss-120b"
+
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+GROQ_MODEL = "openai/gpt-oss-120b"
+
+
+def estimate_task_effort(task_title):
+    prompt = f"""
+You are helping a university student manage workload.
+
+Evaluate how much energy this task will likely require.
+
+Task: {task_title}
+
+Return ONLY one number from 1 to 5.
+
+1 = very low energy
+2 = low energy
+3 = moderate energy
+4 = high energy
+5 = very high energy
+"""
+
+    try:
+        response = client.chat.completions.create(
+            model=GROQ_MODEL,
+            max_tokens=10,
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+        )
+
+        result = response.choices[0].message.content.strip()
+
+        effort = int(result)
+        return max(1, min(5, effort))
+
+    except Exception as e:
+        print("AI effort error:", e)
+        return 3
+
+def generate_personalized_questions(user_context):
+    default_questions = {
+        "time": "How manageable does your schedule feel today?",
+        "social": "How socially connected or drained do you feel today?",
+        "physical": "How is your body feeling — energy, sleep, movement?",
+        "mental": "How clear and focused does your mind feel?",
+    }
+
+    prompt = f"""
+You help university students manage stress.
+
+Based on this student's recent information:
+
+{user_context}
+
+Create exactly one personalized check-in question for each category:
+time, social, physical, mental.
+
+Return ONLY valid JSON exactly like this:
+
+{{
+  "time": "question",
+  "social": "question",
+  "physical": "question",
+  "mental": "question"
+}}
+
+Rules:
+- Keep each question short
+- Sound natural and supportive
+- Use the student's information when relevant
+- Do not include markdown
+- Do not include any text outside the JSON
+"""
+    try:
+        response = client.chat.completions.create(
+            model=GROQ_MODEL,
+            max_tokens=300,
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+        )
+        text = response.choices[0].message.content or ""
+        text = text.strip()
+        # Remove ```json ... ``` if Groq adds it
+        text = re.sub(
+            r"^```(?:json)?\s*|\s*```$",
+            "",
+            text,
+            flags=re.IGNORECASE
+        )
+        data = json.loads(text)
+
+        for key in ["time", "social", "physical", "mental"]:
+            if key not in data or not isinstance(data[key], str) or not data[key].strip():
+                return default_questions
+
+        return {
+            "time": data["time"].strip(),
+            "social": data["social"].strip(),
+            "physical": data["physical"].strip(),
+            "mental": data["mental"].strip(),
+        }
+
+    except Exception as e:
+        print("Personalized question error:", e)
+        return default_questions
 
 # The assistant is usable in demo mode, but /chat spends real Groq quota and
 # sits on a public URL -- cap what one anonymous session can burn.
@@ -587,13 +701,15 @@ def add_commitment():
     if category not in Commitment.CATEGORIES:
         category = "academic"
 
+    ai_effort = estimate_task_effort(title)
+
     entry = {
         "title": title,
         "category": category,
         # Absent checkbox means unchecked, which here means fixed.
         "movable": request.form.get("movable") == "1",
         "due_at": parse_due_date(request.form.get("due_at")),
-        "effort": clamp_level(request.form.get("effort")),
+        "effort": ai_effort,
         "completed": False,
     }
 
@@ -608,7 +724,7 @@ def add_commitment():
         items.append(entry_json)
         session["commitments"] = items
 
-    flash(f"Added “{title}”.")
+    flash(f"Added “{title}” — AI estimated effort: {ai_effort}/5.")
     return redirect(url_for("home"))
 
 
@@ -666,8 +782,23 @@ def checkin():
         return redirect(url_for("home", saved=1))
 
     # Sliders need somewhere to start; that's a form default, not a reading.
+    checkin_data = current_checkin() or DEFAULT_CHECKIN
+
+    user_context = f"""
+Time capacity: {checkin_data.get('time', 3)}/5
+Social capacity: {checkin_data.get('social', 3)}/5
+Physical capacity: {checkin_data.get('physical', 3)}/5
+Mental capacity: {checkin_data.get('mental', 3)}/5
+Note: {checkin_data.get('note', '')}
+"""
+
+    questions = generate_personalized_questions(user_context)
+
     return render_template(
-        "checkin.html", checkin=current_checkin() or DEFAULT_CHECKIN, labels=CATEGORY_LABELS
+        "checkin.html",
+        checkin=checkin_data,
+        labels=CATEGORY_LABELS,
+        questions=questions,
     )
 
 
@@ -830,13 +961,31 @@ def chat():
         history = session.get("chat_history", [])
         history.append({"role": "user", "content": user_message})
 
+    user_context = ""
+    if current_user.is_authenticated:
+        latest = current_user.latest_checkin
+        if latest:
+            user_context = f"""
+User's latest stress check-in:
+- Time capacity: {latest.time}/5
+- Social capacity: {latest.social}/5
+- Physical capacity: {latest.physical}/5
+- Mental capacity: {latest.mental}/5
+- Note: {latest.note}
+"""
     try:
         response = client.chat.completions.create(
             model=GROQ_MODEL,
             max_tokens=600,
             # Send the FULL history every time, not just the latest message --
             # the model has no memory of its own between requests.
-            messages=[CHAT_SYSTEM_PROMPT] + history,
+            messages=[
+    CHAT_SYSTEM_PROMPT,
+    {
+        "role": "system",
+        "content": user_context
+    }
+] + history,
         )
     except Exception as e:
         return jsonify({"error": f"{type(e).__name__}: {e}"}), 502
@@ -863,5 +1012,5 @@ with app.app_context():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5001, debug=False)
 
