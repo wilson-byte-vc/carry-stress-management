@@ -16,6 +16,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&display=swap">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+{# Arms the scroll-reveal before first paint so copy never flashes in and then
+   hides. If JS is off this class is never set and every word renders normally;
+   landing-reveal.js removes it again for reduced-motion readers. #}
+<script>document.documentElement.className += ' js-reveal';</script>
 </head>
 <body>
 
@@ -31,25 +35,26 @@
 
 <section class="hero">
   <div class="hero-copy">
-    <span class="kicker">Stress load, for students</span>
-    <h1>You don&rsquo;t decide to burn out. You just say yes eleven times.</h1>
-    <p>Seven days. Seven reasonable yeses. Carry shows you the weight of the week
+    <span class="kicker" data-reveal>Stress load, for students</span>
+    <h1 data-reveal="words" data-step="42ms">You don&rsquo;t decide to burn out.
+       You just say <em>yes</em> eleven times.</h1>
+    <p data-reveal="words" data-step="11ms">Seven days. Seven reasonable yeses. Carry shows you the weight of the week
        before you agree to it &mdash; then gives you somewhere to put it down.</p>
-    <div class="cue"><span aria-hidden="true">&darr;</span><span>Scroll through one week</span></div>
+    <div class="cue" data-reveal><span aria-hidden="true">&darr;</span><span>Scroll through one week</span></div>
   </div>
   <div class="hero-side">
-    <div class="hero-mark">
-      <svg viewBox="0 0 300 300" width="240" height="240" role="img" aria-label="A capacity ring at 78 percent.">
-        <circle cx="150" cy="150" r="112" fill="none" stroke="#E7E2D8" stroke-width="26"/>
-        <circle cx="150" cy="150" r="112" fill="none" stroke="#D8412F" stroke-width="26"
-                stroke-dasharray="703.7" stroke-dashoffset="154.8" transform="rotate(-90 150 150)"/>
-        <text x="150" y="150" text-anchor="middle" dominant-baseline="central"
-              font-family="Archivo, sans-serif" font-weight="800" font-size="74" fill="#14120F">78%</text>
+    <div class="hero-mark" data-reveal>
+      <svg viewBox="0 0 300 300" role="img" aria-label="A capacity ring at 78 percent.">
+        <circle class="ring-track" cx="150" cy="150" r="112" fill="none" stroke-width="10"/>
+        <circle class="ring-arc" cx="150" cy="150" r="112" fill="none" stroke-width="10"
+                stroke-dasharray="703.7" transform="rotate(-90 150 150)"/>
+        <text class="ring-num" x="150" y="150" text-anchor="middle" dominant-baseline="central"
+              font-size="64">78%</text>
       </svg>
     </div>
     <div class="stats">
-      <div><div class="big">1 in 3</div><div class="sub">students report burnout in term time</div></div>
-      <div><div class="big">7 days</div><div class="sub">is how long it takes to overcommit</div></div>
+      <div data-reveal><div class="big">1 in 3</div><div class="sub">students report burnout in term time</div></div>
+      <div data-reveal><div class="big">7 days</div><div class="sub">is how long it takes to overcommit</div></div>
     </div>
   </div>
 </section>
@@ -139,23 +144,25 @@
 
 <section class="handoff">
   <div class="l">
-    <h2>So Carry is one number: how much you&rsquo;re carrying this week.</h2>
+    <h2 data-reveal="words" data-step="38ms">So Carry is one number: how much
+       you&rsquo;re <em>carrying</em> this week.</h2>
   </div>
   <div class="r">
-    <p>Two verbs. <strong>See it coming</strong> before you say yes,
+    <p data-reveal="words" data-step="12ms">Two verbs. <strong>See it coming</strong> before you say yes,
        and <strong>bleed it off</strong> when it&rsquo;s already here.</p>
-    <a class="btn btn-lg" href="{{ url_for('home') }}">Open the app &rarr;</a>
-    <p style="font-size:13px">No account needed &mdash; it opens straight into a working week.</p>
+    <a class="btn btn-lg btn-accent" href="{{ url_for('home') }}" data-reveal>Open the app &rarr;</a>
+    <p class="note" data-reveal>No account needed &mdash; it opens straight into a working week.</p>
   </div>
 </section>
 
 <footer>
-  <span style="grid-column:1/span 4"><strong style="font-family:var(--heading);color:var(--accent)">Carry</strong></span>
-  <span style="grid-column:5/span 4">Built for students who keep saying yes.</span>
-  <span style="grid-column:9/span 4">CodeNection 2025 &middot; Lifestyle</span>
+  <span class="f-mark" data-reveal>Carry</span>
+  <span class="f-line" data-reveal>Built for students who keep saying yes.</span>
+  <span class="f-meta" data-reveal>CodeNection 2025 &middot; Lifestyle</span>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <script src="{{ url_for('static', filename='js/landing.js') }}"></script>
+<script src="{{ url_for('static', filename='js/landing-reveal.js') }}"></script>
 </body>
 </html>
