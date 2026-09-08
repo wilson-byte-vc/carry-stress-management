@@ -64,17 +64,49 @@ targets.forEach(function (el) {
   }
 });
 
+var pending = targets.length;
+
+function reveal(el) {
+  if (el.classList.contains('in')) return;
+  el.classList.add('in');
+  io.unobserve(el);
+  pending--;
+}
+
 /* start: 'top 90%' — the block begins as its top crosses the last tenth of the
  * viewport. Revealed once, then unobserved: scrolling back up must not replay
  * a paragraph the reader has already read. */
 var io = new IntersectionObserver(function (entries) {
   entries.forEach(function (entry) {
-    if (!entry.isIntersecting) return;
-    entry.target.classList.add('in');
-    io.unobserve(entry.target);
+    if (entry.isIntersecting) reveal(entry.target);
   });
 }, { rootMargin: '0px 0px -10% 0px', threshold: 0 });
 
 targets.forEach(function (el) { io.observe(el); });
+
+/* The -10% bottom margin means the trigger line sits above the viewport floor,
+ * so anything short enough to live entirely in that last band once the page has
+ * run out of scroll — the footer — would never intersect and would stay hidden
+ * for good. Once we are at the bottom there is nothing left to wait for, so
+ * release whatever is still pending. */
+function bottomGuard() {
+  if (!pending) return;
+  var slack = document.documentElement.scrollHeight - window.innerHeight - window.scrollY;
+  if (slack > 2) return;
+  targets.forEach(reveal);
+  window.removeEventListener('scroll', onScroll);
+  window.removeEventListener('resize', onScroll);
+}
+
+var ticking = false;
+function onScroll() {
+  if (ticking) return;                       // one check per frame, not per event
+  ticking = true;
+  requestAnimationFrame(function () { ticking = false; bottomGuard(); });
+}
+
+window.addEventListener('scroll', onScroll, { passive: true });
+window.addEventListener('resize', onScroll);
+bottomGuard();                               // a page too short to scroll at all
 
 })();
