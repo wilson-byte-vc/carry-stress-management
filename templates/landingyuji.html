@@ -1,0 +1,908 @@
+<title>Carry</title>
+<style>
+  :root {
+    --navy: #0c111d;
+    --navy-2: #101624;
+    --panel: #161b26;
+    --panel-2: #1c2231;
+    --hair-navy: rgba(255,255,255,0.09);
+    --ink-hi: #f5f6f8;
+    --ink-lo: #94969c;
+    --ink-faint: #5b5e6b;
+
+    --light: #f3f2ee;
+    --panel-light: #ffffff;
+    --hair-light: rgba(20,20,15,0.1);
+    --ink-hi-l: #17171a;
+    --ink-lo-l: #83807a;
+    --ink-faint-l: #b3b0a8;
+
+    --band-room: #26a26b;
+    --band-tight: #d0972f;
+    --band-line: #d97a3f;
+    --band-over: #d1483a;
+
+    --shadow: rgba(0,0,0,0.4);
+    --font: "Inter", "Segoe UI", sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    background: var(--navy);
+    color: var(--ink-hi);
+    font-family: var(--font);
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  img, svg { max-width: 100%; }
+  h1, h2, h3 { font-family: var(--font); text-wrap: balance; margin: 0; letter-spacing: -0.02em; }
+  .num { font-variant-numeric: tabular-nums; }
+  a { color: inherit; }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 28px; }
+  .center { text-align: center; margin-left: auto; margin-right: auto; }
+  .measure { max-width: 62ch; }
+
+  .eyebrow {
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .zone-dark .eyebrow { color: var(--ink-lo); }
+  .zone-light .eyebrow { color: var(--ink-lo-l); }
+
+  section { padding: 100px 0; }
+  .zone-dark { background: var(--navy); color: var(--ink-hi); }
+  .zone-light { background: var(--light); color: var(--ink-hi-l); }
+
+  /* ---------- floating pill nav ---------- */
+  .topnav {
+    position: fixed;
+    top: 18px; left: 0; right: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    padding: 0 20px;
+  }
+  .topnav-inner {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    background: rgba(18,22,34,0.82);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--hair-navy);
+    border-radius: 999px;
+    padding: 8px 10px 8px 16px;
+    box-shadow: 0 12px 30px -14px var(--shadow);
+    max-width: 100%;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; color: var(--ink-hi); white-space: nowrap; transition: letter-spacing .6s cubic-bezier(.4,0,.2,1); }
+  :root[data-band="room"] .brand { letter-spacing: 0.02em; }
+  :root[data-band="tight"] .brand { letter-spacing: 0; }
+  :root[data-band="line"] .brand, :root[data-band="over"] .brand { letter-spacing: -0.02em; }
+  .mark { display: inline-flex; }
+  .mark i { width: 13px; height: 13px; border-radius: 50%; display: inline-block; margin-left: -5px; border: 2px solid var(--navy); transition: transform .5s cubic-bezier(.4,0,.2,1); }
+  .mark i:first-child { margin-left: 0; background: var(--band-room); }
+  .mark i:nth-child(2) { background: var(--band-tight); }
+  .mark i:nth-child(3) { background: var(--band-line); }
+  :root[data-band="line"] .mark i, :root[data-band="over"] .mark i { transform: translateX(-1.5px); }
+
+  .nav-links { display: flex; gap: 20px; }
+  .nav-links a { font-size: 13.5px; color: var(--ink-lo); white-space: nowrap; transition: color .15s; }
+  .nav-links a:hover { color: var(--ink-hi); }
+  @media (max-width: 780px) { .nav-links { display: none; } }
+
+  .nav-right { display: flex; align-items: center; gap: 10px; margin-left: 4px; }
+  .live-pill {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12px; color: var(--ink-lo);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--hair-navy);
+    border-radius: 999px;
+    padding: 6px 12px 6px 10px;
+    white-space: nowrap;
+  }
+  .live-pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--band-tight); transition: background .4s; }
+  .live-pill b { color: var(--ink-hi); font-weight: 700; transition: color .4s; }
+  @media (max-width: 560px) { .live-pill span { display: none; } }
+
+  .pill-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #fff; color: #0c111d;
+    font-weight: 600; font-size: 13.5px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    text-decoration: none;
+    white-space: nowrap;
+    border: none;
+    cursor: pointer;
+    transition: transform .15s, filter .15s;
+  }
+  .pill-btn:hover { filter: brightness(0.94); }
+  .pill-btn:active { transform: scale(0.97); }
+  .pill-btn.big { font-size: 15px; padding: 14px 26px; }
+  .pill-btn.ghost { background: transparent; color: var(--ink-hi); border: 1px solid var(--hair-navy); }
+  .pill-btn:focus-visible { outline: 2px solid var(--band-room); outline-offset: 3px; }
+
+  /* ---------- hero ---------- */
+  .hero { padding-top: 168px; padding-bottom: 0; }
+  .hero h1 {
+    font-size: clamp(34px, 5.4vw, 58px);
+    line-height: 1.1;
+    font-weight: 800;
+    margin: 18px auto 0;
+    max-width: 17ch;
+  }
+  .line-mask { display: block; overflow: hidden; }
+  .line-mask .line { display: block; transform: translateY(112%); animation: line-up .8s cubic-bezier(.19,.72,.1,1) forwards; }
+  .line-mask:nth-child(1) .line { animation-delay: .05s; }
+  .line-mask:nth-child(2) .line { animation-delay: .18s; }
+  .line-mask:nth-child(3) .line { animation-delay: .31s; }
+  @keyframes line-up { to { transform: translateY(0); } }
+
+  .hero p.lede {
+    margin: 22px auto 0;
+    color: var(--ink-lo);
+    font-size: 19px;
+    max-width: 46ch;
+    opacity: 0;
+    animation: soft-in .6s ease-out .55s forwards;
+  }
+  @keyframes soft-in { from { opacity: 0; } to { opacity: 1; } }
+  .hero .cta-row { margin-top: 34px; display: flex; flex-direction: column; align-items: center; gap: 14px; opacity: 0; animation: soft-in .6s ease-out .68s forwards; }
+  .hero .meta { color: var(--ink-faint); font-size: 13.5px; }
+
+  /* product stage: floating card on a gradient blob, cleanmeter-style */
+  .stage {
+    position: relative;
+    margin: 64px auto 0;
+    max-width: 760px;
+    border-radius: 28px;
+    border: 1px solid var(--hair-navy);
+    overflow: hidden;
+    padding: 72px 24px;
+    display: flex;
+    justify-content: center;
+    background: var(--navy-2);
+  }
+  @media (max-width: 480px) {
+    .wrap { padding: 0 16px; }
+    .stage { padding-left: 10px; padding-right: 10px; }
+    .phone { padding-left: 14px; padding-right: 14px; }
+  }
+  .stage-glow {
+    position: absolute; inset: -40%;
+    background:
+      radial-gradient(circle at 24% 28%, rgba(217,122,63,0.55), transparent 45%),
+      radial-gradient(circle at 76% 22%, rgba(208,151,47,0.45), transparent 42%),
+      radial-gradient(circle at 50% 82%, rgba(38,162,107,0.35), transparent 48%);
+    filter: blur(60px) saturate(120%);
+    opacity: 0.9;
+  }
+
+  /* staged reveal groups inside the phone: each group gets its own motion primitive */
+  .g-capacity { opacity: 0; transform: scale(.94); transition: opacity .6s ease-out, transform .6s cubic-bezier(.2,.7,.2,1); }
+  .g-capacity.in { opacity: 1; transform: scale(1); }
+
+  .g-request { overflow: hidden; }
+  .g-request .bubble { transform: translateY(105%); transition: transform .55s cubic-bezier(.19,.72,.1,1); }
+  .g-request.in .bubble { transform: translateY(0); }
+
+  .prompt-line {
+    font-size: 12.5px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ink-faint); margin: 2px 0 12px;
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path .55s cubic-bezier(.4,0,.2,1);
+  }
+  .prompt-line.in { clip-path: inset(0 0 0 0); }
+
+  .g-choice { opacity: 0; transform: scale(.97); transition: opacity .45s ease-out, transform .45s cubic-bezier(.2,.7,.2,1); }
+  .g-choice.in { opacity: 1; transform: scale(1); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .line-mask .line { animation: none !important; transform: none !important; }
+    .hero p.lede, .hero .cta-row { animation: none !important; opacity: 1 !important; }
+    .g-capacity, .g-request .bubble, .prompt-line, .g-choice { transition: none !important; opacity: 1 !important; transform: none !important; clip-path: inset(0 0 0 0) !important; }
+  }
+
+  /* ---------- phone frame ---------- */
+  .phone {
+    position: relative;
+    background: var(--panel);
+    border: 1px solid var(--hair-navy);
+    border-radius: 24px;
+    padding: 22px 22px 26px;
+    width: 100%;
+    max-width: 340px;
+    box-shadow: 0 30px 60px -24px var(--shadow);
+  }
+  .phone-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint);
+  }
+  .ring-wrap { display: flex; justify-content: center; margin: 18px 0 10px; position: relative; }
+  .ring-num { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+  .ring-num .pct { font-weight: 800; font-size: 40px; line-height: 1; transition: letter-spacing .5s cubic-bezier(.4,0,.2,1); }
+  .ring-num .band { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-lo); margin-top: 4px; }
+  .ring-num .tallest { font-size: 10.5px; color: var(--ink-faint); margin-top: 2px; }
+
+  /* pressure/release: whole phone tightens or opens with the current band */
+  .phone { transition: gap .4s ease; }
+  .phone.is-tight .ring-num .pct { letter-spacing: -0.03em; }
+  .phone.is-relaxed .ring-num .pct { letter-spacing: 0.01em; }
+  .phone.is-tight .step-body p, .phone.is-tight .bubble { letter-spacing: -0.003em; }
+
+  .cat-row { display: flex; gap: 6px; margin: 14px 0 16px; }
+  .cat { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .cat-track { width: 100%; height: 44px; border-radius: 6px; background: var(--panel-2); display: flex; align-items: flex-end; overflow: hidden; }
+  .cat-fill { width: 100%; border-radius: 6px 6px 0 0; background: var(--ink-faint); transition: height .7s cubic-bezier(.2,.8,.2,1), background .5s; }
+  .cat-label { font-size: 9.5px; letter-spacing: 0.03em; color: var(--ink-faint); text-transform: uppercase; }
+
+  .bubble { background: var(--panel-2); border-radius: 12px; padding: 12px 14px; font-size: 14.5px; color: var(--ink-hi); margin-bottom: 14px; }
+  .bubble strong { font-weight: 700; }
+
+  .btn-row { display: flex; gap: 10px; }
+  .btn {
+    font-size: 12.5px; font-weight: 600; letter-spacing: 0.03em;
+    padding: 11px 0; border-radius: 999px;
+    border: 1px solid var(--hair-navy);
+    background: transparent; color: var(--ink-hi);
+    flex: 1; cursor: pointer;
+    transition: background .2s, color .2s, border-color .2s, transform .25s cubic-bezier(.2,.7,.2,1), letter-spacing .25s ease, opacity .25s ease;
+  }
+  .btn:hover { border-color: var(--ink-faint); }
+  .btn:active { transform: scale(0.98); }
+  @media (max-width: 480px) { .btn { font-size: 11px; letter-spacing: 0.01em; padding: 11px 2px; } }
+  .btn:focus-visible { outline: 2px solid var(--band-room); outline-offset: 2px; }
+  .btn.primary { background: #fff; border-color: #fff; color: #0c111d; }
+  .btn.primary:hover { filter: brightness(0.94); }
+  .btn.ghost { color: var(--ink-lo); }
+
+  /* typographic hover: accept draws inward and occupies more weight; decline stays open */
+  .btn-row.accept-lean .btn.primary { letter-spacing: -0.015em; transform: scale(1.02); }
+  .btn-row.accept-lean .btn:not(.primary) { opacity: .62; transform: scale(.96); letter-spacing: .015em; }
+  .btn-row.decline-lean .btn:not(.primary) { letter-spacing: .02em; }
+  .btn-row.decline-lean .btn.primary { opacity: 1; transform: none; letter-spacing: .03em; }
+  @media (prefers-reduced-motion: reduce) {
+    .btn { transition: background .2s, color .2s, border-color .2s !important; }
+    .btn-row.accept-lean .btn, .btn-row.decline-lean .btn { transform: none !important; opacity: 1 !important; letter-spacing: .03em !important; }
+  }
+
+  .result { margin-top: 14px; font-size: 13.5px; color: var(--ink-lo); min-height: 20px; }
+  .result .again { font-size: 11.5px; font-weight: 600; color: var(--band-room); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; background: none; border: none; padding: 0; margin-top: 6px; display: inline-block; }
+
+  /* ---------- tri cards (Read it / Add to it / Lower it) ---------- */
+  .tri-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 56px; }
+  @media (max-width: 780px) { .tri-cards { grid-template-columns: 1fr; } }
+  .tri-card { background: var(--panel); border: 1px solid var(--hair-navy); border-radius: 18px; padding: 26px; }
+  .tri-ico { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 10px; background: var(--panel-2); font-size: 16px; margin-bottom: 16px; }
+  .tri-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .tri-card p { color: var(--ink-lo); font-size: 14.5px; margin: 0; }
+
+  /* ---------- pinned scroll-scrub reveal (load section) ---------- */
+  .pin-wrap { position: relative; height: 200vh; }
+  .pin-inner { position: sticky; top: 0; min-height: 100vh; display: flex; align-items: center; }
+  @media (max-width: 780px) { .pin-wrap { height: 150vh; } }
+  @media (prefers-reduced-motion: reduce) {
+    .pin-wrap { height: auto; }
+    .pin-inner { position: static; min-height: 0; }
+  }
+  .reveal-p { font-size: clamp(24px, 3.6vw, 38px); font-weight: 700; line-height: 1.35; max-width: 20ch; transition: letter-spacing .2s linear; }
+  .w { color: var(--ink-faint-l); transition: color .25s; }
+  .w.lit { color: var(--ink-hi-l); }
+  .w.lit[data-c="green"] { color: var(--band-room); }
+  .w.lit[data-c="orange"] { color: var(--band-line); }
+
+  /* ---------- ledger ---------- */
+  .ledger-bar { display: flex; height: 56px; border-radius: 12px; overflow: hidden; margin-top: 48px; border: 1px solid var(--hair-light); }
+  .ledger-seg { display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; min-width: 0; padding: 0 4px; }
+  @media (max-width: 560px) { .ledger-seg { font-size: 9px; padding: 0 2px; } }
+  .ledger-legend { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 16px; font-size: 12.5px; color: var(--ink-lo-l); }
+  .ledger-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .ledger-legend i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
+  .ledger-caption { margin-top: 18px; color: var(--ink-lo-l); font-size: 14.5px; max-width: 60ch; }
+
+  .quote-block-l {
+    margin: 44px 0 8px; padding: 20px 24px;
+    border-left: 3px solid var(--band-room);
+    background: var(--panel-light);
+    border-radius: 0 14px 14px 0;
+    font-size: 16px; color: var(--ink-lo-l);
+    box-shadow: 0 10px 30px -20px rgba(0,0,0,0.25);
+    transition: letter-spacing .6s ease, line-height .6s ease;
+  }
+  .quote-block-l b { color: var(--ink-hi-l); }
+  @media (prefers-reduced-motion: reduce) { .quote-block-l { transition: none; } }
+
+  /* ---------- cost of yes ---------- */
+  .cost-grid { display: grid; grid-template-columns: 0.95fr 1.05fr; gap: 56px; align-items: start; margin-top: 48px; }
+  @media (max-width: 860px) { .cost-grid { grid-template-columns: 1fr; } }
+  .steps { display: flex; flex-direction: column; gap: 26px; }
+  .step { display: flex; gap: 16px; }
+  .step-mark { font-size: 12px; color: var(--ink-faint); padding-top: 3px; min-width: 30px; font-weight: 700; }
+  .step-body h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .step-body p { color: var(--ink-lo); font-size: 15px; margin: 0; max-width: 50ch; transition: letter-spacing .4s ease; }
+  .caret { display: inline-block; width: 7px; height: 1em; background: var(--band-room); vertical-align: -2px; animation: blink 1s steps(1) infinite; }
+  @media (prefers-reduced-motion: reduce) { .caret { animation: none; } }
+  @keyframes blink { 50% { opacity: 0; } }
+  .delta-row { display: flex; align-items: baseline; gap: 10px; margin-top: 6px; }
+  .delta-row .arrow { color: var(--ink-faint); }
+  .delta-row .to { font-weight: 700; }
+
+  /* ---------- make room ---------- */
+  .room-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 56px; margin-top: 44px; }
+  @media (max-width: 860px) { .room-grid { grid-template-columns: 1fr; } }
+  .days { display: flex; gap: 8px; align-items: flex-end; height: 140px; margin-top: 28px; }
+  .day { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 8px; height: 100%; }
+  .day-bar { width: 100%; border-radius: 6px 6px 0 0; background: var(--band-tight); transition: height .6s cubic-bezier(.2,.8,.2,1); }
+  .day-bar.spike { background: var(--band-line); }
+  .day-label { font-size: 10.5px; color: var(--ink-faint-l); }
+
+  .toggle-row { display: flex; gap: 8px; margin-top: 18px; }
+  .toggle {
+    font-size: 11.5px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+    padding: 7px 14px; border-radius: 999px; border: 1px solid var(--hair-light);
+    background: transparent; color: var(--ink-lo-l); cursor: pointer;
+  }
+  .toggle.active { background: var(--ink-hi-l); color: var(--light); border-color: var(--ink-hi-l); }
+  .toggle:focus-visible { outline: 2px solid var(--band-room); outline-offset: 2px; }
+  .days-caption { margin-top: 14px; color: var(--ink-lo-l); font-size: 14px; }
+
+  .valve-card { background: var(--panel-light); border: 1px solid var(--hair-light); border-radius: 18px; padding: 28px; box-shadow: 0 20px 40px -28px rgba(0,0,0,0.3); }
+  .valve-card h3 { font-size: 20px; font-weight: 700; }
+  .valve-card p { color: var(--ink-lo-l); font-size: 15px; margin-top: 10px; }
+  .valve-fields { margin-top: 18px; font-size: 12.5px; color: var(--ink-lo-l); background: var(--light); border-radius: 10px; padding: 14px 16px; line-height: 1.9; }
+  .valve-fields .k { color: var(--ink-hi-l); font-weight: 600; }
+  .valve-decay { margin-top: 16px; font-size: 14px; color: var(--ink-lo-l); }
+  .valve-decay .num { color: var(--band-line); font-weight: 700; }
+
+  /* ---------- why (deliberately still) ---------- */
+  .why .wrap { max-width: 780px; }
+  .why blockquote { font-weight: 800; font-size: clamp(26px, 3.8vw, 38px); line-height: 1.28; margin: 0; text-wrap: balance; }
+  .why p.after { margin-top: 26px; color: var(--ink-lo); font-size: 16.5px; max-width: 58ch; }
+
+  /* ---------- final ---------- */
+  .final-grid { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; flex-wrap: wrap; margin-top: 30px; }
+  .final h2 { font-size: clamp(28px, 3.8vw, 40px); font-weight: 800; max-width: 18ch; }
+
+  footer { padding: 40px 0 60px; font-size: 12.5px; color: var(--ink-faint); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+</style>
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="#decision" class="brand"><span class="mark"><i></i><i></i><i></i></span>carry</a>
+    <div class="nav-links">
+      <a href="#decision">Decision</a>
+      <a href="#load">Load</a>
+      <a href="#cost">Cost of yes</a>
+      <a href="#room">Make room</a>
+      <a href="#why">Why</a>
+    </div>
+    <div class="nav-right">
+      <span class="live-pill" role="status" aria-live="polite"><i id="navDot"></i><span>this week</span><b id="navVal">72%</b></span>
+      <a href="#decision" class="pill-btn">Try it</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero zone-dark" id="decision">
+  <div class="wrap center">
+    <p class="eyebrow">Lifestyle Track — Beating the Burnout</p>
+    <h1>
+      <span class="line-mask"><span class="line">You don't decide</span></span>
+      <span class="line-mask"><span class="line">to burn out.</span></span>
+      <span class="line-mask"><span class="line">You just say yes eleven times.</span></span>
+    </h1>
+    <p class="lede">Carry keeps one number: how much of the week you have left before something has to give.</p>
+    <div class="cta-row">
+      <a href="#load" class="pill-btn big">See how load builds ↓</a>
+      <p class="meta">Mental · Time · Physical · Social · Errands — read as one line, not five worries.</p>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="stage" id="heroStage">
+      <div class="stage-glow" aria-hidden="true"></div>
+      <div class="phone" id="heroPhone">
+        <div class="phone-head">
+          <span>Today</span>
+          <span id="heroTimestamp">Tue, 9:40 pm</span>
+        </div>
+
+        <div class="g-capacity" data-g="1">
+          <div class="ring-wrap">
+            <svg viewBox="0 0 160 160" width="180" height="180" aria-hidden="true">
+              <circle cx="80" cy="80" r="68" fill="none" stroke="var(--panel-2)" stroke-width="14"/>
+              <circle id="heroRing" cx="80" cy="80" r="68" fill="none" stroke="var(--band-tight)" stroke-width="14"
+                      stroke-linecap="round" transform="rotate(-90 80 80)"
+                      stroke-dasharray="427.2" stroke-dashoffset="427.2"/>
+            </svg>
+            <div class="ring-num">
+              <div class="pct num" id="heroPct">72<span style="font-size:20px">%</span></div>
+              <div class="band" id="heroBand">tight</div>
+              <div class="tallest">tallest: <span id="heroTallest">mental</span></div>
+            </div>
+          </div>
+
+          <div class="cat-row" aria-hidden="true">
+            <div class="cat"><div class="cat-track"><div class="cat-fill" id="hc-mental" style="height:74%"></div></div><div class="cat-label">Mental</div></div>
+            <div class="cat"><div class="cat-track"><div class="cat-fill" id="hc-time" style="height:60%"></div></div><div class="cat-label">Time</div></div>
+            <div class="cat"><div class="cat-track"><div class="cat-fill" id="hc-physical" style="height:38%"></div></div><div class="cat-label">Phys.</div></div>
+            <div class="cat"><div class="cat-track"><div class="cat-fill" id="hc-social" style="height:44%"></div></div><div class="cat-label">Social</div></div>
+            <div class="cat"><div class="cat-track"><div class="cat-fill" id="hc-errands" style="height:20%"></div></div><div class="cat-label">Errand</div></div>
+          </div>
+        </div>
+
+        <div class="g-request" data-g="2">
+          <div class="bubble">A friend asked you to join a <strong>2-hour gaming session</strong> tonight.</div>
+        </div>
+
+        <p class="prompt-line" data-g="3">Should I say yes?</p>
+
+        <div class="g-choice" data-g="4">
+          <div class="btn-row" id="heroBtnRow">
+            <button class="btn primary" id="heroAccept">Accept</button>
+            <button class="btn" id="heroDecline">Decline</button>
+          </div>
+          <div class="result" id="heroResult"></div>
+        </div>
+      </div>
+    </div>
+    <p class="meta center" style="max-width:44ch; margin:20px auto 0;">This is the real decision Carry surfaces before you say yes — simplified for the web. The full model runs five categories against a weekly budget, not just one evening.</p>
+  </div>
+
+  <div class="wrap">
+    <div class="tri-cards">
+      <div class="tri-card"><span class="tri-ico">◎</span><h3>Read it</h3><p>Today's ring — one glance, the tallest category named. That's the whole first screen.</p></div>
+      <div class="tri-card"><span class="tri-ico">＋</span><h3>Add to it</h3><p>Cost of Yes runs the same formula again, once with the new thing appended. Nothing new to fail.</p></div>
+      <div class="tri-card"><span class="tri-ico">↓</span><h3>Lower it</h3><p>Make room moves what's movable. The Valve buys you 48 hours when nothing is.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="load" class="zone-light">
+  <div class="wrap">
+    <div class="pin-wrap" id="pinWrap">
+      <div class="pin-inner">
+        <p class="reveal-p" id="revealP"></p>
+      </div>
+    </div>
+
+    <div class="ledger-bar" role="img" aria-label="Weekly budget by category: time 58, mental 28, physical 20, social 18, errands 10">
+      <div class="ledger-seg" style="width:43.3%; background:var(--band-line);">TIME · 58</div>
+      <div class="ledger-seg" style="width:20.9%; background:var(--band-tight);">MENTAL · 28</div>
+      <div class="ledger-seg" style="width:14.9%; background:#9d998e;">PHYSICAL · 20</div>
+      <div class="ledger-seg" style="width:13.4%; background:var(--band-room);">SOCIAL · 18</div>
+      <div class="ledger-seg" style="width:7.5%; background:#c7c2b6; font-size:0;">ERRANDS · 10</div>
+    </div>
+    <div class="ledger-legend">
+      <span><i style="background:var(--band-line)"></i>Time — 58</span>
+      <span><i style="background:var(--band-tight)"></i>Mental — 28</span>
+      <span><i style="background:#9d998e"></i>Physical — 20</span>
+      <span><i style="background:var(--band-room)"></i>Social — 18</span>
+      <span><i style="background:#c7c2b6"></i>Errands — 10</span>
+    </div>
+    <p class="ledger-caption">Time carries the biggest share of the budget — because everything you take on charges time in full, on top of whatever else it costs. That's why "just one coffee" still moves the number.</p>
+
+    <div class="quote-block-l">
+      "An average lets three calm categories hide one that's on fire. <b>Time 130</b>, everything else <b>40</b> averages to a comfortable <b>58</b> — and that comfortable 58 is exactly the problem the brief describes."
+    </div>
+  </div>
+</section>
+
+<section id="cost" class="zone-dark">
+  <div class="wrap">
+    <p class="eyebrow">The cost of yes</p>
+    <h2 style="font-size:clamp(28px,3.6vw,40px); font-weight:800; margin-top:12px; max-width:18ch;">Before you say yes, see what it costs.</h2>
+
+    <div class="cost-grid">
+      <div class="steps">
+        <div class="step">
+          <div class="step-mark">01</div>
+          <div class="step-body">
+            <h3>Type the thing</h3>
+            <p><span class="typed" id="typedText"></span><span class="caret"></span></p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-mark">02</div>
+          <div class="step-body">
+            <h3>Ghost bars animate now</h3>
+            <p>Same formula, run twice — once with the new thing appended. Nothing new to be wrong, nothing new to fail on stage.</p>
+            <div class="delta-row">
+              <span class="num" style="font-size:22px;">74%</span>
+              <span class="arrow">→</span>
+              <span class="num to" id="costTarget" style="font-size:22px; color:var(--band-line);">97%</span>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-mark">03</div>
+          <div class="step-body">
+            <h3>Accept, make room, or decline</h3>
+            <p id="costCaption">Make room finds the heaviest thing you can still move and moves it. It never touches what's fixed.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage" id="costStage" style="padding:56px 24px; margin:0;">
+        <div class="stage-glow" aria-hidden="true"></div>
+        <div class="phone g-capacity" id="costPhone" data-g="1">
+          <div class="phone-head"><span>Cost of yes</span><span>Group project</span></div>
+          <div class="ring-wrap">
+            <svg viewBox="0 0 160 160" width="180" height="180" aria-hidden="true">
+              <circle cx="80" cy="80" r="68" fill="none" stroke="var(--panel-2)" stroke-width="14"/>
+              <circle id="costRing" cx="80" cy="80" r="68" fill="none" stroke="var(--band-tight)" stroke-width="14"
+                      stroke-linecap="round" transform="rotate(-90 80 80)"
+                      stroke-dasharray="427.2" stroke-dashoffset="427.2"/>
+            </svg>
+            <div class="ring-num">
+              <div class="pct num" id="costPct">74<span style="font-size:20px">%</span></div>
+              <div class="band" id="costBand">tight</div>
+              <div class="tallest">tallest: <span id="costTallest">mental</span></div>
+            </div>
+          </div>
+          <div class="bubble">"<span id="bubbleText">group project, due friday</span>"</div>
+          <div class="btn-row" id="costBtnRow">
+            <button class="btn primary" id="costAccept">Accept</button>
+            <button class="btn" id="costRoom">Make room</button>
+            <button class="btn ghost" id="costDecline">Decline</button>
+          </div>
+          <div class="result" id="costResult"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="room" class="zone-light">
+  <div class="wrap">
+    <p class="eyebrow">Make room</p>
+    <h2 style="font-size:clamp(28px,3.6vw,40px); font-weight:800; margin-top:12px; max-width:18ch;">Make room doesn't make the work disappear.</h2>
+
+    <div class="room-grid">
+      <div>
+        <div class="quote-block-l" id="roomQuote" style="margin-top:0;">Rebalancing doesn't make the work go away. It stops it all landing on Thursday.</div>
+
+        <div class="toggle-row">
+          <button class="toggle active" id="toggleBefore">Before</button>
+          <button class="toggle" id="toggleAfter">After</button>
+        </div>
+        <div class="days" id="daysStrip" aria-label="Load across the week, before and after rebalancing">
+          <div class="day"><div class="day-bar" data-before="40" data-after="45" style="height:40%"></div><div class="day-label">Mon</div></div>
+          <div class="day"><div class="day-bar" data-before="35" data-after="40" style="height:35%"></div><div class="day-label">Tue</div></div>
+          <div class="day"><div class="day-bar" data-before="45" data-after="50" style="height:45%"></div><div class="day-label">Wed</div></div>
+          <div class="day"><div class="day-bar spike" data-before="95" data-after="60" style="height:95%"></div><div class="day-label">Thu</div></div>
+          <div class="day"><div class="day-bar" data-before="30" data-after="40" style="height:30%"></div><div class="day-label">Fri</div></div>
+          <div class="day"><div class="day-bar" data-before="50" data-after="55" style="height:50%"></div><div class="day-label">Sat</div></div>
+          <div class="day"><div class="day-bar" data-before="25" data-after="30" style="height:25%"></div><div class="day-label">Sun</div></div>
+        </div>
+        <p class="days-caption">Illustrative week. Same total load either way — the solver just won't let one day carry all of it. Moving a task without touching the spread changes nothing: the weekly number stays exactly the same.</p>
+      </div>
+
+      <div class="valve-card">
+        <h3>The Pressure Valve</h3>
+        <p>90 seconds. Re-enterable. For when there's nothing left to move and you still need somewhere to put it.</p>
+        <div class="valve-fields">
+          <div><span class="k">timestamp</span>, <span class="k">duration_s</span>,</div>
+          <div><span class="k">felt_after</span> (1–5 tap),</div>
+          <div><span class="k">category_tag</span></div>
+        </div>
+        <p class="valve-decay">−<span class="num">0.12</span> credit on that category, decaying to zero over <span class="num">48h</span>. It didn't fix your week — it bought you two days. <em>Credit expires Thursday.</em></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="why zone-dark" id="why">
+  <div class="wrap">
+    <p class="eyebrow">Why Carry exists</p>
+    <blockquote>Burnout is rarely one big thing. It's everything piling up — without anyone noticing — until it's too late.</blockquote>
+    <p class="after">Uni students already juggle assignments, part-time jobs, social commitments, errands, and whatever's left for sleep. Nobody says yes to burnout. They say yes to one more thing, eleven times, before anyone — including them — notices what the week actually costs.</p>
+  </div>
+</section>
+
+<section class="zone-dark final" id="try-again">
+  <div class="wrap">
+    <p class="eyebrow">One number, kept open</p>
+    <div class="final-grid">
+      <h2>See it coming, then bleed it off.</h2>
+      <a class="pill-btn big" href="#decision">Try the decision again ↑</a>
+    </div>
+  </div>
+</section>
+
+<footer class="zone-dark">
+  <div class="wrap" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; width:100%;">
+    <span>Carry — a CodeNection 2025 prototype, Lifestyle Track: Beating the Burnout.</span>
+    <span>No accounts, no server, no chat interface — by design.</span>
+  </div>
+</footer>
+
+<script>
+(function() {
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var CIRC = 427.2;
+
+  function bandOf(pct) {
+    if (pct < 60) return { name: 'room', color: 'var(--band-room)' };
+    if (pct < 85) return { name: 'tight', color: 'var(--band-tight)' };
+    if (pct <= 100) return { name: 'at the line', color: 'var(--band-line)' };
+    return { name: 'over', color: 'var(--band-over)' };
+  }
+
+  function animateRing(circleEl, pctEl, bandEl, from, to, duration) {
+    var band = bandOf(to);
+    if (reduceMotion) {
+      circleEl.style.stroke = band.color;
+      circleEl.setAttribute('stroke-dashoffset', CIRC - (to / 100) * CIRC);
+      pctEl.innerHTML = to + '<span style="font-size:20px">%</span>';
+      if (bandEl) bandEl.textContent = band.name;
+      return;
+    }
+    var start = null;
+    function step(ts) {
+      if (!start) start = ts;
+      var t = Math.min(1, (ts - start) / duration);
+      var eased = 1 - Math.pow(1 - t, 3);
+      var val = from + (to - from) * eased;
+      circleEl.setAttribute('stroke-dashoffset', CIRC - (val / 100) * CIRC);
+      circleEl.style.stroke = bandOf(Math.round(val)).color;
+      pctEl.innerHTML = Math.round(val) + '<span style="font-size:20px">%</span>';
+      if (t < 1) requestAnimationFrame(step);
+      else if (bandEl) bandEl.textContent = band.name;
+    }
+    requestAnimationFrame(step);
+  }
+
+  function setBadge(pct) {
+    var band = bandOf(pct);
+    var navVal = document.getElementById('navVal');
+    navVal.textContent = pct + '%';
+    navVal.style.color = band.color;
+    document.getElementById('navDot').style.background = band.color;
+    var bandSlug = band.name === 'at the line' ? 'line' : band.name;
+    document.documentElement.setAttribute('data-band', bandSlug);
+  }
+  setBadge(72);
+
+  // pressure/release: the phone's own type tightens under load, opens up in room
+  function applyTension(phoneEl, pct) {
+    var b = bandOf(pct).name;
+    phoneEl.classList.remove('is-tight', 'is-relaxed');
+    if (b === 'at the line' || b === 'over') phoneEl.classList.add('is-tight');
+    else if (b === 'room') phoneEl.classList.add('is-relaxed');
+  }
+
+  // accept/decline as typography, not just buttons
+  function wireLeanButtons(rowEl) {
+    if (!rowEl) return;
+    var primary = rowEl.querySelector('.btn.primary');
+    var others = rowEl.querySelectorAll('.btn:not(.primary)');
+    function leanAccept(on) { rowEl.classList.toggle('accept-lean', on); }
+    function leanDecline(on) { rowEl.classList.toggle('decline-lean', on); }
+    if (primary) {
+      primary.addEventListener('mouseenter', function() { leanAccept(true); });
+      primary.addEventListener('mouseleave', function() { leanAccept(false); });
+      primary.addEventListener('focus', function() { leanAccept(true); });
+      primary.addEventListener('blur', function() { leanAccept(false); });
+    }
+    others.forEach(function(btn) {
+      btn.addEventListener('mouseenter', function() { leanDecline(true); });
+      btn.addEventListener('mouseleave', function() { leanDecline(false); });
+      btn.addEventListener('focus', function() { leanDecline(true); });
+      btn.addEventListener('blur', function() { leanDecline(false); });
+    });
+  }
+
+  // ---- Hero demo ----
+  var heroRing = document.getElementById('heroRing');
+  var heroPct = document.getElementById('heroPct');
+  var heroBand = document.getElementById('heroBand');
+  var heroResult = document.getElementById('heroResult');
+  var heroTallest = document.getElementById('heroTallest');
+  var heroPhone = document.getElementById('heroPhone');
+  var heroBase = 72, heroCurrent = 72;
+  applyTension(heroPhone, heroBase);
+  wireLeanButtons(document.getElementById('heroBtnRow'));
+
+  function heroBars(scale) {
+    var vals = { mental: 74, time: 60, physical: 38, social: 44, errands: 20 };
+    Object.keys(vals).forEach(function(k) {
+      var v = Math.min(100, Math.round(vals[k] * scale));
+      var el = document.getElementById('hc-' + k);
+      if (el) el.style.height = v + '%';
+    });
+  }
+
+  document.getElementById('heroAccept').addEventListener('click', function() {
+    animateRing(heroRing, heroPct, heroBand, heroCurrent, 84, 700);
+    heroBars(1.18);
+    heroCurrent = 84;
+    setBadge(84);
+    applyTension(heroPhone, 84);
+    heroTallest.textContent = 'social';
+    heroResult.innerHTML = 'Room left this week drops to <span class="num">16%</span>. <button class="again" id="heroAgain">try again</button>';
+    document.getElementById('heroAgain').addEventListener('click', resetHero);
+  });
+  document.getElementById('heroDecline').addEventListener('click', function() {
+    animateRing(heroRing, heroPct, heroBand, heroCurrent, heroBase, 500);
+    heroBars(1);
+    heroCurrent = heroBase;
+    setBadge(heroBase);
+    applyTension(heroPhone, heroBase);
+    heroTallest.textContent = 'mental';
+    heroResult.innerHTML = 'Nothing moves. Declining costs you nothing here. <button class="again" id="heroAgain2">try accept instead</button>';
+    document.getElementById('heroAgain2').addEventListener('click', function() { document.getElementById('heroAccept').click(); });
+  });
+  function resetHero() {
+    animateRing(heroRing, heroPct, heroBand, heroCurrent, heroBase, 500);
+    heroBars(1);
+    heroCurrent = heroBase;
+    setBadge(heroBase);
+    applyTension(heroPhone, heroBase);
+    heroTallest.textContent = 'mental';
+    heroResult.textContent = '';
+  }
+
+  // sequenced hero reveal: capacity -> request -> question -> choice, triggered once on view
+  var heroGroups = Array.prototype.slice.call(document.querySelectorAll('#heroPhone [data-g], .prompt-line[data-g]'));
+  if (reduceMotion) {
+    animateRing(heroRing, heroPct, heroBand, 0, heroBase, 0);
+    heroGroups.forEach(function(g) { g.classList.add('in'); });
+  } else {
+    var heroPlayed = false;
+    var heroObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting && !heroPlayed) {
+          heroPlayed = true;
+          animateRing(heroRing, heroPct, heroBand, 0, heroBase, 900);
+          setTimeout(function() { heroGroups[0].classList.add('in'); }, 0);
+          setTimeout(function() { heroGroups[1].classList.add('in'); }, 340);
+          setTimeout(function() { heroGroups[2].classList.add('in'); }, 680);
+          setTimeout(function() { heroGroups[3].classList.add('in'); }, 980);
+          heroObserver.disconnect();
+        }
+      });
+    }, { threshold: 0, rootMargin: '0px 0px -15% 0px' });
+    heroObserver.observe(document.getElementById('heroStage'));
+  }
+
+  // ---- Cost of yes demo ----
+  var costRing = document.getElementById('costRing');
+  var costPct = document.getElementById('costPct');
+  var costBand = document.getElementById('costBand');
+  var costResult = document.getElementById('costResult');
+  var costCaption = document.getElementById('costCaption');
+  var costTallest = document.getElementById('costTallest');
+  var costPhone = document.getElementById('costPhone');
+  var costBase = 74, costCurrent = 74;
+  applyTension(costPhone, costBase);
+  wireLeanButtons(document.getElementById('costBtnRow'));
+
+  if (reduceMotion) {
+    animateRing(costRing, costPct, costBand, 0, costBase, 0);
+    costPhone.classList.add('in');
+  } else {
+    var costPlayed = false;
+    var costObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting && !costPlayed) {
+          costPlayed = true;
+          costPhone.classList.add('in');
+          animateRing(costRing, costPct, costBand, 0, costBase, 900);
+          costObserver.disconnect();
+        }
+      });
+    }, { threshold: 0, rootMargin: '0px 0px -15% 0px' });
+    costObserver.observe(document.getElementById('costStage'));
+  }
+
+  var typedText = document.getElementById('typedText');
+  var phrase = 'group project, due friday';
+  var i = 0;
+  function typeLoop() {
+    if (reduceMotion) { typedText.textContent = phrase; return; }
+    typedText.textContent = phrase.slice(0, i);
+    i++;
+    if (i <= phrase.length) setTimeout(typeLoop, 55);
+  }
+  typeLoop();
+
+  function goCost(to, caption, tallest) {
+    animateRing(costRing, costPct, costBand, costCurrent, to, 800);
+    costCurrent = to;
+    setBadge(to);
+    applyTension(costPhone, to);
+    costTallest.textContent = tallest;
+    costCaption.textContent = caption;
+  }
+  document.getElementById('costAccept').addEventListener('click', function() {
+    goCost(97, 'Locked in. 3% of room left before something else has to move.', 'mental');
+    costResult.innerHTML = '<button class="again" id="costAgain1">start over</button>';
+    document.getElementById('costAgain1').addEventListener('click', resetCost);
+  });
+  document.getElementById('costRoom').addEventListener('click', function() {
+    goCost(91, 'Moved: the lab report → Sunday. Still at the line, but nothing fixed got touched.', 'mental');
+    costResult.innerHTML = '<button class="again" id="costAgain2">start over</button>';
+    document.getElementById('costAgain2').addEventListener('click', resetCost);
+  });
+  document.getElementById('costDecline').addEventListener('click', function() {
+    goCost(74, 'Declining costs nothing — except the group project.', 'mental');
+    costResult.innerHTML = '<button class="again" id="costAgain3">start over</button>';
+    document.getElementById('costAgain3').addEventListener('click', resetCost);
+  });
+  function resetCost() {
+    goCost(74, "Make room finds the heaviest thing you can still move and moves it. It never touches what's fixed.", 'mental');
+    costResult.textContent = '';
+  }
+
+  // ---- Days before/after toggle (Make room = release) ----
+  var beforeBtn = document.getElementById('toggleBefore');
+  var afterBtn = document.getElementById('toggleAfter');
+  var bars = document.querySelectorAll('#daysStrip .day-bar');
+  var roomQuote = document.getElementById('roomQuote');
+  function showState(state) {
+    bars.forEach(function(b) { b.style.height = b.getAttribute('data-' + state) + '%'; });
+    beforeBtn.classList.toggle('active', state === 'before');
+    afterBtn.classList.toggle('active', state === 'after');
+    roomQuote.style.letterSpacing = state === 'after' ? '.012em' : '0';
+    roomQuote.style.lineHeight = state === 'after' ? '1.7' : '1.5';
+  }
+  beforeBtn.addEventListener('click', function() { showState('before'); });
+  afterBtn.addEventListener('click', function() { showState('after'); });
+
+  // ---- Pinned scroll-scrub reveal: accumulation compresses the type as it loads ----
+  var tokens = [
+    {t:'Most', c:0}, {t:'planners', c:0}, {t:'count', c:0}, {t:'tasks.', c:0},
+    {t:'Carry', c:'green'}, {t:'counts', c:'green'}, {t:'cost.', c:'green'},
+    {t:'Mental,', c:0}, {t:'time,', c:0}, {t:'physical,', c:0}, {t:'social,', c:0}, {t:'errands', c:0}, {t:'—', c:0},
+    {t:'five', c:0}, {t:'kinds', c:0}, {t:'of', c:0}, {t:'load', c:0}, {t:'a', c:0}, {t:'student', c:0}, {t:'is', c:0}, {t:'already', c:0}, {t:'carrying,', c:0},
+    {t:'and', c:0}, {t:'averaging', c:0}, {t:'them', c:0}, {t:'is', c:0}, {t:'exactly', c:0}, {t:'how', c:0}, {t:'the', c:0}, {t:'overloaded', c:0}, {t:'one', c:'orange'}, {t:'hides.', c:'orange'}
+  ];
+  var revealEl = document.getElementById('revealP');
+  tokens.forEach(function(tok) {
+    var span = document.createElement('span');
+    span.className = 'w';
+    span.textContent = tok.t;
+    if (tok.c) span.setAttribute('data-c', tok.c);
+    revealEl.appendChild(span);
+    revealEl.appendChild(document.createTextNode(' '));
+  });
+  var words = revealEl.querySelectorAll('.w');
+  var pinWrap = document.getElementById('pinWrap');
+
+  function updatePinReveal() {
+    var rect = pinWrap.getBoundingClientRect();
+    var vh = window.innerHeight;
+    var total = rect.height - vh;
+    var progress = total > 0 ? (-rect.top) / total : 0;
+    progress = Math.max(0, Math.min(1, progress));
+    var count = Math.floor(progress * words.length);
+    words.forEach(function(w, idx) { w.classList.toggle('lit', idx < count); });
+    revealEl.style.letterSpacing = (-0.012 * progress) + 'em';
+  }
+
+  if (reduceMotion) {
+    words.forEach(function(w) { w.classList.add('lit'); });
+  } else {
+    var ticking = false;
+    window.addEventListener('scroll', function() {
+      if (!ticking) {
+        requestAnimationFrame(function() { updatePinReveal(); ticking = false; });
+        ticking = true;
+      }
+    }, { passive: true });
+    updatePinReveal();
+  }
+})();
+</script>

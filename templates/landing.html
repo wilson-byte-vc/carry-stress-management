@@ -16,17 +16,27 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&display=swap">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+
+{# Needed only so this page can offer its own "Open the app" install prompt --
+   base.html normally owns this, but landing.html deliberately doesn't extend
+   it (see the comment above). Without the manifest link Chrome will never
+   fire beforeinstallprompt here. #}
+<link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+<meta name="theme-color" content="#D8412F">
 </head>
 <body>
 
 <header class="top">
-  <span class="wordmark">Carry</span>
+  <span class="wordmark">StressRot</span>
   <div class="hud" data-hud>
     <span class="kicker" data-hud-label>Day 1 / 7</span>
     <span class="hud-track"><span class="hud-bar" data-hud-bar></span></span>
     <span class="hud-day" data-hud-day>Monday</span>
   </div>
-  <a class="btn btn-accent" href="{{ url_for('home') }}">Open the app</a>
+  <div class="btn-group">
+    <a class="btn btn-ghost" href="{{ url_for('home') }}">Visit website</a>
+    <a class="btn btn-accent" id="open-app-btn" href="{{ url_for('home') }}">Open the app</a>
+  </div>
 </header>
 
 <section class="hero">
@@ -122,12 +132,12 @@
         <div class="ledger-body">
         <div class="ledger-head" data-ledger-head>What you agreed to</div>
         <div class="lrow" data-lrow="0"><img class="thumb" src="{{ url_for('static', filename='image/week/mon.jpg') }}" alt="" onerror="this.remove()"><span class="d">MON</span><span class="t">Group project</span><span class="v">+6h</span></div>
-        <div class="lrow" data-lrow="1"><img class="thumb" src="{{ url_for('static', filename='image/week/tuesday.jpg') }}" alt="" onerror="this.remove()"><span class="d">TUE</span><span class="t">Thursday night shifts</span><span class="v">+8h</span></div>
-        <div class="lrow" data-lrow="2"><img class="thumb" src="{{ url_for('static', filename='image/week/wenesday.jpg') }}" alt="" onerror="this.remove()"><span class="d">WED</span><span class="t">Deadline moved forward</span><span class="v">&minus;2d</span></div>
-        <div class="lrow" data-lrow="3"><img class="thumb" src="{{ url_for('static', filename='image/week/thursday.jpg') }}" alt="" onerror="this.remove()"><span class="d">THU</span><span class="t">47 unread</span><span class="v">later</span></div>
-        <div class="lrow" data-lrow="4"><img class="thumb" src="{{ url_for('static', filename='image/week/friday.jpg') }}" alt="" onerror="this.remove()"><span class="d">FRI</span><span class="t">Night out</span><span class="v">+5h</span></div>
-        <div class="lrow" data-lrow="5"><img class="thumb" src="{{ url_for('static', filename='image/week/saturday.jpg') }}" alt="" onerror="this.remove()"><span class="d">SAT</span><span class="t">Laptop closed</span><span class="v">0h</span></div>
-        <div class="lrow" data-lrow="6"><img class="thumb" src="{{ url_for('static', filename='image/week/sunday.jpg') }}" alt="" onerror="this.remove()"><span class="d">SUN</span><span class="t">Everything, at once</span><span class="v">19h</span></div>
+        <div class="lrow" data-lrow="1"><img class="thumb" src="{{ url_for('static', filename='image/week/tue.jpg') }}" alt="" onerror="this.remove()"><span class="d">TUE</span><span class="t">Thursday night shifts</span><span class="v">+8h</span></div>
+        <div class="lrow" data-lrow="2"><img class="thumb" src="{{ url_for('static', filename='image/week/wed.jpg') }}" alt="" onerror="this.remove()"><span class="d">WED</span><span class="t">Deadline moved forward</span><span class="v">&minus;2d</span></div>
+        <div class="lrow" data-lrow="3"><img class="thumb" src="{{ url_for('static', filename='image/week/thu.jpg') }}" alt="" onerror="this.remove()"><span class="d">THU</span><span class="t">47 unread</span><span class="v">later</span></div>
+        <div class="lrow" data-lrow="4"><img class="thumb" src="{{ url_for('static', filename='image/week/fri.jpg') }}" alt="" onerror="this.remove()"><span class="d">FRI</span><span class="t">Night out</span><span class="v">+5h</span></div>
+        <div class="lrow" data-lrow="5"><img class="thumb" src="{{ url_for('static', filename='image/week/sat.jpg') }}" alt="" onerror="this.remove()"><span class="d">SAT</span><span class="t">Laptop closed</span><span class="v">0h</span></div>
+        <div class="lrow" data-lrow="6"><img class="thumb" src="{{ url_for('static', filename='image/week/sun.jpg') }}" alt="" onerror="this.remove()"><span class="d">SUN</span><span class="t">Everything, at once</span><span class="v">19h</span></div>
         <div class="ltotal" data-ltotal>
           <span></span><span class="lab">Week load</span><span class="val" data-total-val>134%</span>
         </div>

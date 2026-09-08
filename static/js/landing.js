@@ -146,7 +146,45 @@ function narrative() {
   requestAnimationFrame(tick);
 }
 
+// "Open the app" tries to launch the installed PWA; if the browser has no
+// installed copy it triggers the install prompt instead, then continues into
+// the app either way once that's done. "Visit website" beside it is a plain
+// link -- always just the page, no install detour.
+function openAppButton() {
+  const btn = $('#open-app-btn');
+  if (!btn) return;
+
+  let deferred = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferred = e;
+  });
+
+  btn.addEventListener('click', e => {
+    if (!deferred) return; // not installable here (already installed, unsupported
+                            // browser, or criteria unmet) -- plain link, same as
+                            // clicking any other <a>
+    e.preventDefault();
+    const href = btn.href;
+    deferred.prompt();
+    deferred.userChoice.finally(() => {
+      deferred = null;
+      window.location.href = href; // into the app whether they installed or dismissed
+    });
+  });
+}
+
+// beforeinstallprompt only fires once a service worker is active for this
+// page. static/js/app.js normally registers it, but landing.html doesn't
+// load app.js (see its own top comment), so this page needs its own.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+
 startLenis();
 narrative();
+openAppButton();
 
 })();

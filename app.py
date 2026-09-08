@@ -92,8 +92,8 @@ DEMO_CHAT_LIMIT = 10
 # registered (so url_for keeps resolving) but answer 404, the UI that points
 # at them is hidden, and the session loader refuses to resolve anyone.
 #
-# Set AUTH_ENABLED=1 in the environment to turn the whole thing back on.
-AUTH_ENABLED = os.environ.get("AUTH_ENABLED", "0") == "1"
+# Set AUTH_ENABLED=0 in the environment to switch signup/login back off.
+AUTH_ENABLED = os.environ.get("AUTH_ENABLED", "1") == "1"
 
 
 def auth_route(view):
@@ -684,6 +684,10 @@ def assistant():
 @app.route("/game")
 def game():
     return render_template("pressure_valve.html")
+
+@app.route("/landingyuji")
+def landingyuji():
+    return render_template("landingyuji.html")
 
 
 # --- PWA ---
