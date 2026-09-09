@@ -1,76 +1,99 @@
 {% extends "base.html" %}
 
-{% block title %}Equilibrium - Check-in{% endblock %}
+{% block title %}Check-in — Carry{% endblock %}
 
 {% block body_class %}has-bottom-nav{% endblock %}
 
 {% block content %}
+<main class="wrap-narrow">
 
-<main class="container">
-<div class="page-intro">
-  <h2 class="text-display-lg-mobile">Daily Check-in</h2>
-  <p class="text-body-lg">Take a moment to log how each part of your day is feeling.</p>
-</div>
+  <div class="page-intro">
+    <p class="eyebrow">Today</p>
+    <h1 class="text-headline">Where is the week sitting right now?</h1>
+    <p class="text-body">Four sliders, one minute. Read each one as capacity left — not as a score you passed or failed.</p>
+  </div>
+
+  <h2 class="sr-only">The four categories</h2>
 
   <form class="checkin-form" method="post" data-checkin-form>
-    <div class="checkin-item" id="cat-time">
+
+    <div class="checkin-item motion-reveal" id="cat-time">
       <div class="checkin-item-head">
-        <span class="material-symbols-outlined">schedule</span>
-        <h3 class="text-headline-sm">Time</h3>
-        <span class="checkin-live-label" data-live-label>{{ labels.time[checkin.time - 1] }}</span>
+        <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+        <h3 class="text-subtitle" id="time-heading">Time</h3>
+        <span class="checkin-live-label" data-live-label id="time-live">{{ labels.time[checkin.time - 1] }}</span>
       </div>
-      <p class="hint">{{ questions.time }}</p>
+      <p class="field-hint" id="time-question">{{ questions.time }}</p>
       <input class="checkin-slider" type="range" name="time_level" min="1" max="5" value="{{ checkin.time }}"
-             data-labels='{{ labels.time | tojson }}'>
-      <div class="checkin-scale"><span>Overloaded</span><span>Balanced</span><span>Light</span></div>
+             data-labels='{{ labels.time | tojson }}'
+             aria-labelledby="time-heading" aria-describedby="time-question time-live">
+      <div class="checkin-scale" aria-hidden="true">
+        <span>Overloaded</span><span>Balanced</span><span>Light</span>
+      </div>
     </div>
 
-    <div class="checkin-item" id="cat-social">
+    <div class="checkin-item motion-reveal" id="cat-social">
       <div class="checkin-item-head">
-        <span class="material-symbols-outlined">group</span>
-        <h3 class="text-headline-sm">Social</h3>
-        <span class="checkin-live-label" data-live-label>{{ labels.social[checkin.social - 1] }}</span>
+        <span class="material-symbols-outlined" aria-hidden="true">group</span>
+        <h3 class="text-subtitle" id="social-heading">Social</h3>
+        <span class="checkin-live-label" data-live-label id="social-live">{{ labels.social[checkin.social - 1] }}</span>
       </div>
-      <p class="hint">{{ questions.social }}</p>
+      <p class="field-hint" id="social-question">{{ questions.social }}</p>
       <input class="checkin-slider" type="range" name="social_level" min="1" max="5" value="{{ checkin.social }}"
-             data-labels='{{ labels.social | tojson }}'>
-      <div class="checkin-scale"><span>Isolated</span><span>Neutral</span><span>Connected</span></div>
+             data-labels='{{ labels.social | tojson }}'
+             aria-labelledby="social-heading" aria-describedby="social-question social-live">
+      <div class="checkin-scale" aria-hidden="true">
+        <span>Isolated</span><span>Neutral</span><span>Connected</span>
+      </div>
     </div>
 
-    <div class="checkin-item" id="cat-physical">
+    <div class="checkin-item motion-reveal" id="cat-physical">
       <div class="checkin-item-head">
-        <span class="material-symbols-outlined">fitness_center</span>
-        <h3 class="text-headline-sm">Physical</h3>
-        <span class="checkin-live-label" data-live-label>{{ labels.physical[checkin.physical - 1] }}</span>
+        <span class="material-symbols-outlined" aria-hidden="true">fitness_center</span>
+        <h3 class="text-subtitle" id="physical-heading">Physical</h3>
+        <span class="checkin-live-label" data-live-label id="physical-live">{{ labels.physical[checkin.physical - 1] }}</span>
       </div>
-      <p class="hint">{{ questions.physical }}</p>
+      <p class="field-hint" id="physical-question">{{ questions.physical }}</p>
       <input class="checkin-slider" type="range" name="physical_level" min="1" max="5" value="{{ checkin.physical }}"
-             data-labels='{{ labels.physical | tojson }}'>
-      <div class="checkin-scale"><span>Drained</span><span>Okay</span><span>Energized</span></div>
+             data-labels='{{ labels.physical | tojson }}'
+             aria-labelledby="physical-heading" aria-describedby="physical-question physical-live">
+      <div class="checkin-scale" aria-hidden="true">
+        <span>Drained</span><span>Okay</span><span>Energized</span>
+      </div>
     </div>
 
-    <div class="checkin-item" id="cat-mental">
+    <div class="checkin-item motion-reveal" id="cat-mental">
       <div class="checkin-item-head">
-        <span class="material-symbols-outlined">psychology</span>
-        <h3 class="text-headline-sm">Mental</h3>
-        <span class="checkin-live-label" data-live-label>{{ labels.mental[checkin.mental - 1] }}</span>
+        <span class="material-symbols-outlined" aria-hidden="true">psychology</span>
+        <h3 class="text-subtitle" id="mental-heading">Mental</h3>
+        <span class="checkin-live-label" data-live-label id="mental-live">{{ labels.mental[checkin.mental - 1] }}</span>
       </div>
-      <p class="hint">{{ questions.mental }}</p>
+      <p class="field-hint" id="mental-question">{{ questions.mental }}</p>
       <input class="checkin-slider" type="range" name="mental_level" min="1" max="5" value="{{ checkin.mental }}"
-             data-labels='{{ labels.mental | tojson }}'>
-      <div class="checkin-scale"><span>Foggy</span><span>Steady</span><span>Sharp</span></div>
+             data-labels='{{ labels.mental | tojson }}'
+             aria-labelledby="mental-heading" aria-describedby="mental-question mental-live">
+      <div class="checkin-scale" aria-hidden="true">
+        <span>Foggy</span><span>Steady</span><span>Sharp</span>
+      </div>
     </div>
 
-    <div class="checkin-item">
+    <div class="checkin-item motion-reveal">
       <div class="checkin-item-head">
-        <span class="material-symbols-outlined">edit_note</span>
-        <h3 class="text-headline-sm">Anything else?</h3>
+        <span class="material-symbols-outlined" aria-hidden="true">edit_note</span>
+        <h3 class="text-subtitle" id="note-heading">Anything else?</h3>
       </div>
-      <textarea class="checkin-note" name="note" placeholder="Optional notes about your day...">{{ checkin.note }}</textarea>
+      <div class="field">
+        <label class="field-label" for="checkin-note">Note</label>
+        <textarea class="checkin-note" id="checkin-note" name="note"
+                  aria-describedby="note-hint"
+                  placeholder="What made today heavier or lighter?">{{ checkin.note }}</textarea>
+        <p class="field-hint" id="note-hint">Optional. One line is enough — it is what the assistant reads back to you later.</p>
+      </div>
     </div>
 
     <button type="submit" class="btn btn-primary btn-block">Save check-in</button>
-  </form>
-</main>
 
+  </form>
+
+</main>
 {% endblock %}

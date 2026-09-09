@@ -1,81 +1,107 @@
 {% extends "base.html" %}
 
-{% block title %}Equilibrium - Insights{% endblock %}
+{% block title %}Insights — Carry{% endblock %}
 
 {% block body_class %}has-bottom-nav{% endblock %}
 
 {% block content %}
-<main class="container">
+<main class="wrap">
+
   <div class="page-intro">
-    <h2 class="text-display-lg-mobile">Your Patterns</h2>
-    <p class="text-body-lg">Here is what we've noticed about your energy levels and academic load over the past week.</p>
+    <p class="eyebrow">The last seven days</p>
+    <h1 class="text-headline">Your patterns</h1>
+    <p class="text-body">What the check-ins keep saying about where your week actually goes — and the one small move that changes it.</p>
   </div>
+
+  <h2 class="sr-only">This week's insights</h2>
 
   <div class="insight-grid">
-    <article class="insight-card wide">
+
+    <article class="insight-card wide motion-reveal">
       <div>
         <div class="insight-tag-row">
-          <span class="material-symbols-outlined">trending_up</span>
-          <span class="text-label-sm">Stress Pattern Detected</span>
+          <span class="material-symbols-outlined" aria-hidden="true">trending_up</span>
+          <span class="text-label-sm">Stress pattern detected</span>
         </div>
-        <h3 class="text-headline-md">3 of your last 5 stress spikes came from group project deadlines.</h3>
-        <p class="text-body-md">Your energy levels dipped consistently the day before "Marketing Strategy" deliverables were due. The data suggests these collaborative tasks are draining your reserves faster than individual study.</p>
+        <h3 class="text-title">3 of your last 5 stress spikes came from group project deadlines.</h3>
+        <p class="text-body">Your energy dipped consistently the day before "Marketing Strategy" deliverables were due. The data suggests these collaborative tasks drain your reserves faster than individual study.</p>
       </div>
       <div class="insight-actions">
-        <button class="btn btn-primary" data-insight-action="Walk scheduled for later today">Schedule a 15-min walk</button>
-        <button class="btn btn-ghost" data-toggle-detail="#stress-detail">View detail <span class="material-symbols-outlined">arrow_forward</span></button>
+        <button type="button" class="btn btn-primary" data-insight-action="Walk scheduled for later today">Schedule a 15-min walk</button>
+        <button type="button" class="btn btn-ghost" data-toggle-detail="#stress-detail"
+                aria-expanded="false" aria-controls="stress-detail">
+          View detail <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+        </button>
       </div>
-      <div class="insight-detail" id="stress-detail">
-        <p class="text-body-md">Looking at your last five check-ins: energy dropped on the two days right before a "Marketing Strategy" deliverable was due, and recovered within a day of it being submitted. The pattern doesn't show up around solo assignments in the same window — it's specific to coordinating with a group.</p>
+      <div class="insight-detail" id="stress-detail" role="region" aria-label="Stress pattern detail">
+        <p class="text-body">Looking at your last five check-ins: energy dropped on the two days right before a "Marketing Strategy" deliverable was due, and recovered within a day of it being submitted. The pattern doesn't show up around solo assignments in the same window — it's specific to coordinating with a group.</p>
       </div>
     </article>
 
-    <article class="insight-card centered">
-      <div class="pulse-core" style="width:128px;height:128px;">
-        <div class="pulse-ring-outer"></div>
-        <div class="pulse-ring-inner"></div>
-        <div class="pulse-inner-core" style="width:64px;height:64px;">
-          <span class="material-symbols-outlined">bedtime</span>
-        </div>
+    <article class="insight-card centered motion-reveal">
+      <div class="empty-ring" aria-hidden="true">
+        <span class="material-symbols-outlined">bedtime</span>
       </div>
-      <h3 class="text-headline-sm">Restful Recovery</h3>
-      <p class="text-body-md">Sleeping 8+ hours on Tuesday boosted your focus by 40% on Wednesday.</p>
-      <button class="btn btn-outline btn-block" data-insight-action="Bedtime reminder set for 10:30 PM">Set a bedtime reminder</button>
-    </article>
-
-    <article class="insight-card">
       <div>
-        <div class="insight-tag-row">
-          <span class="badge-tag text-label-sm">High Load</span>
-        </div>
-        <h3 class="text-headline-sm">Upcoming Cram Risk</h3>
-        <p class="text-body-md">You have 3 major assignments due next week. Historically, this volume leads to skipped meals and late nights.</p>
+        <h3 class="text-subtitle">Restful recovery</h3>
+        <p class="text-body">Sleeping 8+ hours on Tuesday boosted your focus by 40% on Wednesday.</p>
       </div>
       <div class="insight-actions">
-        <button class="btn btn-primary btn-block" data-insight-action="Added to your calendar"><span class="material-symbols-outlined">calendar_month</span> Break it down</button>
+        <button type="button" class="btn btn-outline btn-block" data-insight-action="Bedtime reminder set for 10:30 PM">Set a bedtime reminder</button>
       </div>
     </article>
 
-    <article class="insight-card">
+    <article class="insight-card motion-reveal">
       <div>
         <div class="insight-tag-row">
-          <span class="material-symbols-outlined">nature_people</span>
+          <span class="badge badge-line">High load</span>
         </div>
-        <h3 class="text-headline-sm">The Library Effect</h3>
-        <p class="text-body-md">Your check-ins show 2x higher anxiety when studying in the main library compared to your dorm.</p>
+        <h3 class="text-subtitle">Upcoming cram risk</h3>
+        <p class="text-body">You have 3 major assignments due next week. Historically, this volume leads to skipped meals and late nights.</p>
       </div>
       <div class="insight-actions">
-        <button class="btn btn-outline tertiary btn-block" data-insight-action="Noted — try somewhere new tomorrow">Try a new spot tomorrow</button>
+        <button type="button" class="btn btn-primary btn-block" data-insight-action="Added to your calendar">
+          <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span> Break it down
+        </button>
       </div>
     </article>
+
+    <article class="insight-card motion-reveal">
+      <div>
+        <div class="insight-tag-row">
+          <span class="material-symbols-outlined" aria-hidden="true">nature_people</span>
+          <span class="text-label-sm">Where you study</span>
+        </div>
+        <h3 class="text-subtitle">The library effect</h3>
+        <p class="text-body">Your check-ins show 2x higher anxiety when studying in the main library compared to your dorm.</p>
+      </div>
+      <div class="insight-actions">
+        <button type="button" class="btn btn-outline tertiary btn-block" data-insight-action="Noted — try somewhere new tomorrow">Try a new spot tomorrow</button>
+      </div>
+    </article>
+
   </div>
 
-  <div class="capacity-section">
-    <button class="bottom-nav-item" style="flex-direction:column;">
-      <span class="material-symbols-outlined icon-btn">history</span>
-      <span class="text-label-sm">View all past insights</span>
+  <div class="empty-cta">
+    <button type="button" class="btn btn-ghost">
+      <span class="material-symbols-outlined" aria-hidden="true">history</span> View all past insights
     </button>
   </div>
-</main>
 
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // app.js owns the open/close; this only keeps the button's ARIA state in
+  // step with the panel it controls. It runs after app.js, so the class has
+  // already been toggled by the time this listener fires.
+  document.querySelectorAll("[data-toggle-detail][aria-controls]").forEach(function (btn) {
+    var panel = document.querySelector(btn.dataset.toggleDetail);
+    if (!panel) return;
+    btn.addEventListener("click", function () {
+      btn.setAttribute("aria-expanded", String(panel.classList.contains("is-open")));
+    });
+  });
+</script>
 {% endblock %}

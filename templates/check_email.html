@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Confirm your email - Equilibrium{% endblock %}
+{% block title %}Confirm your email — Carry{% endblock %}
 
 {% block body_class %}auth-page{% endblock %}
 
@@ -9,19 +9,22 @@
 {% block bottom_nav %}{% endblock %}
 
 {% block content %}
-<main class="container auth-wrap">
-  <div class="auth-card">
+<main class="auth-wrap container">
+  <div class="stage-glow" aria-hidden="true"></div>
+
+  <div class="card auth-card">
     <div class="auth-head">
-      <span class="material-symbols-outlined auth-mark">mark_email_unread</span>
-      <h2 class="text-headline-md">Check your inbox</h2>
-      <p class="text-body-md">
+      <span class="mark auth-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <p class="eyebrow">Carry</p>
+      <h1 class="text-headline">Check your inbox</h1>
+      <p class="text-body">
         We sent a confirmation link to <strong>{{ email }}</strong>.
         Click it and you'll be signed in automatically.
       </p>
     </div>
 
     <div class="auth-note">
-      <span class="material-symbols-outlined">info</span>
+      <span class="material-symbols-outlined" aria-hidden="true">info</span>
       <span>Nothing there? Give it a minute, then check spam — confirmation
       mail often lands there the first time.</span>
     </div>
@@ -32,7 +35,7 @@
 
     <p class="auth-skip">
       <a href="{{ url_for('home') }}">
-        <span class="material-symbols-outlined">arrow_forward</span>
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
         Keep looking around meanwhile
       </a>
     </p>

@@ -460,7 +460,7 @@ def signup():
                 )
             except Exception as e:
                 flash(f"Could not sign you up: {e}")
-                return render_template("signup.html")
+                return render_template("carry-signup.html")
 
             # A fresh signup should land in the account, not an inbox. With
             # email confirmation on, sign_up withholds the session until the
@@ -484,7 +484,7 @@ def signup():
             flash(f"Welcome, {profile.display_name}!")
             return redirect(url_for("home"))
 
-    return render_template("signup.html")
+    return render_template("carry-signup.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -509,7 +509,7 @@ def login():
                 flash("Please confirm your email first — check your inbox.")
             else:
                 flash("Incorrect email or password.")
-            return render_template("login.html")
+            return render_template("carry-login.html")
 
         profile = sync_profile(result.user)
         login_user(profile, remember=bool(request.form.get("remember")))
@@ -522,7 +522,7 @@ def login():
             return redirect(next_url)
         return redirect(url_for("home"))
 
-    return render_template("login.html")
+    return render_template("carry-login.html")
 
 
 @app.route("/auth/google")

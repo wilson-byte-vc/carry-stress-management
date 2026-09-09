@@ -95,6 +95,19 @@
       "source_location": "L42"
     },
     {
+      "id": "models_commitment",
+      "label": "Commitment",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 113,
+      "community_name": "Commitment",
+      "file_type": "code",
+      "norm_label": "commitment",
+      "source_file": "models.py",
+      "source_location": "L106"
+    },
+    {
       "id": "claude_skills_ui_ux_pro_max_scripts_tests_test_data_contracts_testgeneratedcatalogcontract",
       "label": "TestGeneratedCatalogContract",
       "_callable": true,
@@ -530,24 +543,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 87,
-      "community_name": "Commitment",
+      "community_name": "CheckIn",
       "file_type": "code",
       "norm_label": "checkin",
       "source_file": "models.py",
       "source_location": "L70"
-    },
-    {
-      "id": "models_commitment",
-      "label": "Commitment",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 87,
-      "community_name": "Commitment",
-      "file_type": "code",
-      "norm_label": "commitment",
-      "source_file": "models.py",
-      "source_location": "L106"
     },
     {
       "id": "models_insight",
@@ -556,7 +556,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 87,
-      "community_name": "Commitment",
+      "community_name": "CheckIn",
       "file_type": "code",
       "norm_label": "insight",
       "source_file": "models.py",
@@ -1757,11 +1757,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 113,
-      "community_name": "add_commitment",
+      "community_name": "Commitment",
       "file_type": "code",
       "norm_label": "add_commitment()",
       "source_file": "app.py",
-      "source_location": "L571"
+      "source_location": "L585"
     },
     {
       "id": "app_checkin",
@@ -1769,11 +1769,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 113,
-      "community_name": "add_commitment",
+      "community_name": "Commitment",
       "file_type": "code",
       "norm_label": "checkin()",
       "source_file": "app.py",
-      "source_location": "L641"
+      "source_location": "L658"
     },
     {
       "id": "app_clamp_level",
@@ -1781,7 +1781,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 113,
-      "community_name": "add_commitment",
+      "community_name": "Commitment",
       "file_type": "code",
       "norm_label": "clamp_level()",
       "source_file": "app.py",
@@ -1793,7 +1793,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 113,
-      "community_name": "add_commitment",
+      "community_name": "Commitment",
       "file_type": "code",
       "norm_label": "current_checkin()",
       "source_file": "app.py",
@@ -1805,11 +1805,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 113,
-      "community_name": "add_commitment",
+      "community_name": "Commitment",
       "file_type": "code",
       "norm_label": "parse_due_date()",
       "source_file": "app.py",
       "source_location": "L274"
+    },
+    {
+      "id": "models_commitment_repr",
+      "label": ".__repr__()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 113,
+      "community_name": "Commitment",
+      "file_type": "code",
+      "norm_label": ".__repr__()",
+      "source_file": "models.py",
+      "source_location": "L136"
     },
     {
       "id": "claude_skills_ui_ux_pro_max_scripts_core_exact_row_identity",
@@ -4701,7 +4713,7 @@
       "file_type": "code",
       "norm_label": "assetlinks()",
       "source_file": "app.py",
-      "source_location": "L732"
+      "source_location": "L752"
     },
     {
       "id": "app_assistant",
@@ -4713,7 +4725,7 @@
       "file_type": "code",
       "norm_label": "assistant()",
       "source_file": "app.py",
-      "source_location": "L672"
+      "source_location": "L691"
     },
     {
       "id": "app_chat",
@@ -4725,7 +4737,7 @@
       "file_type": "code",
       "norm_label": "chat()",
       "source_file": "app.py",
-      "source_location": "L799"
+      "source_location": "L820"
     },
     {
       "id": "app_chat_reset",
@@ -4737,7 +4749,7 @@
       "file_type": "code",
       "norm_label": "chat_reset()",
       "source_file": "app.py",
-      "source_location": "L851"
+      "source_location": "L873"
     },
     {
       "id": "app_client_history",
@@ -4749,7 +4761,7 @@
       "file_type": "code",
       "norm_label": "_client_history()",
       "source_file": "app.py",
-      "source_location": "L772"
+      "source_location": "L792"
     },
     {
       "id": "app_delete_commitment",
@@ -4761,7 +4773,7 @@
       "file_type": "code",
       "norm_label": "delete_commitment()",
       "source_file": "app.py",
-      "source_location": "L626"
+      "source_location": "L642"
     },
     {
       "id": "app_game",
@@ -4773,7 +4785,7 @@
       "file_type": "code",
       "norm_label": "game()",
       "source_file": "app.py",
-      "source_location": "L676"
+      "source_location": "L696"
     },
     {
       "id": "app_healthz",
@@ -4785,7 +4797,7 @@
       "file_type": "code",
       "norm_label": "healthz()",
       "source_file": "app.py",
-      "source_location": "L712"
+      "source_location": "L732"
     },
     {
       "id": "app_insights",
@@ -4797,7 +4809,7 @@
       "file_type": "code",
       "norm_label": "insights()",
       "source_file": "app.py",
-      "source_location": "L666"
+      "source_location": "L684"
     },
     {
       "id": "app_landingyuji",
@@ -4809,7 +4821,7 @@
       "file_type": "code",
       "norm_label": "landingyuji()",
       "source_file": "app.py",
-      "source_location": "L680"
+      "source_location": "L700"
     },
     {
       "id": "app_logout",
@@ -4821,7 +4833,7 @@
       "file_type": "code",
       "norm_label": "logout()",
       "source_file": "app.py",
-      "source_location": "L464"
+      "source_location": "L476"
     },
     {
       "id": "app_offline",
@@ -4833,7 +4845,7 @@
       "file_type": "code",
       "norm_label": "offline()",
       "source_file": "app.py",
-      "source_location": "L698"
+      "source_location": "L718"
     },
     {
       "id": "app_service_worker",
@@ -4845,7 +4857,7 @@
       "file_type": "code",
       "norm_label": "service_worker()",
       "source_file": "app.py",
-      "source_location": "L688"
+      "source_location": "L708"
     },
     {
       "id": "app_settings",
@@ -4857,7 +4869,7 @@
       "file_type": "code",
       "norm_label": "settings()",
       "source_file": "app.py",
-      "source_location": "L481"
+      "source_location": "L493"
     },
     {
       "id": "app_settings_theme",
@@ -4869,7 +4881,7 @@
       "file_type": "code",
       "norm_label": "settings_theme()",
       "source_file": "app.py",
-      "source_location": "L494"
+      "source_location": "L506"
     },
     {
       "id": "app_toggle_commitment",
@@ -4881,7 +4893,7 @@
       "file_type": "code",
       "norm_label": "toggle_commitment()",
       "source_file": "app.py",
-      "source_location": "L607"
+      "source_location": "L622"
     },
     {
       "id": "app_welcome",
@@ -4893,7 +4905,7 @@
       "file_type": "code",
       "norm_label": "welcome()",
       "source_file": "app.py",
-      "source_location": "L530"
+      "source_location": "L542"
     },
     {
       "id": "claude_skills_ui_styling_scripts_tailwind_config_gen_main",
@@ -7281,7 +7293,7 @@
       "file_type": "code",
       "norm_label": "auth_callback()",
       "source_file": "app.py",
-      "source_location": "L427"
+      "source_location": "L439"
     },
     {
       "id": "app_auth_google",
@@ -7293,7 +7305,7 @@
       "file_type": "code",
       "norm_label": "auth_google()",
       "source_file": "app.py",
-      "source_location": "L412"
+      "source_location": "L424"
     },
     {
       "id": "app_auth_route",
@@ -7317,7 +7329,7 @@
       "file_type": "code",
       "norm_label": "auth_session()",
       "source_file": "app.py",
-      "source_location": "L438"
+      "source_location": "L450"
     },
     {
       "id": "app_callback_url",
@@ -7341,7 +7353,7 @@
       "file_type": "code",
       "norm_label": "login()",
       "source_file": "app.py",
-      "source_location": "L374"
+      "source_location": "L386"
     },
     {
       "id": "app_signup",
@@ -7473,7 +7485,7 @@
       "file_type": "code",
       "norm_label": "admin()",
       "source_file": "app.py",
-      "source_location": "L507"
+      "source_location": "L519"
     },
     {
       "id": "app_admin_required",
@@ -7497,7 +7509,7 @@
       "file_type": "code",
       "norm_label": "admin_toggle()",
       "source_file": "app.py",
-      "source_location": "L515"
+      "source_location": "L527"
     },
     {
       "id": "app_load_user",
@@ -8105,7 +8117,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 87,
-      "community_name": "Commitment",
+      "community_name": "CheckIn",
       "file_type": "code",
       "norm_label": ".as_dict()",
       "source_file": "models.py",
@@ -8117,7 +8129,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 87,
-      "community_name": "Commitment",
+      "community_name": "CheckIn",
       "file_type": "code",
       "norm_label": ".capacity()",
       "source_file": "models.py",
@@ -8129,23 +8141,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 87,
-      "community_name": "Commitment",
+      "community_name": "CheckIn",
       "file_type": "code",
       "norm_label": ".__repr__()",
       "source_file": "models.py",
       "source_location": "L102"
-    },
-    {
-      "id": "models_commitment_repr",
-      "label": ".__repr__()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 87,
-      "community_name": "Commitment",
-      "file_type": "code",
-      "norm_label": ".__repr__()",
-      "source_file": "models.py",
-      "source_location": "L136"
     },
     {
       "id": "models_insight_repr",
@@ -8153,7 +8153,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 87,
-      "community_name": "Commitment",
+      "community_name": "CheckIn",
       "file_type": "code",
       "norm_label": ".__repr__()",
       "source_file": "models.py",
@@ -8165,7 +8165,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 87,
-      "community_name": "Commitment",
+      "community_name": "CheckIn",
       "file_type": "code",
       "norm_label": "utcnow()",
       "source_file": "models.py",
@@ -8229,7 +8229,7 @@
       "file_type": "code",
       "norm_label": "home()",
       "source_file": "app.py",
-      "source_location": "L544"
+      "source_location": "L557"
     },
     {
       "id": "app_load_points",
@@ -10883,7 +10883,7 @@
       "label": "The latest real check-in, or None if the user has never logged one. Returning\u2026",
       "_origin": "ast",
       "community": 113,
-      "community_name": "add_commitment",
+      "community_name": "Commitment",
       "file_type": "rationale",
       "norm_label": "the latest real check-in, or none if the user has never logged one. returning...",
       "source_file": "app.py",
@@ -10894,7 +10894,7 @@
       "label": "Slider values arrive as strings from the form and are attacker-controlled --\u2026",
       "_origin": "ast",
       "community": 113,
-      "community_name": "add_commitment",
+      "community_name": "Commitment",
       "file_type": "rationale",
       "norm_label": "slider values arrive as strings from the form and are attacker-controlled --...",
       "source_file": "app.py",
@@ -10905,11 +10905,22 @@
       "label": "<input type=\"date\"> gives YYYY-MM-DD, or empty for no deadline.",
       "_origin": "ast",
       "community": 113,
-      "community_name": "add_commitment",
+      "community_name": "Commitment",
       "file_type": "rationale",
       "norm_label": "<input type=\"date\"> gives yyyy-mm-dd, or empty for no deadline.",
       "source_file": "app.py",
       "source_location": "L275"
+    },
+    {
+      "id": "models_rationale_107",
+      "label": "Something taking up the student's capacity. `movable` is the point of this\u2026",
+      "_origin": "ast",
+      "community": 113,
+      "community_name": "Commitment",
+      "file_type": "rationale",
+      "norm_label": "something taking up the student's capacity. `movable` is the point of this...",
+      "source_file": "models.py",
+      "source_location": "L107"
     },
     {
       "id": "claude_skills_design_system_templates_design_tokens_starter_button_padding_x",
@@ -11044,6 +11055,39 @@
       "source_location": "L69"
     },
     {
+      "id": "claude_skills_design_system_templates_design_tokens_starter_md_type",
+      "label": "$type",
+      "_origin": "ast",
+      "community": 115,
+      "community_name": "radius",
+      "file_type": "code",
+      "norm_label": "$type",
+      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L66"
+    },
+    {
+      "id": "claude_skills_design_system_templates_design_tokens_starter_md_value",
+      "label": "$value",
+      "_origin": "ast",
+      "community": 115,
+      "community_name": "radius",
+      "file_type": "code",
+      "norm_label": "$value",
+      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L66"
+    },
+    {
+      "id": "claude_skills_design_system_templates_design_tokens_starter_primitive",
+      "label": "primitive",
+      "_origin": "ast",
+      "community": 115,
+      "community_name": "radius",
+      "file_type": "code",
+      "norm_label": "primitive",
+      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L3"
+    },
+    {
       "id": "claude_skills_design_system_templates_design_tokens_starter_primitive_radius",
       "label": "radius",
       "_origin": "ast",
@@ -11053,6 +11097,17 @@
       "norm_label": "radius",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
       "source_location": "L62"
+    },
+    {
+      "id": "claude_skills_design_system_templates_design_tokens_starter_primitive_shadow",
+      "label": "shadow",
+      "_origin": "ast",
+      "community": 115,
+      "community_name": "radius",
+      "file_type": "code",
+      "norm_label": "shadow",
+      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L71"
     },
     {
       "id": "claude_skills_design_system_templates_design_tokens_starter_radius_default",
@@ -11077,6 +11132,17 @@
       "source_location": "L69"
     },
     {
+      "id": "claude_skills_design_system_templates_design_tokens_starter_radius_md",
+      "label": "md",
+      "_origin": "ast",
+      "community": 115,
+      "community_name": "radius",
+      "file_type": "code",
+      "norm_label": "md",
+      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L66"
+    },
+    {
       "id": "claude_skills_design_system_templates_design_tokens_starter_shadow_default",
       "label": "default",
       "_origin": "ast",
@@ -11086,6 +11152,17 @@
       "norm_label": "default",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
       "source_location": "L74"
+    },
+    {
+      "id": "claude_skills_design_system_templates_design_tokens_starter_shadow_md",
+      "label": "md",
+      "_origin": "ast",
+      "community": 115,
+      "community_name": "radius",
+      "file_type": "code",
+      "norm_label": "md",
+      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L75"
     },
     {
       "id": "claude_skills_ui_ux_pro_max_scripts_core_rationale_505",
@@ -11583,29 +11660,18 @@
       "label": "sm",
       "_origin": "ast",
       "community": 122,
-      "community_name": "shadow",
+      "community_name": "sm",
       "file_type": "code",
       "norm_label": "sm",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
       "source_location": "L54"
     },
     {
-      "id": "claude_skills_design_system_templates_design_tokens_starter_primitive_shadow",
-      "label": "shadow",
-      "_origin": "ast",
-      "community": 122,
-      "community_name": "shadow",
-      "file_type": "code",
-      "norm_label": "shadow",
-      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L71"
-    },
-    {
       "id": "claude_skills_design_system_templates_design_tokens_starter_radius_sm",
       "label": "sm",
       "_origin": "ast",
       "community": 122,
-      "community_name": "shadow",
+      "community_name": "sm",
       "file_type": "code",
       "norm_label": "sm",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
@@ -11616,7 +11682,7 @@
       "label": "sm",
       "_origin": "ast",
       "community": 122,
-      "community_name": "shadow",
+      "community_name": "sm",
       "file_type": "code",
       "norm_label": "sm",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
@@ -11627,7 +11693,7 @@
       "label": "$type",
       "_origin": "ast",
       "community": 122,
-      "community_name": "shadow",
+      "community_name": "sm",
       "file_type": "code",
       "norm_label": "$type",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
@@ -11638,7 +11704,7 @@
       "label": "$value",
       "_origin": "ast",
       "community": 122,
-      "community_name": "shadow",
+      "community_name": "sm",
       "file_type": "code",
       "norm_label": "$value",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
@@ -12354,48 +12420,37 @@
       "source_location": "L57"
     },
     {
-      "id": "claude_skills_design_system_templates_design_tokens_starter_md_type",
+      "id": "claude_skills_design_system_templates_design_tokens_starter_16_type",
       "label": "$type",
       "_origin": "ast",
       "community": 135,
-      "community_name": "md",
+      "community_name": "16",
       "file_type": "code",
       "norm_label": "$type",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L66"
+      "source_location": "L50"
     },
     {
-      "id": "claude_skills_design_system_templates_design_tokens_starter_md_value",
+      "id": "claude_skills_design_system_templates_design_tokens_starter_16_value",
       "label": "$value",
       "_origin": "ast",
       "community": 135,
-      "community_name": "md",
+      "community_name": "16",
       "file_type": "code",
       "norm_label": "$value",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L66"
+      "source_location": "L50"
     },
     {
-      "id": "claude_skills_design_system_templates_design_tokens_starter_radius_md",
-      "label": "md",
+      "id": "claude_skills_design_system_templates_design_tokens_starter_spacing_16",
+      "label": "16",
       "_origin": "ast",
       "community": 135,
-      "community_name": "md",
+      "community_name": "16",
       "file_type": "code",
-      "norm_label": "md",
+      "norm_label": "16",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L66"
-    },
-    {
-      "id": "claude_skills_design_system_templates_design_tokens_starter_shadow_md",
-      "label": "md",
-      "_origin": "ast",
-      "community": 135,
-      "community_name": "md",
-      "file_type": "code",
-      "norm_label": "md",
-      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L75"
+      "source_location": "L50"
     },
     {
       "id": "claude_skills_design_system_templates_design_tokens_starter_none_type",
@@ -14760,6 +14815,105 @@
       "norm_label": "tools",
       "source_file": ".claude/skills/ui-styling/references/shadcn-accessibility.md",
       "source_location": "L449"
+    },
+    {
+      "id": "claude_skills_design_system_templates_design_tokens_starter_1_type",
+      "label": "$type",
+      "_origin": "ast",
+      "community": 180,
+      "community_name": "1",
+      "file_type": "code",
+      "norm_label": "$type",
+      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L41"
+    },
+    {
+      "id": "claude_skills_design_system_templates_design_tokens_starter_1_value",
+      "label": "$value",
+      "_origin": "ast",
+      "community": 180,
+      "community_name": "1",
+      "file_type": "code",
+      "norm_label": "$value",
+      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L41"
+    },
+    {
+      "id": "claude_skills_design_system_templates_design_tokens_starter_spacing_1",
+      "label": "1",
+      "_origin": "ast",
+      "community": 180,
+      "community_name": "1",
+      "file_type": "code",
+      "norm_label": "1",
+      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L41"
+    },
+    {
+      "id": "claude_skills_design_system_templates_design_tokens_starter_3_type",
+      "label": "$type",
+      "_origin": "ast",
+      "community": 181,
+      "community_name": "3",
+      "file_type": "code",
+      "norm_label": "$type",
+      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L43"
+    },
+    {
+      "id": "claude_skills_design_system_templates_design_tokens_starter_3_value",
+      "label": "$value",
+      "_origin": "ast",
+      "community": 181,
+      "community_name": "3",
+      "file_type": "code",
+      "norm_label": "$value",
+      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L43"
+    },
+    {
+      "id": "claude_skills_design_system_templates_design_tokens_starter_spacing_3",
+      "label": "3",
+      "_origin": "ast",
+      "community": 181,
+      "community_name": "3",
+      "file_type": "code",
+      "norm_label": "3",
+      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L43"
+    },
+    {
+      "id": "claude_skills_design_system_templates_design_tokens_starter_8_type",
+      "label": "$type",
+      "_origin": "ast",
+      "community": 182,
+      "community_name": "8",
+      "file_type": "code",
+      "norm_label": "$type",
+      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L47"
+    },
+    {
+      "id": "claude_skills_design_system_templates_design_tokens_starter_8_value",
+      "label": "$value",
+      "_origin": "ast",
+      "community": 182,
+      "community_name": "8",
+      "file_type": "code",
+      "norm_label": "$value",
+      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L47"
+    },
+    {
+      "id": "claude_skills_design_system_templates_design_tokens_starter_spacing_8",
+      "label": "8",
+      "_origin": "ast",
+      "community": 182,
+      "community_name": "8",
+      "file_type": "code",
+      "norm_label": "8",
+      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
+      "source_location": "L47"
     },
     {
       "id": "claude_skills_design_system_scripts_html_token_validator",
@@ -17881,7 +18035,7 @@
       "source_location": ""
     },
     {
-      "id": "app_rationale_531",
+      "id": "app_rationale_543",
       "label": "Public hero page -- the front door of the site. Sits on \"/\" so a first-time\u2026",
       "_origin": "ast",
       "community": 31,
@@ -17889,10 +18043,10 @@
       "file_type": "rationale",
       "norm_label": "public hero page -- the front door of the site. sits on \"/\" so a first-time...",
       "source_file": "app.py",
-      "source_location": "L531"
+      "source_location": "L543"
     },
     {
-      "id": "app_rationale_699",
+      "id": "app_rationale_719",
       "label": "Fallback the worker shows when a page load fails with no network.",
       "_origin": "ast",
       "community": 31,
@@ -17900,10 +18054,10 @@
       "file_type": "rationale",
       "norm_label": "fallback the worker shows when a page load fails with no network.",
       "source_file": "app.py",
-      "source_location": "L699"
+      "source_location": "L719"
     },
     {
-      "id": "app_rationale_773",
+      "id": "app_rationale_793",
       "label": "Validate a caller-supplied transcript, or None if there isn't one. Returns None\u2026",
       "_origin": "ast",
       "community": 31,
@@ -17911,7 +18065,7 @@
       "file_type": "rationale",
       "norm_label": "validate a caller-supplied transcript, or none if there isn't one. returns none...",
       "source_file": "app.py",
-      "source_location": "L773"
+      "source_location": "L793"
     },
     {
       "id": "claude_skills_design_system_skill",
@@ -25411,7 +25565,7 @@
       "source_location": "L292"
     },
     {
-      "id": "app_rationale_413",
+      "id": "app_rationale_425",
       "label": "Kick off Google sign-in; Supabase handles the handshake and sends the user back\u2026",
       "_origin": "ast",
       "community": 73,
@@ -25419,10 +25573,10 @@
       "file_type": "rationale",
       "norm_label": "kick off google sign-in; supabase handles the handshake and sends the user back...",
       "source_file": "app.py",
-      "source_location": "L413"
+      "source_location": "L425"
     },
     {
-      "id": "app_rationale_428",
+      "id": "app_rationale_440",
       "label": "Landing page for email confirmations and OAuth returns. Supabase puts the\u2026",
       "_origin": "ast",
       "community": 73,
@@ -25430,10 +25584,10 @@
       "file_type": "rationale",
       "norm_label": "landing page for email confirmations and oauth returns. supabase puts the...",
       "source_file": "app.py",
-      "source_location": "L428"
+      "source_location": "L440"
     },
     {
-      "id": "app_rationale_439",
+      "id": "app_rationale_451",
       "label": "Exchange an access token from the callback fragment for a login. The token is\u2026",
       "_origin": "ast",
       "community": 73,
@@ -25441,7 +25595,7 @@
       "file_type": "rationale",
       "norm_label": "exchange an access token from the callback fragment for a login. the token is...",
       "source_file": "app.py",
-      "source_location": "L439"
+      "source_location": "L451"
     },
     {
       "id": "claude_skills_brand_references_update",
@@ -26951,29 +27105,18 @@
       "label": "models.py",
       "_origin": "ast",
       "community": 87,
-      "community_name": "Commitment",
+      "community_name": "CheckIn",
       "file_type": "code",
       "norm_label": "models.py",
       "source_file": "models.py",
       "source_location": "L1"
     },
     {
-      "id": "models_rationale_107",
-      "label": "Something taking up the student's capacity. `movable` is the point of this\u2026",
-      "_origin": "ast",
-      "community": 87,
-      "community_name": "Commitment",
-      "file_type": "rationale",
-      "norm_label": "something taking up the student's capacity. `movable` is the point of this...",
-      "source_file": "models.py",
-      "source_location": "L107"
-    },
-    {
       "id": "models_rationale_142",
       "label": "A generated observation about the user's patterns. Written server-side (from\u2026",
       "_origin": "ast",
       "community": 87,
-      "community_name": "Commitment",
+      "community_name": "CheckIn",
       "file_type": "rationale",
       "norm_label": "a generated observation about the user's patterns. written server-side (from...",
       "source_file": "models.py",
@@ -27222,50 +27365,6 @@
       "source_location": "L49"
     },
     {
-      "id": "claude_skills_design_system_templates_design_tokens_starter_16_type",
-      "label": "$type",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "spacing",
-      "file_type": "code",
-      "norm_label": "$type",
-      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50"
-    },
-    {
-      "id": "claude_skills_design_system_templates_design_tokens_starter_16_value",
-      "label": "$value",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "spacing",
-      "file_type": "code",
-      "norm_label": "$value",
-      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50"
-    },
-    {
-      "id": "claude_skills_design_system_templates_design_tokens_starter_1_type",
-      "label": "$type",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "spacing",
-      "file_type": "code",
-      "norm_label": "$type",
-      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L41"
-    },
-    {
-      "id": "claude_skills_design_system_templates_design_tokens_starter_1_value",
-      "label": "$value",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "spacing",
-      "file_type": "code",
-      "norm_label": "$value",
-      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L41"
-    },
-    {
       "id": "claude_skills_design_system_templates_design_tokens_starter_2_type",
       "label": "$type",
       "_origin": "ast",
@@ -27286,28 +27385,6 @@
       "norm_label": "$value",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
       "source_location": "L42"
-    },
-    {
-      "id": "claude_skills_design_system_templates_design_tokens_starter_3_type",
-      "label": "$type",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "spacing",
-      "file_type": "code",
-      "norm_label": "$type",
-      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L43"
-    },
-    {
-      "id": "claude_skills_design_system_templates_design_tokens_starter_3_value",
-      "label": "$value",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "spacing",
-      "file_type": "code",
-      "norm_label": "$value",
-      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L43"
     },
     {
       "id": "claude_skills_design_system_templates_design_tokens_starter_4_type",
@@ -27376,28 +27453,6 @@
       "source_location": "L46"
     },
     {
-      "id": "claude_skills_design_system_templates_design_tokens_starter_8_type",
-      "label": "$type",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "spacing",
-      "file_type": "code",
-      "norm_label": "$type",
-      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L47"
-    },
-    {
-      "id": "claude_skills_design_system_templates_design_tokens_starter_8_value",
-      "label": "$value",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "spacing",
-      "file_type": "code",
-      "norm_label": "$value",
-      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L47"
-    },
-    {
       "id": "claude_skills_design_system_templates_design_tokens_starter_primitive_spacing",
       "label": "spacing",
       "_origin": "ast",
@@ -27418,17 +27473,6 @@
       "norm_label": "0",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
       "source_location": "L40"
-    },
-    {
-      "id": "claude_skills_design_system_templates_design_tokens_starter_spacing_1",
-      "label": "1",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "spacing",
-      "file_type": "code",
-      "norm_label": "1",
-      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L41"
     },
     {
       "id": "claude_skills_design_system_templates_design_tokens_starter_spacing_10",
@@ -27453,17 +27497,6 @@
       "source_location": "L49"
     },
     {
-      "id": "claude_skills_design_system_templates_design_tokens_starter_spacing_16",
-      "label": "16",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "spacing",
-      "file_type": "code",
-      "norm_label": "16",
-      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L50"
-    },
-    {
       "id": "claude_skills_design_system_templates_design_tokens_starter_spacing_2",
       "label": "2",
       "_origin": "ast",
@@ -27473,17 +27506,6 @@
       "norm_label": "2",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
       "source_location": "L42"
-    },
-    {
-      "id": "claude_skills_design_system_templates_design_tokens_starter_spacing_3",
-      "label": "3",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "spacing",
-      "file_type": "code",
-      "norm_label": "3",
-      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L43"
     },
     {
       "id": "claude_skills_design_system_templates_design_tokens_starter_spacing_4",
@@ -27517,17 +27539,6 @@
       "norm_label": "6",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
       "source_location": "L46"
-    },
-    {
-      "id": "claude_skills_design_system_templates_design_tokens_starter_spacing_8",
-      "label": "8",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "spacing",
-      "file_type": "code",
-      "norm_label": "8",
-      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L47"
     },
     {
       "id": "claude_skills_brand_scripts_inject_brand_context",
@@ -27798,7 +27809,7 @@
       "label": "fast",
       "_origin": "ast",
       "community": 93,
-      "community_name": "primitive",
+      "community_name": "duration",
       "file_type": "code",
       "norm_label": "fast",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
@@ -27809,7 +27820,7 @@
       "label": "normal",
       "_origin": "ast",
       "community": 93,
-      "community_name": "primitive",
+      "community_name": "duration",
       "file_type": "code",
       "norm_label": "normal",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
@@ -27820,7 +27831,7 @@
       "label": "slow",
       "_origin": "ast",
       "community": 93,
-      "community_name": "primitive",
+      "community_name": "duration",
       "file_type": "code",
       "norm_label": "slow",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
@@ -27831,7 +27842,7 @@
       "label": "$type",
       "_origin": "ast",
       "community": 93,
-      "community_name": "primitive",
+      "community_name": "duration",
       "file_type": "code",
       "norm_label": "$type",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
@@ -27842,7 +27853,7 @@
       "label": "$value",
       "_origin": "ast",
       "community": 93,
-      "community_name": "primitive",
+      "community_name": "duration",
       "file_type": "code",
       "norm_label": "$value",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
@@ -27853,7 +27864,7 @@
       "label": "$type",
       "_origin": "ast",
       "community": 93,
-      "community_name": "primitive",
+      "community_name": "duration",
       "file_type": "code",
       "norm_label": "$type",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
@@ -27864,29 +27875,18 @@
       "label": "$value",
       "_origin": "ast",
       "community": 93,
-      "community_name": "primitive",
+      "community_name": "duration",
       "file_type": "code",
       "norm_label": "$value",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
       "source_location": "L80"
     },
     {
-      "id": "claude_skills_design_system_templates_design_tokens_starter_primitive",
-      "label": "primitive",
-      "_origin": "ast",
-      "community": 93,
-      "community_name": "primitive",
-      "file_type": "code",
-      "norm_label": "primitive",
-      "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
-      "source_location": "L3"
-    },
-    {
       "id": "claude_skills_design_system_templates_design_tokens_starter_primitive_duration",
       "label": "duration",
       "_origin": "ast",
       "community": 93,
-      "community_name": "primitive",
+      "community_name": "duration",
       "file_type": "code",
       "norm_label": "duration",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
@@ -27897,7 +27897,7 @@
       "label": "$type",
       "_origin": "ast",
       "community": 93,
-      "community_name": "primitive",
+      "community_name": "duration",
       "file_type": "code",
       "norm_label": "$type",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
@@ -27908,7 +27908,7 @@
       "label": "$value",
       "_origin": "ast",
       "community": 93,
-      "community_name": "primitive",
+      "community_name": "duration",
       "file_type": "code",
       "norm_label": "$value",
       "source_file": ".claude/skills/design-system/templates/design-tokens-starter.json",
@@ -28424,7 +28424,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app.py",
-      "source_location": "L586",
+      "source_location": "L600",
       "weight": 1.0
     },
     {
@@ -28436,7 +28436,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app.py",
-      "source_location": "L587",
+      "source_location": "L601",
       "weight": 1.0
     },
     {
@@ -28448,7 +28448,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app.py",
-      "source_location": "L417",
+      "source_location": "L429",
       "weight": 1.0
     },
     {
@@ -28460,7 +28460,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app.py",
-      "source_location": "L456",
+      "source_location": "L468",
       "weight": 1.0
     },
     {
@@ -28472,7 +28472,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app.py",
-      "source_location": "L801",
+      "source_location": "L822",
       "weight": 1.0
     },
     {
@@ -28484,7 +28484,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app.py",
-      "source_location": "L644",
+      "source_location": "L661",
       "weight": 1.0
     },
     {
@@ -28496,7 +28496,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app.py",
-      "source_location": "L661",
+      "source_location": "L678",
       "weight": 1.0
     },
     {
@@ -28544,7 +28544,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app.py",
-      "source_location": "L545",
+      "source_location": "L558",
       "weight": 1.0
     },
     {
@@ -28556,7 +28556,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app.py",
-      "source_location": "L546",
+      "source_location": "L559",
       "weight": 1.0
     },
     {
@@ -28568,7 +28568,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app.py",
-      "source_location": "L547",
+      "source_location": "L560",
       "weight": 1.0
     },
     {
@@ -28580,7 +28580,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app.py",
-      "source_location": "L548",
+      "source_location": "L561",
       "weight": 1.0
     },
     {
@@ -28592,7 +28592,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app.py",
-      "source_location": "L553",
+      "source_location": "L566",
       "weight": 1.0
     },
     {
@@ -28604,7 +28604,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app.py",
-      "source_location": "L554",
+      "source_location": "L567",
       "weight": 1.0
     },
     {
@@ -28616,7 +28616,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app.py",
-      "source_location": "L396",
+      "source_location": "L408",
       "weight": 1.0
     },
     {
@@ -28640,7 +28640,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "app.py",
-      "source_location": "L364",
+      "source_location": "L376",
       "weight": 1.0
     },
     {
@@ -36104,7 +36104,19 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L570",
+      "source_location": "L583",
+      "weight": 1.0
+    },
+    {
+      "source": "app_add_commitment",
+      "target": "login_required",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "decorator",
+      "source_file": "app.py",
+      "source_location": "L584",
       "weight": 1.0
     },
     {
@@ -36116,7 +36128,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L505",
+      "source_location": "L517",
       "weight": 1.0
     },
     {
@@ -36128,7 +36140,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L506",
+      "source_location": "L518",
       "weight": 1.0
     },
     {
@@ -36140,7 +36152,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L513",
+      "source_location": "L525",
       "weight": 1.0
     },
     {
@@ -36152,7 +36164,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L514",
+      "source_location": "L526",
       "weight": 1.0
     },
     {
@@ -36164,7 +36176,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L731",
+      "source_location": "L751",
       "weight": 1.0
     },
     {
@@ -36176,72 +36188,24 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L671",
+      "source_location": "L689",
+      "weight": 1.0
+    },
+    {
+      "source": "app_assistant",
+      "target": "login_required",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "decorator",
+      "source_file": "app.py",
+      "source_location": "L690",
       "weight": 1.0
     },
     {
       "source": "app_auth_callback",
       "target": "route",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "decorator",
-      "source_file": "app.py",
-      "source_location": "L425",
-      "weight": 1.0
-    },
-    {
-      "source": "app_auth_callback",
-      "target": "app_auth_route",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "decorator",
-      "source_file": "app.py",
-      "source_location": "L426",
-      "weight": 1.0
-    },
-    {
-      "source": "app_auth_google",
-      "target": "route",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "decorator",
-      "source_file": "app.py",
-      "source_location": "L410",
-      "weight": 1.0
-    },
-    {
-      "source": "app_auth_google",
-      "target": "app_auth_route",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "decorator",
-      "source_file": "app.py",
-      "source_location": "L411",
-      "weight": 1.0
-    },
-    {
-      "source": "app_auth_session",
-      "target": "route",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "decorator",
-      "source_file": "app.py",
-      "source_location": "L436",
-      "weight": 1.0
-    },
-    {
-      "source": "app_auth_session",
-      "target": "app_auth_route",
       "relation": "references",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -36249,6 +36213,66 @@
       "context": "decorator",
       "source_file": "app.py",
       "source_location": "L437",
+      "weight": 1.0
+    },
+    {
+      "source": "app_auth_callback",
+      "target": "app_auth_route",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "decorator",
+      "source_file": "app.py",
+      "source_location": "L438",
+      "weight": 1.0
+    },
+    {
+      "source": "app_auth_google",
+      "target": "route",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "decorator",
+      "source_file": "app.py",
+      "source_location": "L422",
+      "weight": 1.0
+    },
+    {
+      "source": "app_auth_google",
+      "target": "app_auth_route",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "decorator",
+      "source_file": "app.py",
+      "source_location": "L423",
+      "weight": 1.0
+    },
+    {
+      "source": "app_auth_session",
+      "target": "route",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "decorator",
+      "source_file": "app.py",
+      "source_location": "L448",
+      "weight": 1.0
+    },
+    {
+      "source": "app_auth_session",
+      "target": "app_auth_route",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "decorator",
+      "source_file": "app.py",
+      "source_location": "L449",
       "weight": 1.0
     },
     {
@@ -36260,7 +36284,19 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L798",
+      "source_location": "L818",
+      "weight": 1.0
+    },
+    {
+      "source": "app_chat",
+      "target": "login_required",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "decorator",
+      "source_file": "app.py",
+      "source_location": "L819",
       "weight": 1.0
     },
     {
@@ -36272,11 +36308,47 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L850",
+      "source_location": "L871",
+      "weight": 1.0
+    },
+    {
+      "source": "app_chat_reset",
+      "target": "login_required",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "decorator",
+      "source_file": "app.py",
+      "source_location": "L872",
       "weight": 1.0
     },
     {
       "source": "app_checkin",
+      "target": "route",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "decorator",
+      "source_file": "app.py",
+      "source_location": "L656",
+      "weight": 1.0
+    },
+    {
+      "source": "app_checkin",
+      "target": "login_required",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "decorator",
+      "source_file": "app.py",
+      "source_location": "L657",
+      "weight": 1.0
+    },
+    {
+      "source": "app_delete_commitment",
       "target": "route",
       "relation": "references",
       "_origin": "ast",
@@ -36289,14 +36361,14 @@
     },
     {
       "source": "app_delete_commitment",
-      "target": "route",
+      "target": "login_required",
       "relation": "references",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L625",
+      "source_location": "L641",
       "weight": 1.0
     },
     {
@@ -36308,7 +36380,19 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L675",
+      "source_location": "L694",
+      "weight": 1.0
+    },
+    {
+      "source": "app_game",
+      "target": "login_required",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "decorator",
+      "source_file": "app.py",
+      "source_location": "L695",
       "weight": 1.0
     },
     {
@@ -36320,7 +36404,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L711",
+      "source_location": "L731",
       "weight": 1.0
     },
     {
@@ -36332,7 +36416,19 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L543",
+      "source_location": "L555",
+      "weight": 1.0
+    },
+    {
+      "source": "app_home",
+      "target": "login_required",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "decorator",
+      "source_file": "app.py",
+      "source_location": "L556",
       "weight": 1.0
     },
     {
@@ -36356,7 +36452,19 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L665",
+      "source_location": "L682",
+      "weight": 1.0
+    },
+    {
+      "source": "app_insights",
+      "target": "login_required",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "decorator",
+      "source_file": "app.py",
+      "source_location": "L683",
       "weight": 1.0
     },
     {
@@ -36368,7 +36476,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L679",
+      "source_location": "L699",
       "weight": 1.0
     },
     {
@@ -36392,7 +36500,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L372",
+      "source_location": "L384",
       "weight": 1.0
     },
     {
@@ -36404,7 +36512,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L373",
+      "source_location": "L385",
       "weight": 1.0
     },
     {
@@ -36416,7 +36524,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L462",
+      "source_location": "L474",
       "weight": 1.0
     },
     {
@@ -36428,7 +36536,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L463",
+      "source_location": "L475",
       "weight": 1.0
     },
     {
@@ -36440,7 +36548,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L697",
+      "source_location": "L717",
       "weight": 1.0
     },
     {
@@ -36452,7 +36560,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L687",
+      "source_location": "L707",
       "weight": 1.0
     },
     {
@@ -36464,24 +36572,12 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L479",
+      "source_location": "L491",
       "weight": 1.0
     },
     {
       "source": "app_settings",
       "target": "login_required",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "decorator",
-      "source_file": "app.py",
-      "source_location": "L480",
-      "weight": 1.0
-    },
-    {
-      "source": "app_settings_theme",
-      "target": "route",
       "relation": "references",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -36493,6 +36589,18 @@
     },
     {
       "source": "app_settings_theme",
+      "target": "route",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "decorator",
+      "source_file": "app.py",
+      "source_location": "L504",
+      "weight": 1.0
+    },
+    {
+      "source": "app_settings_theme",
       "target": "login_required",
       "relation": "references",
       "_origin": "ast",
@@ -36500,7 +36608,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L493",
+      "source_location": "L505",
       "weight": 1.0
     },
     {
@@ -36536,7 +36644,19 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L606",
+      "source_location": "L620",
+      "weight": 1.0
+    },
+    {
+      "source": "app_toggle_commitment",
+      "target": "login_required",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "decorator",
+      "source_file": "app.py",
+      "source_location": "L621",
       "weight": 1.0
     },
     {
@@ -36548,7 +36668,7 @@
       "confidence_score": 1.0,
       "context": "decorator",
       "source_file": "app.py",
-      "source_location": "L529",
+      "source_location": "L541",
       "weight": 1.0
     },
     {
@@ -37912,7 +38032,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L374",
+      "source_location": "L386",
       "weight": 1.0
     },
     {
@@ -37923,7 +38043,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L412",
+      "source_location": "L424",
       "weight": 1.0
     },
     {
@@ -37934,7 +38054,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L427",
+      "source_location": "L439",
       "weight": 1.0
     },
     {
@@ -37945,7 +38065,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L438",
+      "source_location": "L450",
       "weight": 1.0
     },
     {
@@ -37956,7 +38076,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L464",
+      "source_location": "L476",
       "weight": 1.0
     },
     {
@@ -37967,7 +38087,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L481",
+      "source_location": "L493",
       "weight": 1.0
     },
     {
@@ -37978,7 +38098,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L494",
+      "source_location": "L506",
       "weight": 1.0
     },
     {
@@ -37989,7 +38109,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L507",
+      "source_location": "L519",
       "weight": 1.0
     },
     {
@@ -38000,7 +38120,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L515",
+      "source_location": "L527",
       "weight": 1.0
     },
     {
@@ -38011,7 +38131,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L530",
+      "source_location": "L542",
       "weight": 1.0
     },
     {
@@ -38022,7 +38142,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L544",
+      "source_location": "L557",
       "weight": 1.0
     },
     {
@@ -38033,7 +38153,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L571",
+      "source_location": "L585",
       "weight": 1.0
     },
     {
@@ -38044,7 +38164,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L607",
+      "source_location": "L622",
       "weight": 1.0
     },
     {
@@ -38055,7 +38175,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L626",
+      "source_location": "L642",
       "weight": 1.0
     },
     {
@@ -38066,7 +38186,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L641",
+      "source_location": "L658",
       "weight": 1.0
     },
     {
@@ -38077,7 +38197,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L666",
+      "source_location": "L684",
       "weight": 1.0
     },
     {
@@ -38088,7 +38208,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L672",
+      "source_location": "L691",
       "weight": 1.0
     },
     {
@@ -38099,7 +38219,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L676",
+      "source_location": "L696",
       "weight": 1.0
     },
     {
@@ -38110,7 +38230,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L680",
+      "source_location": "L700",
       "weight": 1.0
     },
     {
@@ -38121,7 +38241,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L688",
+      "source_location": "L708",
       "weight": 1.0
     },
     {
@@ -38132,7 +38252,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L698",
+      "source_location": "L718",
       "weight": 1.0
     },
     {
@@ -38143,7 +38263,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L712",
+      "source_location": "L732",
       "weight": 1.0
     },
     {
@@ -38154,7 +38274,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L732",
+      "source_location": "L752",
       "weight": 1.0
     },
     {
@@ -38165,7 +38285,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L772",
+      "source_location": "L792",
       "weight": 1.0
     },
     {
@@ -38176,7 +38296,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L799",
+      "source_location": "L820",
       "weight": 1.0
     },
     {
@@ -38187,7 +38307,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L851",
+      "source_location": "L873",
       "weight": 1.0
     },
     {
@@ -60257,69 +60377,69 @@
       "weight": 1.0
     },
     {
-      "source": "app_rationale_413",
+      "source": "app_rationale_425",
       "target": "app_auth_google",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L413",
+      "source_location": "L425",
       "weight": 1.0
     },
     {
-      "source": "app_rationale_428",
+      "source": "app_rationale_440",
       "target": "app_auth_callback",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L428",
+      "source_location": "L440",
       "weight": 1.0
     },
     {
-      "source": "app_rationale_439",
+      "source": "app_rationale_451",
       "target": "app_auth_session",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L439",
+      "source_location": "L451",
       "weight": 1.0
     },
     {
-      "source": "app_rationale_531",
+      "source": "app_rationale_543",
       "target": "app_welcome",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L531",
+      "source_location": "L543",
       "weight": 1.0
     },
     {
-      "source": "app_rationale_699",
+      "source": "app_rationale_719",
       "target": "app_offline",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L699",
+      "source_location": "L719",
       "weight": 1.0
     },
     {
-      "source": "app_rationale_773",
+      "source": "app_rationale_793",
       "target": "app_client_history",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.py",
-      "source_location": "L773",
+      "source_location": "L793",
       "weight": 1.0
     },
     {
@@ -63679,7 +63799,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "app.py",
-      "source_location": "L578",
+      "source_location": "L592",
       "weight": 0.8
     },
     {
@@ -63690,7 +63810,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "app.py",
-      "source_location": "L508",
+      "source_location": "L520",
       "weight": 0.8
     },
     {
@@ -63701,7 +63821,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "app.py",
-      "source_location": "L509",
+      "source_location": "L521",
       "weight": 0.8
     },
     {
@@ -63712,7 +63832,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "app.py",
-      "source_location": "L516",
+      "source_location": "L528",
       "weight": 0.8
     },
     {
@@ -63723,7 +63843,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "app.py",
-      "source_location": "L651",
+      "source_location": "L668",
       "weight": 0.8
     },
     {
@@ -63734,7 +63854,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "app.py",
-      "source_location": "L628",
+      "source_location": "L644",
       "weight": 0.8
     },
     {
@@ -63745,7 +63865,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "app.py",
-      "source_location": "L562",
+      "source_location": "L575",
       "weight": 0.8
     },
     {
@@ -63767,7 +63887,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "app.py",
-      "source_location": "L609",
+      "source_location": "L624",
       "weight": 0.8
     },
     {

@@ -14,6 +14,18 @@
       "port": 5173
     },
     {
+      "name": "carry-auth",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "5174",
+        "--directory",
+        "C:/Users/wilso/OneDrive/Desktop/SpaceMan"
+      ],
+      "port": 5174
+    },
+    {
       "name": "spaceman",
       "runtimeExecutable": "python",
       "runtimeArgs": [

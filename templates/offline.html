@@ -1,41 +1,196 @@
 {# Shown by the service worker when a page load fails with no network.
    Deliberately standalone -- it does NOT extend base.html, because it gets
    cached at install time and must never contain a signed-in user's details.
-   Everything it needs is inline so it renders even if style.css never cached. #}
+   Everything is inline: no stylesheet, no webfont, no image request, so it
+   renders with zero network. It also cannot read the app's data-theme
+   attribute, so it follows prefers-color-scheme instead. #}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Offline - Balance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0c111d" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f3f2ee" media="(prefers-color-scheme: light)">
+  <title>Offline - Carry</title>
   <style>
-    :root { color-scheme: light dark; --bg: #fef9f1; --fg: #19191a; --accent: #286653; }
-    @media (prefers-color-scheme: dark) {
-      :root { --bg: #19191a; --fg: #fef9f1; --accent: #6fc9ab; }
+    /* Carry tokens, inlined. Navy is the default look, exactly as in the app;
+       a light-preferring OS gets the light palette. */
+    :root {
+      color-scheme: dark light;
+      --navy: #0c111d;
+      --panel: #161b26;
+      --hair: rgba(255, 255, 255, 0.09);
+      --ink-hi: #f5f6f8;
+      --ink-lo: #94969c;
+      --band-room: #26a26b;
+      --band-tight: #d0972f;
+      --band-line: #d97a3f;
+      --invert-bg: #ffffff;
+      --invert-ink: #0c111d;
+      --shadow: rgba(0, 0, 0, 0.4);
+      --hover-soft: rgba(255, 255, 255, 0.06);
     }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        color-scheme: light;
+        --navy: #f3f2ee;
+        --panel: #ffffff;
+        --hair: rgba(20, 20, 15, 0.12);
+        --ink-hi: #17171a;
+        --ink-lo: #62605b;
+        --invert-bg: #17171a;
+        --invert-ink: #f3f2ee;
+        --shadow: rgba(20, 20, 15, 0.18);
+        --hover-soft: rgba(20, 20, 15, 0.06);
+      }
+    }
+
     * { box-sizing: border-box; }
+
     body {
-      margin: 0; min-height: 100vh; padding: 2rem 1.5rem;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 1rem; text-align: center;
-      background: var(--bg); color: var(--fg);
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      padding: 32px max(20px, env(safe-area-inset-left)) calc(32px + env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      text-align: center;
+      background: var(--navy);
+      color: var(--ink-hi);
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
     }
-    img { width: 72px; height: 72px; border-radius: 20px; }
-    h1 { margin: .5rem 0 0; font-size: 1.375rem; }
-    p { margin: 0; max-width: 32ch; line-height: 1.55; opacity: .75; }
-    button {
-      margin-top: .5rem; padding: .7rem 1.5rem; border: 0; border-radius: 999px;
-      background: var(--accent); color: var(--bg);
-      font: inherit; font-weight: 600; cursor: pointer;
+
+    /* The Carry three-dot mark plus wordmark, drawn in CSS so it needs no
+       image request and no icon font. */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--ink-hi);
+    }
+
+    .mark { display: inline-flex; flex-shrink: 0; }
+
+    .mark i {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-left: -6px;
+      border: 2px solid var(--navy);
+    }
+
+    .mark i:first-child  { margin-left: 0; background: var(--band-room); }
+    .mark i:nth-child(2) { background: var(--band-tight); }
+    .mark i:nth-child(3) { background: var(--band-line); }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--hair);
+      border-radius: 18px;
+      box-shadow: 0 30px 60px -24px var(--shadow);
+      padding: 28px 24px;
+      max-width: 420px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .eyebrow {
+      margin: 0;
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-lo);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+    }
+
+    p {
+      margin: 0;
+      max-width: 34ch;
+      font-size: 15px;
+      color: var(--ink-lo);
+    }
+
+    /* Same pill button shape as .pill-btn in carry-ui.css. */
+    .pill-btn {
+      margin-top: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 12px 24px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--invert-bg);
+      color: var(--invert-ink);
+      font: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: filter .2s, background-color .2s, color .2s;
+    }
+
+    .pill-btn:hover { filter: brightness(0.94); }
+    .pill-btn:active { transform: scale(0.97); }
+
+    .note {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--ink-lo);
+    }
+
+    .note b {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--band-tight);
+      flex-shrink: 0;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--band-room);
+      outline-offset: 3px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      .pill-btn:active { transform: none; }
     }
   </style>
 </head>
 <body>
-  <img src="/static/image/icon-192.png" alt="">
-  <h1>You're offline</h1>
-  <p>Balance needs a connection to load your check-ins. Reconnect and try again.</p>
-  <button type="button" onclick="location.reload()">Try again</button>
+  <p class="brand"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>carry</p>
+
+  <div class="card">
+    <p class="eyebrow">No connection</p>
+    <h1>You're offline</h1>
+    <p>Carry needs a connection to load your check-ins. Reconnect and this page reloads by itself.</p>
+    <button type="button" class="pill-btn" onclick="location.reload()">Try again</button>
+  </div>
+
+  <p class="note"><b aria-hidden="true"></b>Anything you typed while offline was not sent.</p>
 
   <script>
     // Reload by itself the moment the connection comes back.

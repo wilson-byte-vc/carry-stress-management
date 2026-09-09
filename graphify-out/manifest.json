@@ -1,8 +1,8 @@
 {
   ".claude/launch.json": {
-    "mtime": 1788608912.6863012,
-    "seen": 1788911419.8948927,
-    "ast_hash": "e656f40b2f1e203c927711c666988e72",
+    "mtime": 1788935426.4419768,
+    "seen": 1788936629.1820354,
+    "ast_hash": "6fb00d4479f4c3b95ad33a1f513356d2",
     "semantic_hash": ""
   },
   ".claude/settings.json": {
@@ -366,15 +366,15 @@
     "semantic_hash": ""
   },
   "app.py": {
-    "mtime": 1788912074.022324,
-    "seen": 1788912302.9691718,
-    "ast_hash": "1e31612a1a1cd1efe94bd9953bb1780c",
+    "mtime": 1788936234.7051067,
+    "seen": 1788936629.19054,
+    "ast_hash": "3da2a4ad30ab880266805da1a9e9b3ff",
     "semantic_hash": ""
   },
   "models.py": {
-    "mtime": 1788406494.7790208,
-    "seen": 1788911419.8950038,
-    "ast_hash": "943eaf32237f97023b8bf00af74fbc64",
+    "mtime": 1788912417.0723472,
+    "seen": 1788936629.1905427,
+    "ast_hash": "5c84d2e7626e6bcf8d61f167aeb4ceaf",
     "semantic_hash": ""
   },
   "static/js/app.js": {
@@ -414,9 +414,9 @@
     "semantic_hash": ""
   },
   "static/js/sw.js": {
-    "mtime": 1788519817.7176414,
-    "seen": 1788911419.8950152,
-    "ast_hash": "09bfd4ee39cf5008869759f3c3516856",
+    "mtime": 1788912469.6870167,
+    "seen": 1788936629.1911635,
+    "ast_hash": "142a2ad30d6426d510f67a806841e3e8",
     "semantic_hash": ""
   },
   "templates/.claude/settings.json": {
@@ -809,12 +809,6 @@
     "ast_hash": "39f903d774f3afda64fdf11ef5c83b2f",
     "semantic_hash": ""
   },
-  "templates/admin.html": {
-    "mtime": 1788304323.2388008,
-    "seen": 1788911419.8951218,
-    "ast_hash": "36288553b455163ee6e63f040f87ccf1",
-    "semantic_hash": ""
-  },
   "templates/auth_callback.html": {
     "mtime": 1788405390.2992258,
     "seen": 1788911419.8951237,
@@ -822,9 +816,9 @@
     "semantic_hash": ""
   },
   "templates/base.html": {
-    "mtime": 1788608885.7391894,
-    "seen": 1788911419.8951252,
-    "ast_hash": "65cf345c9173534e4a099d76a17e270d",
+    "mtime": 1788912441.015877,
+    "seen": 1788936629.1978455,
+    "ast_hash": "2ea8f00d78eacc87fa4181050535855e",
     "semantic_hash": ""
   },
   "templates/chat.html": {
@@ -840,9 +834,9 @@
     "semantic_hash": ""
   },
   "templates/checkin.html": {
-    "mtime": 1788266277.1456487,
-    "seen": 1788911419.8951297,
-    "ast_hash": "0b160156775b451a494dcbccb931d737",
+    "mtime": 1788912897.1040146,
+    "seen": 1788936629.1980608,
+    "ast_hash": "74c1b3a429b89c2610a4dfa20740d315",
     "semantic_hash": ""
   },
   "templates/home.html": {
@@ -863,12 +857,6 @@
     "ast_hash": "cbd4fae537b43f06d164c2c643f9af45",
     "semantic_hash": ""
   },
-  "templates/login.html": {
-    "mtime": 1788580324.4529884,
-    "seen": 1788911419.8951356,
-    "ast_hash": "1332d868b9506cd79b694f0501c13a04",
-    "semantic_hash": ""
-  },
   "templates/offline.html": {
     "mtime": 1788519833.431953,
     "seen": 1788911419.8951375,
@@ -879,12 +867,6 @@
     "mtime": 1788421323.6915896,
     "seen": 1788911419.895139,
     "ast_hash": "d5a1e09a4e07eab839bc16c231ecab15",
-    "semantic_hash": ""
-  },
-  "templates/signup.html": {
-    "mtime": 1788580324.4560523,
-    "seen": 1788911419.8951406,
-    "ast_hash": "0f9dcca1a5b479fdbd1b4cc7388499c5",
     "semantic_hash": ""
   },
   "static/image/apple-touch-icon.png": {
@@ -969,6 +951,18 @@
     "mtime": 1788596622.6444423,
     "seen": 1788911419.895162,
     "ast_hash": "bdad1156ff8299e48005441551cd119a",
+    "semantic_hash": ""
+  },
+  "templates/carry-login.html": {
+    "mtime": 1788936225.6695423,
+    "seen": 1788936629.1978476,
+    "ast_hash": "1d661d2ae2b8aa34f384af2290ea69db",
+    "semantic_hash": ""
+  },
+  "templates/carry-signup.html": {
+    "mtime": 1788936171.9335816,
+    "seen": 1788936629.197849,
+    "ast_hash": "b6e5d05fa07e7177054a4b8232bfdcf2",
     "semantic_hash": ""
   }
 }
