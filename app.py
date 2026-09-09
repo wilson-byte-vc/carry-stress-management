@@ -22,6 +22,8 @@ from flask_login import (
     logout_user,
 )
 
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 from flask_migrate import Migrate
 from dotenv import load_dotenv
 from groq import Groq
@@ -37,6 +39,14 @@ from models import CheckIn, Commitment, Insight, User, db
 load_dotenv()
 
 app = Flask(__name__)
+# Render terminates TLS at its edge and forwards plain HTTP to gunicorn, so
+# without this Flask believes every request is http:// and builds the OAuth
+# callback as http://host/auth/callback. Supabase compares redirect_to against
+# its allow-list exactly, scheme included, and silently falls back to the
+# project Site URL when it does not match -- which is how sign-in ends up on
+# localhost. One proxy hop, so trust exactly one set of X-Forwarded headers.
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+
 # Sessions are just a signed cookie -- Flask needs a secret key to sign them.
 app.secret_key = os.environ.get("SECRET_KEY", "dev-only-change-me")
 
