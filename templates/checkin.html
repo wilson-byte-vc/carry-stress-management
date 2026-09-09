@@ -7,10 +7,10 @@
 {% block content %}
 
 <main class="container">
-  <div class="page-intro">
-    <h2 class="text-display-lg-mobile">Daily Check-in</h2>
-    <p class="text-body-lg">Take a moment to log how each part of your day is feeling.</p>
-  </div>
+<div class="page-intro">
+  <h2 class="text-display-lg-mobile">Daily Check-in</h2>
+  <p class="text-body-lg">Take a moment to log how each part of your day is feeling.</p>
+</div>
 
   <form class="checkin-form" method="post" data-checkin-form>
     <div class="checkin-item" id="cat-time">
@@ -19,7 +19,7 @@
         <h3 class="text-headline-sm">Time</h3>
         <span class="checkin-live-label" data-live-label>{{ labels.time[checkin.time - 1] }}</span>
       </div>
-      <p class="hint">How manageable does your schedule feel right now?</p>
+      <p class="hint">{{ questions.time }}</p>
       <input class="checkin-slider" type="range" name="time_level" min="1" max="5" value="{{ checkin.time }}"
              data-labels='{{ labels.time | tojson }}'>
       <div class="checkin-scale"><span>Overloaded</span><span>Balanced</span><span>Light</span></div>
@@ -31,7 +31,7 @@
         <h3 class="text-headline-sm">Social</h3>
         <span class="checkin-live-label" data-live-label>{{ labels.social[checkin.social - 1] }}</span>
       </div>
-      <p class="hint">How connected have you felt with others today?</p>
+      <p class="hint">{{ questions.social }}</p>
       <input class="checkin-slider" type="range" name="social_level" min="1" max="5" value="{{ checkin.social }}"
              data-labels='{{ labels.social | tojson }}'>
       <div class="checkin-scale"><span>Isolated</span><span>Neutral</span><span>Connected</span></div>
@@ -43,7 +43,7 @@
         <h3 class="text-headline-sm">Physical</h3>
         <span class="checkin-live-label" data-live-label>{{ labels.physical[checkin.physical - 1] }}</span>
       </div>
-      <p class="hint">How is your body feeling — energy, sleep, movement?</p>
+      <p class="hint">{{ questions.physical }}</p>
       <input class="checkin-slider" type="range" name="physical_level" min="1" max="5" value="{{ checkin.physical }}"
              data-labels='{{ labels.physical | tojson }}'>
       <div class="checkin-scale"><span>Drained</span><span>Okay</span><span>Energized</span></div>
@@ -55,7 +55,7 @@
         <h3 class="text-headline-sm">Mental</h3>
         <span class="checkin-live-label" data-live-label>{{ labels.mental[checkin.mental - 1] }}</span>
       </div>
-      <p class="hint">How clear and focused does your mind feel?</p>
+      <p class="hint">{{ questions.mental }}</p>
       <input class="checkin-slider" type="range" name="mental_level" min="1" max="5" value="{{ checkin.mental }}"
              data-labels='{{ labels.mental | tojson }}'>
       <div class="checkin-scale"><span>Foggy</span><span>Steady</span><span>Sharp</span></div>
