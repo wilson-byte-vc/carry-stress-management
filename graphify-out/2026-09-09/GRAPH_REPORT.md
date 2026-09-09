@@ -1,11 +1,11 @@
 # Graph Report - SpaceMan  (2026-09-09)
 
 ## Corpus Check
-- 132 files · ~297,993 words
+- 132 files · ~297,931 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2411 nodes · 3157 edges · 183 communities (146 shown, 36 thin omitted)
+- 2411 nodes · 3147 edges · 180 communities (143 shown, 36 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 66 edges (avg confidence: 0.88)
 - Token cost: 0 input · 0 output
 
@@ -102,13 +102,13 @@
 - .check_shadcn_config
 - .generate_config_string
 - test_core.py
-- CheckIn
+- Commitment
 - home
 - Core Visual Elements
 - inject-brand-context.cjs
 - CIP Design Style Guide
 - embed-tokens.cjs
-- duration
+- primitive
 - patch
 - test_tailwind_config_gen.py
 - Quick Reference
@@ -128,7 +128,7 @@
 - _run
 - _normalize
 - app.js
-- Commitment
+- add_commitment
 - input
 - radius
 - _row_identities
@@ -137,7 +137,7 @@
 - HTML Slide Template
 - HTML Slide Template
 - Query Contract
-- sm
+- shadow
 - Slides
 - Pre-Delivery Checklist
 - Prerequisites
@@ -150,7 +150,7 @@
 - landing.js
 - padding-y
 - xl
-- 16
+- md
 - none
 - TestBm25CoreBehavior
 - Tips for Better Results
@@ -194,9 +194,6 @@
 - .test_add_colors
 - week/README.md
 - sw.js
-- 1
-- 3
-- 8
 
 ## God Nodes (most connected - your core abstractions)
 1. `TailwindConfigGenerator` - 58 edges
@@ -215,17 +212,17 @@
   app.py → models.py
 - `home()` --uses--> `Commitment`  [INFERRED]
   app.py → models.py
+- `add_commitment()` --uses--> `Commitment`  [INFERRED]
+  app.py → models.py
 - `toggle_commitment()` --uses--> `Commitment`  [INFERRED]
   app.py → models.py
 - `delete_commitment()` --uses--> `Commitment`  [INFERRED]
-  app.py → models.py
-- `checkin()` --uses--> `CheckIn`  [INFERRED]
   app.py → models.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (183 total, 36 thin omitted)
+## Communities (180 total, 36 thin omitted)
 
 ### Community 0 - "validate_data.py"
 Cohesion: 0.08
@@ -264,8 +261,8 @@ Cohesion: 0.08
 Nodes (30): ansi_ljust(), _detect_page_type(), format_ascii_box(), format_master_md(), format_page_override_md(), _generate_intelligent_overrides(), hex_to_ansi(), persist_design_system() (+22 more)
 
 ### Community 9 - "spacing"
-Cohesion: 0.09
-Nodes (22): $type, $value, $type, $value, $type, $value, $type, $value (+14 more)
+Cohesion: 0.06
+Nodes (34): $type, $value, $type, $value, $type, $value, $type, $value (+26 more)
 
 ### Community 10 - "Form & Input Components"
 Cohesion: 0.06
@@ -352,7 +349,7 @@ Cohesion: 0.21
 Nodes (21): back(), bars(), go(), h(), narrative(), parseText(), render(), ring() (+13 more)
 
 ### Community 31 - "app.py"
-Cohesion: 0.19
+Cohesion: 0.16
 Nodes (22): assetlinks(), assistant(), chat(), chat_reset(), _client_history(), delete_commitment(), game(), healthz() (+14 more)
 
 ### Community 32 - "Design System"
@@ -571,9 +568,9 @@ Nodes (6): Generate configuration file content. Returns: Configuration file as s
 Cohesion: 0.20
 Nodes (7): format_markdown(), generate_design_system(), Format design system as markdown., Main entry point for design system generation. Args: query: Search query (e.g.,…, format_output(), Format results for Claude consumption (token-optimized), TestPersistence
 
-### Community 87 - "CheckIn"
-Cohesion: 0.22
-Nodes (3): CheckIn, Insight, A generated observation about the user's patterns. Written server-side (from…
+### Community 87 - "Commitment"
+Cohesion: 0.17
+Nodes (5): CheckIn, Commitment, Insight, Something taking up the student's capacity. `movable` is the point of this…, A generated observation about the user's patterns. Written server-side (from…
 
 ### Community 88 - "home"
 Cohesion: 0.22
@@ -595,9 +592,9 @@ Nodes (10): Bold Dynamic, CIP Design Style Guide, Classic Traditional, Color Psy
 Cohesion: 0.18
 Nodes (8): args, fs, minimal, MINIMAL_TOKENS, path, projectRoot, tokensPath, wrapStyle
 
-### Community 93 - "duration"
-Cohesion: 0.20
-Nodes (10): fast, normal, slow, $type, $value, $type, $value, duration (+2 more)
+### Community 93 - "primitive"
+Cohesion: 0.18
+Nodes (11): fast, normal, slow, $type, $value, $type, $value, primitive (+3 more)
 
 ### Community 94 - "patch"
 Cohesion: 0.18
@@ -675,17 +672,17 @@ Nodes (9): _exact_match_diagnostic(), _legacy_successor_guidance(), _normalize()
 Cohesion: 0.33
 Nodes (7): closeAllDropdowns(), currentTheme(), ensureToastLayer(), paintThemeControls(), setDropdownOpen(), setTheme(), showToast()
 
-### Community 113 - "Commitment"
-Cohesion: 0.18
-Nodes (10): add_commitment(), checkin(), clamp_level(), current_checkin(), parse_due_date(), The latest real check-in, or None if the user has never logged one. Returning…, Slider values arrive as strings from the form and are attacker-controlled --…, <input type="date"> gives YYYY-MM-DD, or empty for no deadline. (+2 more)
+### Community 113 - "add_commitment"
+Cohesion: 0.25
+Nodes (8): add_commitment(), checkin(), clamp_level(), current_checkin(), parse_due_date(), The latest real check-in, or None if the user has never logged one. Returning…, Slider values arrive as strings from the form and are attacker-controlled --…, <input type="date"> gives YYYY-MM-DD, or empty for no deadline.
 
 ### Community 114 - "input"
 Cohesion: 0.29
 Nodes (8): padding-x, input, $type, $value, focus-ring, padding-x, $type, $value
 
 ### Community 115 - "radius"
-Cohesion: 0.19
-Nodes (14): $type, $value, $type, $value, $type, $value, primitive, radius (+6 more)
+Cohesion: 0.29
+Nodes (8): $type, $value, $type, $value, radius, default, full, default
 
 ### Community 116 - "_row_identities"
 Cohesion: 0.25
@@ -711,9 +708,9 @@ Nodes (6): Animation Classes, Background Images, Base Structure, Chart.js Integr
 Cohesion: 0.29
 Nodes (7): Query Contract, Step 1: Analyze User Requirements, Step 2: Generate Design System (new projects/pages), Step 2b: Persist Design System (Master + Overrides Pattern), Step 2c: Design Dials (optional), Step 3: Supplement with Detailed Searches (as needed), Step 4: Stack Guidelines
 
-### Community 122 - "sm"
-Cohesion: 0.60
-Nodes (5): sm, sm, sm, $type, $value
+### Community 122 - "shadow"
+Cohesion: 0.47
+Nodes (6): sm, shadow, sm, sm, $type, $value
 
 ### Community 123 - "Slides"
 Cohesion: 0.33
@@ -759,9 +756,9 @@ Nodes (4): padding-y, padding-y, $type, $value
 Cohesion: 0.67
 Nodes (4): xl, xl, $type, $value
 
-### Community 135 - "16"
+### Community 135 - "md"
 Cohesion: 0.67
-Nodes (3): $type, $value, 16
+Nodes (4): $type, $value, md, md
 
 ### Community 136 - "none"
 Cohesion: 0.67
@@ -799,18 +796,6 @@ Nodes (3): ring, $type, $value
 Cohesion: 0.67
 Nodes (3): secondary-foreground, $type, $value
 
-### Community 180 - "1"
-Cohesion: 0.67
-Nodes (3): $type, $value, 1
-
-### Community 181 - "3"
-Cohesion: 0.67
-Nodes (3): $type, $value, 3
-
-### Community 182 - "8"
-Cohesion: 0.67
-Nodes (3): $type, $value, 8
-
 ## Knowledge Gaps
 - **934 isolated node(s):** `fs`, `path`, `fs`, `path`, `fs` (+929 more)
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1338 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
@@ -823,7 +808,7 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.016) - this node is a cross-community bridge._
 - **Why does `search_stack()` connect `search_stack` to `test_text_layout_resilience.py`, `_normalize`, `search`, `scripts/core.py`, `TestDiagnosticsContracts`, `test_core.py`?**
   _High betweenness centrality (0.011) - this node is a cross-community bridge._
-- **Why does `primitive` connect `radius` to `gray`, `spacing`, `design-tokens-starter.json`, `fontSize`, `duration`?**
+- **Why does `primitive` connect `primitive` to `gray`, `spacing`, `design-tokens-starter.json`, `radius`, `fontSize`, `shadow`?**
   _High betweenness centrality (0.009) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `TailwindConfigGenerator` (e.g. with `TestGeneratedConfigIsValidJs` and `TestTailwindConfigGenerator`) actually correct?**
   _`TailwindConfigGenerator` has 2 INFERRED edges - model-reasoned connections that need verification._

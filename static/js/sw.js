@@ -1,7 +1,7 @@
 /* Service worker for the Balance PWA.
  *
  * Deliberately conservative about what it stores. Pages are rendered per-user
- * and can contain someone's check-ins, email and admin flag, so HTML is NEVER
+ * and can contain someone's check-ins and email, so HTML is NEVER
  * written to the cache -- navigations always go to the network, and if that
  * fails the user gets a generic offline page instead. Only static assets
  * (CSS/JS/images/fonts) and that offline page are cached.

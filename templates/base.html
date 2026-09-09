@@ -61,7 +61,6 @@
                 <div class="settings-identity">
                   <span class="settings-name">{{ current_user.display_name }}</span>
                   <span class="settings-email">{{ current_user.email }}</span>
-                  {% if current_user.is_admin %}<span class="settings-badge">Admin</span>{% endif %}
                 </div>
 
                 <form class="settings-section" method="post" action="{{ url_for('settings') }}">
@@ -93,11 +92,6 @@
                 </a>
 
                 {% if current_user.is_authenticated %}
-                  {% if current_user.is_admin %}
-                    <a class="settings-link" href="{{ url_for('admin') }}">
-                      <span class="material-symbols-outlined">shield_person</span> Admin panel
-                    </a>
-                  {% endif %}
                   <form method="post" action="{{ url_for('logout') }}">
                     <button type="submit" class="settings-link settings-link-danger">
                       <span class="material-symbols-outlined">logout</span> Log out
@@ -134,7 +128,6 @@
                   <div class="settings-identity">
                     <span class="settings-name">{{ current_user.display_name }}</span>
                     <span class="settings-email">{{ current_user.email }}</span>
-                    {% if current_user.is_admin %}<span class="settings-badge">Admin</span>{% endif %}
                   </div>
 
                   <div class="settings-section">
@@ -154,11 +147,6 @@
                   </div>
 
                   <div class="settings-section settings-links">
-                    {% if current_user.is_admin %}
-                      <a class="settings-link" href="{{ url_for('admin') }}">
-                        <span class="material-symbols-outlined">shield_person</span> Admin panel
-                      </a>
-                    {% endif %}
                     <form method="post" action="{{ url_for('logout') }}">
                       <button type="submit" class="settings-link settings-link-danger">
                         <span class="material-symbols-outlined">logout</span> Log out

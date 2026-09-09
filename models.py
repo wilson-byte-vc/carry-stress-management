@@ -30,9 +30,6 @@ class User(UserMixin, db.Model):
     id = db.Column(UserId, primary_key=True)  # = auth.users.id
     email = db.Column(db.String(255), unique=True, nullable=False, index=True)
     display_name = db.Column(db.String(80), nullable=False)
-    # Authorisation lives here, server-side -- never in the JWT, or a user
-    # could edit their own token claims and promote themselves.
-    is_admin = db.Column(db.Boolean, default=False, nullable=False)
     theme = db.Column(db.String(10), default="light", nullable=False)
     created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
 

@@ -87,12 +87,12 @@ DEMO_CHAT_LIMIT = 10
 
 # --- Auth kill switch ---
 #
-# Off by default: the app runs as a pure guest demo, with signup/login fully
-# disconnected and hidden. None of the auth code is deleted -- routes stay
-# registered (so url_for keeps resolving) but answer 404, the UI that points
-# at them is hidden, and the session loader refuses to resolve anyone.
+# On by default: an account is required to reach the app, and the landing
+# page at "/" is the only thing an anonymous visitor can see.
 #
-# Set AUTH_ENABLED=0 in the environment to switch signup/login back off.
+# Set AUTH_ENABLED=0 in the environment to disconnect signup/login again --
+# no auth code is deleted, the routes just answer 404, the UI that points at
+# them is hidden, and the session loader refuses to resolve anyone.
 AUTH_ENABLED = os.environ.get("AUTH_ENABLED", "1") == "1"
 
 
@@ -135,20 +135,6 @@ def inject_demo_mode():
         "demo_chat_limit": DEMO_CHAT_LIMIT,
         "auth_enabled": AUTH_ENABLED,
     }
-
-
-def admin_required(view):
-    """Gate a route to admins only -- 404 rather than 403 so the existence of
-    the admin page isn't advertised to signed-in non-admins."""
-
-    @wraps(view)
-    @login_required
-    def wrapped(*args, **kwargs):
-        if not current_user.is_admin:
-            abort(404)
-        return view(*args, **kwargs)
-
-    return wrapped
 
 
 # --- Check-in vocabulary ---
@@ -298,9 +284,6 @@ def sync_profile(auth_user):
     metadata = auth_user.user_metadata or {}
 
     if profile is None:
-        # First profile in the table becomes the admin -- there's no other
-        # bootstrap path into the admin panel.
-        is_first = db.session.scalar(db.select(db.func.count(User.id))) == 0
         display_name = (
             metadata.get("display_name")
             or metadata.get("full_name")
@@ -311,7 +294,6 @@ def sync_profile(auth_user):
             id=auth_user.id,
             email=auth_user.email or "",
             display_name=display_name[:80],
-            is_admin=is_first,
         )
         db.session.add(profile)
     elif auth_user.email and profile.email != auth_user.email:
@@ -356,10 +338,22 @@ def signup():
                 flash(f"Could not sign you up: {e}")
                 return render_template("signup.html")
 
-            # Email confirmation is on, so sign_up returns a user but no
-            # session -- they have to click the link before they can log in.
+            # A fresh signup should land in the account, not an inbox. With
+            # email confirmation on, sign_up withholds the session until the
+            # link is clicked, so confirm the address server-side with the
+            # service-role key and sign them straight in. The inbox page is
+            # still the fallback if that confirm fails for any reason.
             if result.session is None:
-                return render_template("check_email.html", email=email)
+                try:
+                    supabase_admin.auth.admin.update_user_by_id(
+                        result.user.id, {"email_confirm": True}
+                    )
+                    result = supabase.auth.sign_in_with_password(
+                        {"email": email, "password": password}
+                    )
+                except Exception:
+                    app.logger.exception("auto-confirm after signup failed")
+                    return render_template("check_email.html", email=email)
 
             profile = sync_profile(result.user)
             login_user(profile)
@@ -500,56 +494,24 @@ def settings_theme():
     return jsonify({"ok": True, "theme": theme})
 
 
-# --- Admin ---
-
-@app.route("/admin")
-@admin_required
-def admin():
-    users = db.session.scalars(db.select(User).order_by(User.created_at)).all()
-    total_checkins = db.session.scalar(db.select(db.func.count(CheckIn.id)))
-    return render_template("admin.html", users=users, total_checkins=total_checkins)
-
-
-@app.route("/admin/users/<user_id>/toggle-admin", methods=["POST"])
-@admin_required
-def admin_toggle(user_id):
-    user = db.get_or_404(User, user_id)
-    if user.id == current_user.id:
-        flash("You can't remove your own admin access.")
-    else:
-        user.is_admin = not user.is_admin
-        db.session.commit()
-        state = "now an admin" if user.is_admin else "no longer an admin"
-        flash(f"{user.display_name} is {state}.")
-    return redirect(url_for("admin"))
-
-
 # --- App pages ---
 
-@app.route("/welcome")
-def welcome():
-    """Public hero page for first-time visitors.
-
-    Deliberately kept off "/" so that login-optional demo mode still works:
-    anyone who lands on the root still walks straight into a working week
-    rather than being bounced to a marketing page. landing.html does not
-    extend base.html and carries its own CSS, so it needs nothing from here.
-    """
-    return render_template("landing.html")
-
-
-@app.route("/prototype")
-def prototype():
-    """The five-screen Carry prototype (Today / Cost of Yes / Week / Valve / Trend).
-
-    Entirely client-side: it keeps its week in localStorage and never touches
-    the database. Its view layer is static/js/carry-app.js, deliberately NOT
-    named app.js so it can never shadow the site's own static/js/app.js.
-    """
-    return render_template("index.html")
-
-
 @app.route("/")
+def welcome():
+    """Public hero page -- the front door of the site.
+
+    Sits on "/" so a first-time visitor arrives at the pitch, the way any
+    site works, and enters the product from its "Open Carry" button. The week
+    itself lives one click deeper at /app. landingyuji.html does not extend
+    base.html and carries its own CSS, so it needs nothing from here.
+    """
+    return render_template("landingyuji.html")
+
+
+# Moved off "/" so the landing page can own the root. The endpoint is still
+# "home", so every url_for("home") link in the templates follows it here.
+@app.route("/app")
+@login_required
 def home():
     checkin = current_checkin()
     commitments = get_commitments()
@@ -577,6 +539,7 @@ def home():
 # --- Commitments ---
 
 @app.route("/commitments", methods=["POST"])
+@login_required
 def add_commitment():
     title = request.form.get("title", "").strip()[:160]
     if not title:
@@ -613,6 +576,7 @@ def add_commitment():
 
 
 @app.route("/commitments/<int:commitment_id>/toggle", methods=["POST"])
+@login_required
 def toggle_commitment(commitment_id):
     if current_user.is_authenticated:
         c = db.session.get(Commitment, commitment_id)
@@ -632,6 +596,7 @@ def toggle_commitment(commitment_id):
 
 
 @app.route("/commitments/<int:commitment_id>/delete", methods=["POST"])
+@login_required
 def delete_commitment(commitment_id):
     if current_user.is_authenticated:
         c = db.session.get(Commitment, commitment_id)
@@ -647,6 +612,7 @@ def delete_commitment(commitment_id):
 
 
 @app.route("/checkin", methods=["GET", "POST"])
+@login_required
 def checkin():
     if request.method == "POST":
         entry = {
@@ -672,16 +638,19 @@ def checkin():
 
 
 @app.route("/insights")
+@login_required
 def insights():
     history = current_user.checkins[:7] if current_user.is_authenticated else []
     return render_template("insights.html", history=history)
 
 
 @app.route("/assistant")
+@login_required
 def assistant():
     return render_template("chat.html")
 
 @app.route("/game")
+@login_required
 def game():
     return render_template("pressure_valve.html")
 
@@ -805,6 +774,7 @@ def _client_history(payload):
 
 
 @app.route("/chat", methods=["POST"])
+@login_required
 def chat():
     payload = request.json or {}
     client_history = _client_history(payload)
@@ -857,6 +827,7 @@ def chat():
 
 
 @app.route("/chat/reset", methods=["POST"])
+@login_required
 def chat_reset():
     session.pop("chat_history", None)
     return jsonify({"ok": True})
