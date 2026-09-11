@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en"
+      
+      data-authed="0">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Home — Carry</title>
+
+    
+    <link rel="manifest" href="/static/manifest.webmanifest">
+    
+    <meta name="theme-color" content="#0c111d">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Carry">
+    <link rel="apple-touch-icon" href="/static/image/apple-touch-icon.png">
+
+    <script>
+      // Set the theme before first paint so there's no flash of the wrong
+      // palette. Navy is the default, so the only thing worth doing early is
+      // opting *into* light. Signed-in users get their saved preference
+      // straight off the <html> tag above (the server is the source of
+      // truth); anonymous visitors fall back to whatever they last picked in
+      // this browser.
+      (function () {
+        if (document.documentElement.dataset.authed === "1") return;
+        try {
+          if (localStorage.getItem("theme") === "light") {
+            document.documentElement.dataset.theme = "light";
+          }
+        } catch (e) {
+          /* private mode / storage disabled -- stay on the navy default */
+        }
+      })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/css/carry-ui.css?cb=1789142419">
+    
+</head>
+
+<body class="has-bottom-nav">
+
+    
+    
+    
+
+    
+      <header class="topnav">
+        <div class="topnav-inner">
+
+          <a class="brand" href="/app" aria-label="Carry — home">
+            <span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span>carry</span>
+          </a>
+
+          
+          
+            <nav class="nav-links" aria-label="Primary">
+              <a class="active"
+                 aria-current="page"
+                 href="/app">Home</a>
+              <a class=""
+                 
+                 href="/checkin">Check-in</a>
+              <a class=""
+                 
+                 href="/insights">Insights</a>
+              <a class=""
+                 
+                 href="/assistant">Assistant</a>
+            </nav>
+          
+
+          <div class="nav-right">
+
+            <div class="settings-menu" data-dropdown>
+              <button type="button" class="icon-btn" id="settings-toggle" data-dropdown-toggle
+                      aria-label="Settings" aria-expanded="false" aria-controls="settings-panel">
+                <span class="material-symbols-outlined" aria-hidden="true">settings</span>
+              </button>
+
+              <div class="settings-panel" id="settings-panel" data-dropdown-panel hidden>
+                
+                  <div class="settings-identity">
+                    <span class="settings-name">Browsing as guest</span>
+                    <span class="settings-email">Your check-ins stay in this browser only.</span>
+                  </div>
+                
+
+                
+                <div class="settings-section">
+                  <span class="settings-label">Appearance</span>
+                  <div class="settings-theme-group">
+                    <button type="button" class="settings-theme-btn" data-set-theme="dark">
+                      <span class="material-symbols-outlined" aria-hidden="true">dark_mode</span> Dark
+                    </button>
+                    <button type="button" class="settings-theme-btn" data-set-theme="light">
+                      <span class="material-symbols-outlined" aria-hidden="true">light_mode</span> Light
+                    </button>
+                  </div>
+                </div>
+
+                <div class="settings-section settings-links">
+                  
+                  <button type="button" class="settings-link" id="install-app" hidden>
+                    <span class="material-symbols-outlined" aria-hidden="true">install_mobile</span> Install app
+                  </button>
+
+                  <a class="settings-link" href="/">
+                    <span class="material-symbols-outlined" aria-hidden="true">auto_stories</span> What Carry is
+                  </a>
+
+                  
+                    <a class="settings-link" href="/login">
+                      <span class="material-symbols-outlined" aria-hidden="true">login</span> Log in
+                    </a>
+                    <a class="settings-link" href="/signup">
+                      <span class="material-symbols-outlined" aria-hidden="true">person_add</span> Create an account
+                    </a>
+                  
+                </div>
+              </div>
+            </div>
+
+            
+            
+              <div class="account-menu" data-dropdown>
+                <button type="button" class="icon-btn" id="account-toggle" data-dropdown-toggle
+                        aria-label="Account" aria-expanded="false" aria-controls="account-panel">
+                  <span class="material-symbols-outlined" aria-hidden="true">account_circle</span>
+                </button>
+
+                <div class="settings-panel settings-panel-right" id="account-panel" data-dropdown-panel hidden>
+                  
+                    <div class="settings-identity">
+                      <span class="settings-name">Browsing as guest</span>
+                      <span class="settings-email">You can try everything — nothing is saved yet.</span>
+                    </div>
+
+                    <div class="settings-section">
+                      <span class="settings-label">Unlock with an account</span>
+                      <ul class="account-perks">
+                        <li class="account-perk">
+                          <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+                          <span><strong>Keep your check-ins.</strong> Right now they vanish when this browser clears its cookies.</span>
+                        </li>
+                        <li class="account-perk">
+                          <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+                          <span><strong>Insights from your history.</strong> Patterns need more than one saved day to show up.</span>
+                        </li>
+                        <li class="account-perk">
+                          <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+                          <span><strong>Unlimited assistant chat.</strong> The demo stops after 10 messages.</span>
+                        </li>
+                        <li class="account-perk">
+                          <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+                          <span><strong>Settings that follow you.</strong> Your name and theme sync to any device you log in on.</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div class="settings-section account-cta">
+                      <a class="btn btn-primary btn-block" href="/signup">Create a free account</a>
+                      <a class="settings-link account-login-link" href="/login">
+                        <span class="material-symbols-outlined" aria-hidden="true">login</span> I already have one — log in
+                      </a>
+                    </div>
+                  
+                </div>
+              </div>
+            
+          </div>
+        </div>
+      </header>
+    
+
+    
+
+    <!-- Page unique content goes here -->
+    
+
+<main class="container" >
+
+  
+    <section class="hero">
+      <p class="eyebrow">Today</p>
+      <h2 class="text-headline-md">Rest is part of the work, not a reward for finishing it.</h2>
+    </section>
+
+    <section class="widget-preview">
+      <p class="text-label-sm widget-preview-caption">Your Carry widget</p>
+      
+<div class="widget-tile">
+  <div class="widget-half widget-half--logo">
+    <span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>
+  </div>
+  <div class="widget-half widget-half--streak">
+    <p class="widget-streak-count">4-day streak</p>
+    <div class="widget-days" role="list" aria-label="Check-ins, last 7 days">
+      
+        <span class="widget-day is-done"
+              role="listitem"
+              aria-label="S: checked in">
+          <span class="material-symbols-outlined" aria-hidden="true">check</span>
+        </span>
+      
+        <span class="widget-day is-done"
+              role="listitem"
+              aria-label="S: checked in">
+          <span class="material-symbols-outlined" aria-hidden="true">check</span>
+        </span>
+      
+        <span class="widget-day is-done"
+              role="listitem"
+              aria-label="M: checked in">
+          <span class="material-symbols-outlined" aria-hidden="true">check</span>
+        </span>
+      
+        <span class="widget-day is-done"
+              role="listitem"
+              aria-label="T: checked in">
+          <span class="material-symbols-outlined" aria-hidden="true">check</span>
+        </span>
+      
+        <span class="widget-day is-done"
+              role="listitem"
+              aria-label="W: checked in">
+          <span class="material-symbols-outlined" aria-hidden="true">check</span>
+        </span>
+      
+        <span class="widget-day is-done"
+              role="listitem"
+              aria-label="T: checked in">
+          <span class="material-symbols-outlined" aria-hidden="true">check</span>
+        </span>
+      
+        <span class="widget-day is-today"
+              role="listitem"
+              aria-label="F: today, not checked in yet">
+          
+        </span>
+      
+    </div>
+  </div>
+</div>
+    </section>
+
+    <section class="capacity-section">
+      <div class="capacity-trigger-stack">
+        <button type="button" class="ring-wrap capacity-trigger" data-toggle-detail="#capacity-detail"
+                data-capacity="46" aria-expanded="false" aria-controls="capacity-detail">
+          <svg viewBox="0 0 160 160" width="180" height="180" aria-hidden="true">
+            <circle cx="80" cy="80" r="68" fill="none" stroke="var(--panel-2)" stroke-width="14"/>
+            <circle id="capacityRing" cx="80" cy="80" r="68" fill="none" stroke="var(--band-room)" stroke-width="14"
+                    stroke-linecap="round" transform="rotate(-90 80 80)"
+                    stroke-dasharray="427.2" stroke-dashoffset="427.2"/>
+          </svg>
+          <div class="ring-num">
+            <div class="pct num" id="capacityPct">0<span style="font-size:20px">%</span></div>
+            <span class="text-label-sm">Capacity</span>
+          </div>
+        </button>
+        <span class="text-label-sm capacity-trigger-hint">Tap the ring to see what's driving it</span>
+      </div>
+    </section>
+
+    <section class="insight-detail" id="capacity-detail">
+      <h3 class="text-subtitle">What's driving this</h3>
+
+      <ul class="account-perks">
+        
+          <li class="account-perk">
+            <span class="material-symbols-outlined" aria-hidden="true">
+              schedule
+            </span>
+            <span>
+              <strong>Time is your tightest category.</strong>
+              You rated it "Busy" in your last check-in.
+            </span>
+          </li>
+        
+
+        
+          <li class="account-perk">
+            <span class="material-symbols-outlined" aria-hidden="true">bolt</span>
+            <span>
+              <strong>CS201 group project deliverable</strong> is your heaviest thing coming up —
+              effort 5/5, and it's fixed.
+            </span>
+          </li>
+        
+          <li class="account-perk">
+            <span class="material-symbols-outlined" aria-hidden="true">bolt</span>
+            <span>
+              <strong>Part-time shift at the cafe</strong> is also weighing in —
+              effort 3/5, and it's fixed.
+            </span>
+          </li>
+        
+
+        
+      </ul>
+
+      <p class="eyebrow">AI suggestion</p>
+      <p class="text-body capacity-ai-summary is-loading" data-ai-summary>Generating a suggestion…</p>
+    </section>
+
+    <section class="streak-card">
+      <div class="streak-head">
+        
+        <span class="streak-flame streak-flame--hot" aria-hidden="true">
+          <svg class="flame-svg" viewBox="0 0 24 24" fill="currentColor">
+            <path class="flame-outer" d="M12.963 2.286a.75.75 0 00-1.071-.136 9.742 9.742 0 00-3.539 6.176 7.547 7.547 0 01-1.705-1.715.75.75 0 00-1.152-.082A9 9 0 1015.68 4.534a7.46 7.46 0 01-2.717-2.248z"/>
+            <path class="flame-inner" d="M15.75 14.25a3.75 3.75 0 11-7.313-1.172c.628.465 1.35.81 2.133 1a5.99 5.99 0 011.925-3.545 3.75 3.75 0 013.255 3.717z"/>
+          </svg>
+        </span>
+        <div>
+          <h3 class="text-headline-sm">4-day streak</h3>
+          <p class="text-label-sm">
+            Check in today to keep it going
+          </p>
+        </div>
+      </div>
+
+      <div class="streak-days" role="list" aria-label="Check-ins, last 7 days">
+        
+          <div class="streak-day is-done" role="listitem">
+            <span class="streak-day-label" aria-hidden="true">S</span>
+            <span class="streak-day-dot">
+              <span class="material-symbols-outlined" aria-hidden="true">check</span>
+              <span class="sr-only">Checked in</span>
+            </span>
+          </div>
+        
+          <div class="streak-day is-done" role="listitem">
+            <span class="streak-day-label" aria-hidden="true">S</span>
+            <span class="streak-day-dot">
+              <span class="material-symbols-outlined" aria-hidden="true">check</span>
+              <span class="sr-only">Checked in</span>
+            </span>
+          </div>
+        
+          <div class="streak-day is-done" role="listitem">
+            <span class="streak-day-label" aria-hidden="true">M</span>
+            <span class="streak-day-dot">
+              <span class="material-symbols-outlined" aria-hidden="true">check</span>
+              <span class="sr-only">Checked in</span>
+            </span>
+          </div>
+        
+          <div class="streak-day is-done" role="listitem">
+            <span class="streak-day-label" aria-hidden="true">T</span>
+            <span class="streak-day-dot">
+              <span class="material-symbols-outlined" aria-hidden="true">check</span>
+              <span class="sr-only">Checked in</span>
+            </span>
+          </div>
+        
+          <div class="streak-day is-done" role="listitem">
+            <span class="streak-day-label" aria-hidden="true">W</span>
+            <span class="streak-day-dot">
+              <span class="material-symbols-outlined" aria-hidden="true">check</span>
+              <span class="sr-only">Checked in</span>
+            </span>
+          </div>
+        
+          <div class="streak-day is-done" role="listitem">
+            <span class="streak-day-label" aria-hidden="true">T</span>
+            <span class="streak-day-dot">
+              <span class="material-symbols-outlined" aria-hidden="true">check</span>
+              <span class="sr-only">Checked in</span>
+            </span>
+          </div>
+        
+          <div class="streak-day is-today" role="listitem">
+            <span class="streak-day-label" aria-hidden="true">F</span>
+            <span class="streak-day-dot">
+              
+              <span class="sr-only">No check-in</span>
+            </span>
+          </div>
+        
+      </div>
+
+      <div class="streak-actions">
+        <a class="btn btn-primary" href="/checkin">
+          <span class="material-symbols-outlined" aria-hidden="true">rebase_edit</span> Check in today
+        </a>
+        <button type="button" class="btn btn-outline" id="streak-add-task">
+          <span class="material-symbols-outlined" aria-hidden="true">add</span> Add task
+        </button>
+      </div>
+    </section>
+  
+
+  
+  <section class="commitments">
+    <div class="section-head">
+      <h3 class="text-headline-sm">Coming up</h3>
+      
+        <span class="section-meta">
+          2 fixed · 1 movable
+        </span>
+      
+    </div>
+
+    
+      <ul class="commitment-list">
+        
+          <li class="commitment is-fixed">
+            <form method="post" action="/commitments/2/toggle"
+                  class="commitment-check">
+              <button type="submit" aria-label="Mark done">
+                <span class="material-symbols-outlined">check_circle</span>
+              </button>
+            </form>
+
+            <div class="commitment-body">
+              <span class="commitment-title">Part-time shift at the cafe</span>
+              <span class="commitment-meta">
+                <span class="commitment-tag tag-fixed">
+                  Fixed
+                </span>
+                <span>Work</span>
+                <span>·</span>
+                <span>effort 3/5</span>
+                
+                  <span>·</span>
+                  <span>due 12 Sep</span>
+                
+              </span>
+            </div>
+
+            <form method="post" action="/commitments/2/delete"
+                  class="commitment-delete">
+              <button type="submit" aria-label="Remove">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </form>
+          </li>
+        
+          <li class="commitment is-fixed">
+            <form method="post" action="/commitments/1/toggle"
+                  class="commitment-check">
+              <button type="submit" aria-label="Mark done">
+                <span class="material-symbols-outlined">check_circle</span>
+              </button>
+            </form>
+
+            <div class="commitment-body">
+              <span class="commitment-title">CS201 group project deliverable</span>
+              <span class="commitment-meta">
+                <span class="commitment-tag tag-fixed">
+                  Fixed
+                </span>
+                <span>Academic</span>
+                <span>·</span>
+                <span>effort 5/5</span>
+                
+                  <span>·</span>
+                  <span>due 13 Sep</span>
+                
+              </span>
+            </div>
+
+            <form method="post" action="/commitments/1/delete"
+                  class="commitment-delete">
+              <button type="submit" aria-label="Remove">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </form>
+          </li>
+        
+          <li class="commitment ">
+            <form method="post" action="/commitments/3/toggle"
+                  class="commitment-check">
+              <button type="submit" aria-label="Mark done">
+                <span class="material-symbols-outlined">check_circle</span>
+              </button>
+            </form>
+
+            <div class="commitment-body">
+              <span class="commitment-title">Gym session</span>
+              <span class="commitment-meta">
+                <span class="commitment-tag tag-movable">
+                  Movable
+                </span>
+                <span>Health</span>
+                <span>·</span>
+                <span>effort 2/5</span>
+                
+                  <span>·</span>
+                  <span>due 14 Sep</span>
+                
+              </span>
+            </div>
+
+            <form method="post" action="/commitments/3/delete"
+                  class="commitment-delete">
+              <button type="submit" aria-label="Remove">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </form>
+          </li>
+        
+      </ul>
+    
+
+    <details class="commitment-add" id="add-commitment">
+      <summary>
+        <span class="material-symbols-outlined">add</span> Add a commitment
+      </summary>
+
+      <form method="post" action="/commitments" class="commitment-form">
+        <div class="cf-row">
+          <label class="settings-label" for="c-title">What is it?</label>
+          <input class="auth-input" id="c-title" name="title" type="text"
+                 maxlength="160" placeholder="e.g. CS201 assignment" required>
+        </div>
+
+        <div class="cf-grid">
+          <div class="cf-row">
+            <label class="settings-label" for="c-category">Category</label>
+            <select class="auth-input" id="c-category" name="category">
+              
+                <option value="academic">Academic</option>
+              
+                <option value="work">Work</option>
+              
+                <option value="social">Social</option>
+              
+                <option value="health">Health</option>
+              
+                <option value="personal">Personal</option>
+              
+            </select>
+          </div>
+
+          <div class="cf-row">
+            <label class="settings-label" for="c-due">Due (optional)</label>
+            <input class="auth-input" id="c-due" name="due_at" type="date" min="2026-09-11">
+          </div>
+        </div>
+
+        <div class="cf-row">
+          <label class="settings-label" for="c-effort">
+            How draining? <span data-effort-out>3</span>/5
+          </label>
+          <input class="checkin-slider" id="c-effort" name="effort" type="range"
+                 min="1" max="5" value="3" data-effort-input>
+        </div>
+
+        <label class="cf-toggle">
+          <input type="checkbox" name="movable" value="1" checked>
+          <span>
+            <strong>I can move this</strong>
+            <small>Leave unticked for fixed things like lectures or shifts —
+            only movable ones can be rescheduled to ease a heavy week.</small>
+          </span>
+        </label>
+
+        <button type="submit" class="btn btn-primary btn-block">Add commitment</button>
+      </form>
+    </details>
+  </section>
+</main>
+
+
+
+    
+      <nav class="bottom-nav" aria-label="Primary">
+        <a class="bottom-nav-item active"
+           aria-current="page"
+           href="/app">
+          <span class="material-symbols-outlined" aria-hidden="true">home</span>
+          <span>Home</span>
+        </a>
+        <a class="bottom-nav-item "
+           
+           href="/checkin">
+          <span class="material-symbols-outlined" aria-hidden="true">rebase_edit</span>
+          <span>Check-in</span>
+        </a>
+        <a class="bottom-nav-item "
+           
+           href="/insights">
+          <span class="material-symbols-outlined" aria-hidden="true">analytics</span>
+          <span>Insights</span>
+        </a>
+        <a class="bottom-nav-item "
+           
+           href="/assistant">
+          <span class="material-symbols-outlined" aria-hidden="true">smart_toy</span>
+          <span>Assistant</span>
+        </a>
+      </nav>
+    
+
+    
+      <footer class="site-footer">
+        <span class="footer-brand">
+          <span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>
+          carry
+        </span>
+        <nav class="footer-links" aria-label="Footer">
+          <a href="/">What Carry is</a>
+          <a href="/checkin">Today's check-in</a>
+          <a href="/insights">Insights</a>
+        </nav>
+        <span>Capacity, not productivity.</span>
+      </footer>
+    
+
+    <script src="/static/js/app.js?cb=1789142419"></script>
+    <script src="/static/js/carry-ui.js?cb=1789142419"></script>
+    
+
+<script>
+(function () {
+  var ring = document.getElementById("capacityRing");
+  var pct = document.getElementById("capacityPct");
+  var wrap = document.querySelector(".ring-wrap");
+  if (!ring || !pct || !wrap || !window.carryRing) return;
+
+  var target = Number(wrap.dataset.capacity);
+
+  function play() {
+    // Force a fresh 0 -> target count-up on every entry, not just the first
+    // -- carryRing would otherwise animate from-the-already-displayed-value,
+    // which is a no-op once it's already sitting at the target.
+    ring._ringStarted = false;
+    pct.textContent = "0";
+    window.carryRing(ring, pct, null, 0, target, 900);
+  }
+
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) play();
+      });
+    }, { threshold: 0.5 }).observe(wrap);
+  } else {
+    play();
+  }
+})();
+
+(function () {
+  // app.js owns opening/closing [data-toggle-detail] panels; this only
+  // keeps the trigger's ARIA state in step, and fetches the AI suggestion
+  // once, the first time the panel is actually opened.
+  var trigger = document.querySelector(".capacity-trigger");
+  var panel = document.getElementById("capacity-detail");
+  var summaryEl = document.querySelector("[data-ai-summary]");
+  if (!trigger || !panel || !summaryEl) return;
+
+  var fetched = false;
+
+  trigger.addEventListener("click", function () {
+    var isOpen = panel.classList.contains("is-open");
+    trigger.setAttribute("aria-expanded", String(isOpen));
+    if (fetched || !isOpen) return;
+    fetched = true;
+
+    fetch("/app/summary", { method: "POST" })
+      .then(function (res) {
+        return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+      })
+      .then(function (result) {
+        summaryEl.textContent = result.ok
+          ? result.data.summary
+          : (result.data.error || "Couldn't generate a suggestion right now.");
+      })
+      .catch(function () {
+        summaryEl.textContent = "Couldn't generate a suggestion right now.";
+      })
+      .then(function () {
+        summaryEl.classList.remove("is-loading");
+      });
+  });
+})();
+
+(function () {
+  var addBtn = document.getElementById("streak-add-task");
+  var panel = document.getElementById("add-commitment");
+  if (!addBtn || !panel) return;
+
+  addBtn.addEventListener("click", function () {
+    panel.open = true;
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
+    var titleField = document.getElementById("c-title");
+    if (titleField) titleField.focus({ preventScroll: true });
+  });
+})();
+</script>
+
+
+
+</body>
+</html>

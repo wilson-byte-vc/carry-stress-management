@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Equilibrium - Home{% endblock %}
+{% block title %}Home — Carry{% endblock %}
 
 {% block body_class %}has-bottom-nav{% endblock %}
 
@@ -32,59 +32,104 @@
     </section>
   {% else %}
     <section class="hero">
-      <h2 class="text-headline-md">You're at <span class="accent">{{ capacity }}%</span> capacity</h2>
-      <p class="text-body-md">
-        {%- if checkin.note %}"{{ checkin.note }}"
-        {%- else %}{{ energy }}% energy from your last check-in
-          {%- if load_reduction %}, minus {{ load_reduction }}% for a week that's
-            {{ load_pct }}% full{% endif %}.
-        {%- endif %}
-      </p>
+      <p class="eyebrow">Today</p>
+      <h2 class="text-headline-md">{{ quote }}</h2>
     </section>
 
     <section class="capacity-section">
-      <div class="pulse-core">
-        <div class="pulse-ring-outer"></div>
-        <div class="pulse-ring-inner"></div>
-        <div class="pulse-inner-core">
-          <span class="value text-display-lg-mobile">{{ capacity }}%</span>
-          <span class="label text-label-sm">Capacity</span>
+      <div class="capacity-trigger-stack">
+        <button type="button" class="ring-wrap capacity-trigger" data-toggle-detail="#capacity-detail"
+                data-capacity="{{ capacity }}" aria-expanded="false" aria-controls="capacity-detail">
+          <svg viewBox="0 0 160 160" width="180" height="180" aria-hidden="true">
+            <circle cx="80" cy="80" r="68" fill="none" stroke="var(--panel-2)" stroke-width="14"/>
+            <circle id="capacityRing" cx="80" cy="80" r="68" fill="none" stroke="var(--band-room)" stroke-width="14"
+                    stroke-linecap="round" transform="rotate(-90 80 80)"
+                    stroke-dasharray="427.2" stroke-dashoffset="427.2"/>
+          </svg>
+          <div class="ring-num">
+            <div class="pct num" id="capacityPct">0<span style="font-size:20px">%</span></div>
+            <span class="text-label-sm">Capacity</span>
+          </div>
+        </button>
+        <span class="text-label-sm capacity-trigger-hint">Tap the ring to see what's driving it</span>
+      </div>
+    </section>
+
+    <section class="insight-detail" id="capacity-detail">
+      <h3 class="text-subtitle">What's driving this</h3>
+
+      <ul class="account-perks">
+        {% if top_drain_key %}
+          <li class="account-perk">
+            <span class="material-symbols-outlined" aria-hidden="true">
+              {{ {'time': 'schedule', 'social': 'groups', 'physical': 'directions_run', 'mental': 'psychology'}[top_drain_key] }}
+            </span>
+            <span>
+              <strong>{{ top_drain_key|capitalize }} is your tightest category.</strong>
+              You rated it "{{ labels[top_drain_key][checkin[top_drain_key] - 1] }}" in your last check-in.
+            </span>
+          </li>
+        {% endif %}
+
+        {% for c in top_commitments %}
+          <li class="account-perk">
+            <span class="material-symbols-outlined" aria-hidden="true">bolt</span>
+            <span>
+              <strong>{{ c.title }}</strong> {% if loop.first %}is your heaviest thing coming up{% else %}is also weighing in{% endif %} —
+              effort {{ c.effort }}/5{% if not c.movable %}, and it's fixed{% endif %}.
+            </span>
+          </li>
+        {% endfor %}
+
+        {% if not top_drain_key and not top_commitments %}
+          <li class="account-perk">
+            <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+            <span>Nothing standing out right now — check back after your next check-in.</span>
+          </li>
+        {% endif %}
+      </ul>
+
+      <p class="eyebrow">AI suggestion</p>
+      <p class="text-body capacity-ai-summary is-loading" data-ai-summary>Generating a suggestion…</p>
+    </section>
+
+    <section class="streak-card">
+      <div class="streak-head">
+        {% set flame_tier = 'blaze' if streak >= 7 else 'hot' if streak >= 3 else 'warm' if streak >= 1 else 'unlit' %}
+        <span class="streak-flame streak-flame--{{ flame_tier }}" aria-hidden="true">
+          <svg class="flame-svg" viewBox="0 0 24 24" fill="currentColor">
+            <path class="flame-outer" d="M12.963 2.286a.75.75 0 00-1.071-.136 9.742 9.742 0 00-3.539 6.176 7.547 7.547 0 01-1.705-1.715.75.75 0 00-1.152-.082A9 9 0 1015.68 4.534a7.46 7.46 0 01-2.717-2.248z"/>
+            <path class="flame-inner" d="M15.75 14.25a3.75 3.75 0 11-7.313-1.172c.628.465 1.35.81 2.133 1a5.99 5.99 0 011.925-3.545 3.75 3.75 0 013.255 3.717z"/>
+          </svg>
+        </span>
+        <div>
+          <h3 class="text-headline-sm">{{ streak }}-day streak</h3>
+          <p class="text-label-sm">
+            {% if streak %}Check in today to keep it going{% else %}Start today{% endif %}
+          </p>
         </div>
       </div>
-    </section>
 
-    {# How the number was reached, so it isn't a black box. #}
-    <section class="capacity-breakdown">
-      <div class="breakdown-item">
-        <span class="breakdown-value">{{ energy }}%</span>
-        <span class="breakdown-label">Energy</span>
-      </div>
-      <span class="breakdown-op">−</span>
-      <div class="breakdown-item">
-        <span class="breakdown-value">{{ load_reduction }}%</span>
-        <span class="breakdown-label">Load · {{ load_points }} pts, week {{ load_pct }}% full</span>
-      </div>
-      <span class="breakdown-op">=</span>
-      <div class="breakdown-item is-result">
-        <span class="breakdown-value">{{ capacity }}%</span>
-        <span class="breakdown-label">Capacity</span>
-      </div>
-    </section>
-
-    <section class="category-list">
-      {% for key, icon in [('time','schedule'), ('social','groups'),
-                           ('physical','directions_run'), ('mental','psychology')] %}
-        <a class="category-row" href="{{ url_for('checkin') }}#cat-{{ key }}">
-          <div class="category-row-left">
-            <span class="category-row-icon material-symbols-outlined">{{ icon }}</span>
-            <div>
-              <h3 class="text-headline-sm">{{ key|capitalize }}</h3>
-              <p>{{ labels[key][checkin[key] - 1] }}</p>
-            </div>
+      <div class="streak-days" role="list" aria-label="Check-ins, last 7 days">
+        {% for day in streak_days %}
+          <div class="streak-day{{ ' is-done' if day.done else '' }}{{ ' is-today' if day.is_today else '' }}" role="listitem">
+            <span class="streak-day-label" aria-hidden="true">{{ day.label }}</span>
+            <span class="streak-day-dot">
+              {% if day.done %}<span class="material-symbols-outlined" aria-hidden="true">check</span>{% endif %}
+              <span class="sr-only">{{ 'Checked in' if day.done else 'No check-in' }}</span>
+            </span>
           </div>
-          <span class="material-symbols-outlined chevron">chevron_right</span>
+        {% endfor %}
+      </div>
+
+      <div class="streak-actions">
+        <a class="btn btn-primary" href="{{ url_for('checkin') }}">
+          <span class="material-symbols-outlined" aria-hidden="true">rebase_edit</span> Check in today
         </a>
-      {% endfor %}
+        <button type="button" class="btn btn-outline" id="streak-add-task">
+          <span class="material-symbols-outlined" aria-hidden="true">add</span> Add task
+        </button>
+      </div>
     </section>
   {% endif %}
 
@@ -142,7 +187,7 @@
       </p>
     {% endif %}
 
-    <details class="commitment-add">
+    <details class="commitment-add" id="add-commitment">
       <summary>
         <span class="material-symbols-outlined">add</span> Add a commitment
       </summary>
@@ -193,4 +238,86 @@
   </section>
 </main>
 
+{% endblock %}
+
+{% block scripts %}
+{% if capacity is not none %}
+<script>
+(function () {
+  var ring = document.getElementById("capacityRing");
+  var pct = document.getElementById("capacityPct");
+  var wrap = document.querySelector(".ring-wrap");
+  if (!ring || !pct || !wrap || !window.carryRing) return;
+
+  var target = Number(wrap.dataset.capacity);
+
+  function play() {
+    // Force a fresh 0 -> target count-up on every entry, not just the first
+    // -- carryRing would otherwise animate from-the-already-displayed-value,
+    // which is a no-op once it's already sitting at the target.
+    ring._ringStarted = false;
+    pct.textContent = "0";
+    window.carryRing(ring, pct, null, 0, target, 900);
+  }
+
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) play();
+      });
+    }, { threshold: 0.5 }).observe(wrap);
+  } else {
+    play();
+  }
+})();
+
+(function () {
+  // app.js owns opening/closing [data-toggle-detail] panels; this only
+  // keeps the trigger's ARIA state in step, and fetches the AI suggestion
+  // once, the first time the panel is actually opened.
+  var trigger = document.querySelector(".capacity-trigger");
+  var panel = document.getElementById("capacity-detail");
+  var summaryEl = document.querySelector("[data-ai-summary]");
+  if (!trigger || !panel || !summaryEl) return;
+
+  var fetched = false;
+
+  trigger.addEventListener("click", function () {
+    var isOpen = panel.classList.contains("is-open");
+    trigger.setAttribute("aria-expanded", String(isOpen));
+    if (fetched || !isOpen) return;
+    fetched = true;
+
+    fetch("{{ url_for('home_summary') }}", { method: "POST" })
+      .then(function (res) {
+        return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+      })
+      .then(function (result) {
+        summaryEl.textContent = result.ok
+          ? result.data.summary
+          : (result.data.error || "Couldn't generate a suggestion right now.");
+      })
+      .catch(function () {
+        summaryEl.textContent = "Couldn't generate a suggestion right now.";
+      })
+      .then(function () {
+        summaryEl.classList.remove("is-loading");
+      });
+  });
+})();
+
+(function () {
+  var addBtn = document.getElementById("streak-add-task");
+  var panel = document.getElementById("add-commitment");
+  if (!addBtn || !panel) return;
+
+  addBtn.addEventListener("click", function () {
+    panel.open = true;
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
+    var titleField = document.getElementById("c-title");
+    if (titleField) titleField.focus({ preventScroll: true });
+  });
+})();
+</script>
+{% endif %}
 {% endblock %}

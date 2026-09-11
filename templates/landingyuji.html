@@ -99,18 +99,6 @@
   @media (max-width: 780px) { .nav-links { display: none; } }
 
   .nav-right { display: flex; align-items: center; gap: 10px; margin-left: 4px; }
-  .live-pill {
-    display: flex; align-items: center; gap: 7px;
-    font-size: 12px; color: var(--ink-lo);
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--hair-navy);
-    border-radius: 999px;
-    padding: 6px 12px 6px 10px;
-    white-space: nowrap;
-  }
-  .live-pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--band-tight); transition: background .4s; }
-  .live-pill b { color: var(--ink-hi); font-weight: 700; transition: color .4s; }
-  @media (max-width: 560px) { .live-pill span { display: none; } }
 
   .pill-btn {
     display: inline-flex; align-items: center; gap: 8px;
@@ -277,8 +265,8 @@
   .result { margin-top: 14px; font-size: 13.5px; color: var(--ink-lo); min-height: 20px; }
   .result .again { font-size: 11.5px; font-weight: 600; color: var(--band-room); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; background: none; border: none; padding: 0; margin-top: 6px; display: inline-block; }
 
-  /* ---------- tri cards (Read it / Add to it / Lower it) ---------- */
-  .tri-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 56px; }
+  /* ---------- tri cards (Read it / Add to it) ---------- */
+  .tri-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 56px; }
   @media (max-width: 780px) { .tri-cards { grid-template-columns: 1fr; } }
   .tri-card { background: var(--panel); border: 1px solid var(--hair-navy); border-radius: 18px; padding: 26px; }
   .tri-ico { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 10px; background: var(--panel-2); font-size: 16px; margin-bottom: 16px; }
@@ -335,33 +323,6 @@
   .delta-row .arrow { color: var(--ink-faint); }
   .delta-row .to { font-weight: 700; }
 
-  /* ---------- make room ---------- */
-  .room-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 56px; margin-top: 44px; }
-  @media (max-width: 860px) { .room-grid { grid-template-columns: 1fr; } }
-  .days { display: flex; gap: 8px; align-items: flex-end; height: 140px; margin-top: 28px; }
-  .day { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 8px; height: 100%; }
-  .day-bar { width: 100%; border-radius: 6px 6px 0 0; background: var(--band-tight); transition: height .6s cubic-bezier(.2,.8,.2,1); }
-  .day-bar.spike { background: var(--band-line); }
-  .day-label { font-size: 10.5px; color: var(--ink-faint-l); }
-
-  .toggle-row { display: flex; gap: 8px; margin-top: 18px; }
-  .toggle {
-    font-size: 11.5px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
-    padding: 7px 14px; border-radius: 999px; border: 1px solid var(--hair-light);
-    background: transparent; color: var(--ink-lo-l); cursor: pointer;
-  }
-  .toggle.active { background: var(--ink-hi-l); color: var(--light); border-color: var(--ink-hi-l); }
-  .toggle:focus-visible { outline: 2px solid var(--band-room); outline-offset: 2px; }
-  .days-caption { margin-top: 14px; color: var(--ink-lo-l); font-size: 14px; }
-
-  .valve-card { background: var(--panel-light); border: 1px solid var(--hair-light); border-radius: 18px; padding: 28px; box-shadow: 0 20px 40px -28px rgba(0,0,0,0.3); }
-  .valve-card h3 { font-size: 20px; font-weight: 700; }
-  .valve-card p { color: var(--ink-lo-l); font-size: 15px; margin-top: 10px; }
-  .valve-fields { margin-top: 18px; font-size: 12.5px; color: var(--ink-lo-l); background: var(--light); border-radius: 10px; padding: 14px 16px; line-height: 1.9; }
-  .valve-fields .k { color: var(--ink-hi-l); font-weight: 600; }
-  .valve-decay { margin-top: 16px; font-size: 14px; color: var(--ink-lo-l); }
-  .valve-decay .num { color: var(--band-line); font-weight: 700; }
-
   /* ---------- why (deliberately still) ---------- */
   .why .wrap { max-width: 780px; }
   .why blockquote { font-weight: 800; font-size: clamp(26px, 3.8vw, 38px); line-height: 1.28; margin: 0; text-wrap: balance; }
@@ -389,23 +350,194 @@
   @supports (background-clip: text) or (-webkit-background-clip: text) {
     .w { background: linear-gradient(90deg, var(--word-color) var(--fill, 100%), var(--ink-faint-l) var(--fill, 100%)); background-clip: text; -webkit-background-clip: text; color: transparent !important; }
   }
-  .chart-enter .cat-fill, .chart-enter .day-bar { transform: scaleY(0); transform-origin: bottom; }
-  .chart-enter.is-visible .cat-fill, .chart-enter.is-visible .day-bar { transform: scaleY(1); }
-  .cat-fill, .day-bar { transition: height .7s cubic-bezier(.2,.8,.2,1), background .5s, transform .85s cubic-bezier(.2,.8,.2,1); }
+  .chart-enter .cat-fill { transform: scaleY(0); transform-origin: bottom; }
+  .chart-enter.is-visible .cat-fill { transform: scaleY(1); }
+  .cat-fill { transition: height .7s cubic-bezier(.2,.8,.2,1), background .5s, transform .85s cubic-bezier(.2,.8,.2,1); }
   .ledger-bar.chart-enter { clip-path: inset(0 100% 0 0); transition: clip-path 1.2s cubic-bezier(.2,.7,.2,1); }
   .ledger-bar.chart-enter.is-visible { clip-path: inset(0); }
   .typed { display: inline-block; min-height: 1.6em; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
     .motion-reveal, .motion-exit { opacity: 1 !important; transform: none !important; }
-    .chart-enter .cat-fill, .chart-enter .day-bar { transform: none !important; }
+    .chart-enter .cat-fill { transform: none !important; }
     .ledger-bar.chart-enter { clip-path: none !important; }
     .w { --fill: 100% !important; }
+  }
+
+  /* ---------- cyberpunk accents, hero screen only ---------- */
+  .hero { position: relative; overflow: hidden; }
+  .hero > * { position: relative; z-index: 1; }
+  .cp-glow { position: absolute; pointer-events: none; border-radius: 999px; filter: blur(110px); opacity: 0.55; z-index: 0; animation: cp-glow-breathe 7s ease-in-out infinite; }
+  .cp-glow-1 { top: -130px; left: 6%; width: 420px; height: 420px; background: radial-gradient(circle, rgba(255,19,101,0.5), transparent 70%); animation-delay: 0s; }
+  .cp-glow-2 { top: 100px; right: 2%; width: 460px; height: 460px; background: radial-gradient(circle, rgba(60,215,255,0.4), transparent 70%); animation-delay: 1.6s; }
+  .cp-glow-3 { bottom: -100px; left: 32%; width: 380px; height: 380px; background: radial-gradient(circle, rgba(0,255,163,0.3), transparent 70%); animation-delay: 3.2s; }
+  .cp-glow-4 { top: 30%; left: -120px; width: 340px; height: 340px; background: radial-gradient(circle, rgba(255,230,0,0.28), transparent 70%); animation-delay: 2.1s; }
+  @keyframes cp-glow-breathe { 0%, 100% { opacity: 0.55; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.12); } }
+  .cp-scanlines { position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0.05;
+    background: repeating-linear-gradient(180deg, #fff 0px, #fff 1px, transparent 1px, transparent 3px); }
+
+  /* slow diagonal light sweep, like a HUD scan pass over the whole hero */
+  .cp-light-sweep {
+    position: absolute; inset: -20% -60%; z-index: 0; pointer-events: none;
+    background: linear-gradient(100deg, transparent 40%, rgba(60,215,255,0.08) 48%, rgba(255,255,255,0.06) 50%, rgba(255,78,120,0.08) 52%, transparent 60%);
+    animation: cp-sweep 9s ease-in-out infinite;
+  }
+  @keyframes cp-sweep { 0% { transform: translateX(-15%); } 50% { transform: translateX(15%); } 100% { transform: translateX(-15%); } }
+  @media (prefers-reduced-motion: reduce) { .cp-glow { animation: none !important; } }
+
+  /* ---------- hero background video + music toggle ---------- */
+  .cp-bg-video-wrap {
+    position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+  }
+  .cp-bg-video {
+    position: absolute; top: 50%; left: 50%; z-index: 0;
+    width: 100%; height: 100%;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+  }
+  .cp-bg-overlay {
+    position: absolute; inset: 0; z-index: 0;
+    background: linear-gradient(180deg, rgba(12,17,29,0.55) 0%, rgba(12,17,29,0.4) 40%, rgba(12,17,29,0.68) 100%);
+  }
+  .cp-sound-toggle {
+    position: absolute; z-index: 2; pointer-events: auto;
+    top: 80px; right: 18px;
+    display: inline-flex; align-items: center; gap: 7px;
+    background: rgba(0,0,0,0.55);
+    border: 1px solid rgba(60,215,255,0.4);
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-family: "Space Grotesk", var(--font);
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: #3cd7ff;
+    cursor: pointer;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    transition: border-color .2s, color .2s;
+  }
+  .cp-sound-toggle:hover { border-color: rgba(60,215,255,0.8); }
+  .cp-sound-toggle:focus-visible { outline: 2px solid #3cd7ff; outline-offset: 2px; }
+  @media (max-width: 640px) { .cp-sound-toggle { top: 12px; right: 12px; padding: 7px 11px; font-size: 9.5px; } }
+
+  .cp-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(20,22,30,0.65));
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(60,215,255,0.35);
+    border-radius: 999px;
+    padding: 7px 16px;
+    font-family: "Space Grotesk", var(--font);
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    color: #3cd7ff;
+    box-shadow: 0 0 24px rgba(60,215,255,0.18), inset 0 1px 1px rgba(255,255,255,0.15);
+    margin: 0 0 22px;
+  }
+  .cp-badge i { width: 7px; height: 7px; border-radius: 50%; background: #FFE600; box-shadow: 0 0 10px #FFE600; position: relative; }
+  .cp-badge i::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: #FFE600; animation: cp-ping 1.4s cubic-bezier(0,0,.2,1) infinite; }
+  @keyframes cp-ping { 75%, 100% { transform: scale(2.4); opacity: 0; } }
+
+  .cp-neon-tag {
+    display: inline-block; padding: 2px 10px; margin: 0 2px;
+    background: rgba(255,19,101,0.12);
+    border: 1px solid rgba(255,78,120,0.55);
+    border-radius: 6px;
+    color: #ff4e78;
+    text-shadow: 0 0 18px rgba(255,78,120,0.65);
+    animation: cp-neon-flicker 3.6s linear infinite;
+  }
+  /* burnt-out neon sign: mostly lit, drops out at irregular beats like a dying tube */
+  @keyframes cp-neon-flicker {
+    0%, 5%, 9%, 11%, 34%, 38%, 42%, 44%, 89%, 100% {
+      opacity: 1;
+      text-shadow: 0 0 18px rgba(255,78,120,0.65), 0 0 36px rgba(255,78,120,0.35);
+      border-color: rgba(255,78,120,0.55);
+      background: rgba(255,19,101,0.12);
+    }
+    6%, 10%, 35%, 39%, 43%, 90%, 94% {
+      opacity: 0.35;
+      text-shadow: none;
+      border-color: rgba(255,78,120,0.2);
+      background: rgba(255,19,101,0.04);
+    }
+  }
+
+  .cp-chip-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 24px; }
+  .cp-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: "Space Grotesk", var(--font);
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 6px 12px; border-radius: 999px;
+    background: rgba(8,11,20,0.55);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--hair-navy);
+    color: var(--ink-lo);
+  }
+  .cp-chip.c-cyan { border-color: rgba(60,215,255,0.4); color: #3cd7ff; }
+  .cp-chip.c-pink { border-color: rgba(255,78,120,0.4); color: #ff4e78; }
+  .cp-chip.c-green { border-color: rgba(0,255,163,0.4); color: #00ffa3; }
+  .cp-chip.c-yellow { border-color: rgba(255,230,0,0.4); color: #FFE600; }
+
+  .hero .cta-row .pill-btn.big {
+    box-shadow: 0 0 30px rgba(255,255,255,0.22), 5px 5px 0 rgba(60,215,255,0.35);
+    border: 1px solid rgba(255,255,255,0.4);
+  }
+
+  .cp-hud-frame { position: relative; }
+  .cp-hud-frame::before, .cp-hud-frame::after { content: ''; position: absolute; width: 16px; height: 16px; pointer-events: none; z-index: 2; }
+  .cp-hud-frame::before { top: -1px; left: -1px; border-top: 2px solid #3cd7ff; border-left: 2px solid #3cd7ff; }
+  .cp-hud-frame::after { bottom: -1px; right: -1px; border-bottom: 2px solid #ff4e78; border-right: 2px solid #ff4e78; }
+  .stage.cp-hud-frame { border-color: rgba(60,215,255,0.25); box-shadow: 0 0 50px rgba(60,215,255,0.1), 0 30px 60px -24px var(--shadow); }
+
+  .cp-stage-tag {
+    position: absolute; top: 14px; left: 14px; z-index: 3;
+    font-family: "Space Grotesk", var(--font);
+    font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: #3cd7ff; background: rgba(0,0,0,0.55);
+    border: 1px solid rgba(60,215,255,0.35); border-radius: 5px;
+    padding: 3px 8px;
+  }
+  .cp-stage-status {
+    position: absolute; top: 14px; right: 14px; z-index: 3;
+    display: flex; align-items: center; gap: 6px;
+    font-family: "Space Grotesk", var(--font);
+    font-size: 9.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+    color: #00ffa3; background: rgba(0,0,0,0.55);
+    border: 1px solid rgba(0,255,163,0.35); border-radius: 5px;
+    padding: 3px 8px;
+  }
+  .cp-stage-status i { width: 6px; height: 6px; border-radius: 50%; background: #00ffa3; box-shadow: 0 0 8px #00ffa3; animation: cp-pulse 1.6s ease-in-out infinite; }
+  @keyframes cp-pulse { 50% { opacity: 0.3; } }
+
+  .tri-card.cp-pink { border-top: 2px solid #ff4e78; box-shadow: 0 0 24px rgba(255,78,120,0.08); }
+  .tri-card.cp-cyan { border-top: 2px solid #3cd7ff; box-shadow: 0 0 24px rgba(60,215,255,0.08); }
+  .tri-card.cp-green { border-top: 2px solid #00ffa3; box-shadow: 0 0 24px rgba(0,255,163,0.08); }
+  .tri-card .cp-tag { display: block; font-family: "Space Grotesk", var(--font); font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 10px; }
+
+  @keyframes cp-marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+  .cp-ticker {
+    margin-top: 56px;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    width: 100vw;
+    background: #FFE600; color: #0c111d;
+    overflow: hidden;
+    transform: rotate(-0.6deg);
+    box-shadow: 0 0 26px rgba(255,230,0,0.25);
+  }
+  .cp-ticker-track { display: flex; width: max-content; animation: cp-marquee 26s linear infinite; }
+  .cp-ticker-set { display: flex; align-items: center; gap: 28px; padding: 9px 20px; white-space: nowrap;
+    font-family: "Space Grotesk", var(--font); font-size: 11.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cp-badge i::after, .cp-stage-status i { animation: none !important; }
+    .cp-ticker-track { animation: none !important; }
+    .cp-neon-tag { animation: none !important; }
+    .cp-light-sweep { animation: none !important; }
   }
 </style>
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
 
 <nav class="topnav">
   <div class="topnav-inner">
@@ -414,34 +546,56 @@
       <a href="#decision">Decision</a>
       <a href="#load">Load</a>
       <a href="#cost">Cost of yes</a>
-      <a href="#room">Make room</a>
       <a href="#why">Why</a>
     </div>
     <div class="nav-right">
-      <span class="live-pill" role="status" aria-live="polite"><i id="navDot"></i><span>this week</span><b id="navVal">72%</b></span>
       <a href="{{ url_for('home') }}" class="pill-btn">Open Carry</a>
     </div>
   </div>
 </nav>
 
 <section class="hero zone-dark" id="decision">
+  <div class="cp-bg-video-wrap" aria-hidden="true">
+    <video class="cp-bg-video" id="heroBgVideo" autoplay muted loop playsinline preload="auto">
+      <source src="{{ url_for('static', filename='video/lucy-loop.mp4') }}" type="video/mp4">
+    </video>
+    <div class="cp-bg-overlay"></div>
+  </div>
+  <audio id="heroMusic" loop preload="auto">
+    <source src="{{ url_for('static', filename='video/hero-music.mp4') }}" type="video/mp4">
+  </audio>
+  <button type="button" class="cp-sound-toggle" id="heroSoundToggle" aria-pressed="false">
+    <span id="heroSoundIcon">🔇</span><span id="heroSoundLabel">Music off</span>
+  </button>
+  <div class="cp-glow cp-glow-1" aria-hidden="true"></div>
+  <div class="cp-glow cp-glow-2" aria-hidden="true"></div>
+  <div class="cp-glow cp-glow-3" aria-hidden="true"></div>
+  <div class="cp-glow cp-glow-4" aria-hidden="true"></div>
+  <div class="cp-light-sweep" aria-hidden="true"></div>
+  <div class="cp-scanlines" aria-hidden="true"></div>
   <div class="wrap center">
+    <span class="cp-badge"><i></i>Burnout Countermeasure Protocol — Live</span>
     <p class="eyebrow">Lifestyle Track — Beating the Burnout</p>
     <h1>
       <span class="line-mask"><span class="line">You don't decide</span></span>
-      <span class="line-mask"><span class="line">to burn out.</span></span>
+      <span class="line-mask"><span class="line">to <span class="cp-neon-tag">burn out</span>.</span></span>
       <span class="line-mask"><span class="line">You just say yes eleven times.</span></span>
     </h1>
-    <p class="lede">Carry keeps one number: how much of the week you have left before something has to give.</p>
     <div class="cta-row">
       <a href="#load" class="pill-btn big">See how load builds ↓</a>
-      <p class="meta">Mental · Time · Physical · Social · Errands — read as one line, not five worries.</p>
+    </div>
+    <div class="cp-chip-row">
+      <span class="cp-chip c-cyan">Real-time pressure HUD</span>
+      <span class="cp-chip c-pink">Cost-of-yes simulator</span>
+      <span class="cp-chip c-yellow">Zero guilt declines</span>
     </div>
   </div>
 
   <div class="wrap">
-    <div class="stage" id="heroStage">
+    <div class="stage cp-hud-frame" id="heroStage">
       <div class="stage-glow" aria-hidden="true"></div>
+      <span class="cp-stage-tag">Node_01 // Live Telemetry</span>
+      <span class="cp-stage-status"><i></i>Synced</span>
       <div class="phone" id="heroPhone">
         <div class="phone-head">
           <span>Today</span>
@@ -487,14 +641,18 @@
         </div>
       </div>
     </div>
-    <p class="meta center" style="max-width:44ch; margin:20px auto 0;">This is the real decision Carry surfaces before you say yes — simplified for the web. The full model runs five categories against a weekly budget, not just one evening.</p>
   </div>
 
   <div class="wrap">
     <div class="tri-cards">
-      <div class="tri-card"><span class="tri-ico">◎</span><h3>Read it</h3><p>Today's ring — one glance, the tallest category named. That's the whole first screen.</p></div>
-      <div class="tri-card"><span class="tri-ico">＋</span><h3>Add to it</h3><p>Cost of Yes runs the same formula again, once with the new thing appended. Nothing new to fail.</p></div>
-      <div class="tri-card"><span class="tri-ico">↓</span><h3>Lower it</h3><p>Make room moves what's movable. The Valve buys you 48 hours when nothing is.</p></div>
+      <div class="tri-card cp-pink"><span class="cp-tag">Pillar 01 // Signal</span><span class="tri-ico">◎</span><h3>Read it</h3><p>Today's ring — one glance, the tallest category named. That's the whole first screen.</p></div>
+      <div class="tri-card cp-cyan"><span class="cp-tag">Pillar 02 // Forecast</span><span class="tri-ico">＋</span><h3>Add to it</h3><p>Cost of Yes runs the same formula again, once with the new thing appended. Nothing new to fail.</p></div>
+    </div>
+    <div class="cp-ticker" aria-hidden="true">
+      <div class="cp-ticker-track">
+        <div class="cp-ticker-set"><span>⚡ Zero Crash Protocol</span><span>•</span><span>Anti-Doomscroll System Active</span><span>•</span><span>CodeNection 2025 Prototype</span><span>•</span><span>Beat Burnout Before Finals</span><span>•</span><span>⚡ Zero Crash Protocol</span><span>•</span><span>Anti-Doomscroll System Active</span><span>•</span><span>CodeNection 2025 Prototype</span><span>•</span><span>Beat Burnout Before Finals</span><span>•</span></div>
+        <div class="cp-ticker-set"><span>⚡ Zero Crash Protocol</span><span>•</span><span>Anti-Doomscroll System Active</span><span>•</span><span>CodeNection 2025 Prototype</span><span>•</span><span>Beat Burnout Before Finals</span><span>•</span><span>⚡ Zero Crash Protocol</span><span>•</span><span>Anti-Doomscroll System Active</span><span>•</span><span>CodeNection 2025 Prototype</span><span>•</span><span>Beat Burnout Before Finals</span><span>•</span></div>
+      </div>
     </div>
   </div>
 </section>
@@ -558,8 +716,8 @@
         <div class="step">
           <div class="step-mark">03</div>
           <div class="step-body">
-            <h3>Accept, make room, or decline</h3>
-            <p id="costCaption">Make room finds the heaviest thing you can still move and moves it. It never touches what's fixed.</p>
+            <h3>Accept or decline</h3>
+            <p id="costCaption">Accept and the ring locks in. Decline and nothing moves — it costs you nothing here.</p>
           </div>
         </div>
       </div>
@@ -584,50 +742,10 @@
           <div class="bubble">"<span id="bubbleText">group project, due friday</span>"</div>
           <div class="btn-row" id="costBtnRow">
             <button class="btn primary" id="costAccept">Accept</button>
-            <button class="btn" id="costRoom">Make room</button>
             <button class="btn ghost" id="costDecline">Decline</button>
           </div>
           <div class="result" id="costResult"></div>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="room" class="zone-light">
-  <div class="wrap">
-    <p class="eyebrow">Make room</p>
-    <h2 style="font-size:clamp(28px,3.6vw,40px); font-weight:800; margin-top:12px; max-width:18ch;">Make room doesn't make the work disappear.</h2>
-
-    <div class="room-grid">
-      <div>
-        <div class="quote-block-l" id="roomQuote" style="margin-top:0;">Rebalancing doesn't make the work go away. It stops it all landing on Thursday.</div>
-
-        <div class="toggle-row">
-          <button class="toggle active" id="toggleBefore">Before</button>
-          <button class="toggle" id="toggleAfter">After</button>
-        </div>
-        <div class="days" id="daysStrip" aria-label="Load across the week, before and after rebalancing">
-          <div class="day"><div class="day-bar" data-before="40" data-after="45" style="height:40%"></div><div class="day-label">Mon</div></div>
-          <div class="day"><div class="day-bar" data-before="35" data-after="40" style="height:35%"></div><div class="day-label">Tue</div></div>
-          <div class="day"><div class="day-bar" data-before="45" data-after="50" style="height:45%"></div><div class="day-label">Wed</div></div>
-          <div class="day"><div class="day-bar spike" data-before="95" data-after="60" style="height:95%"></div><div class="day-label">Thu</div></div>
-          <div class="day"><div class="day-bar" data-before="30" data-after="40" style="height:30%"></div><div class="day-label">Fri</div></div>
-          <div class="day"><div class="day-bar" data-before="50" data-after="55" style="height:50%"></div><div class="day-label">Sat</div></div>
-          <div class="day"><div class="day-bar" data-before="25" data-after="30" style="height:25%"></div><div class="day-label">Sun</div></div>
-        </div>
-        <p class="days-caption">Illustrative week. Same total load either way — the solver just won't let one day carry all of it. Moving a task without touching the spread changes nothing: the weekly number stays exactly the same.</p>
-      </div>
-
-      <div class="valve-card">
-        <h3>The Pressure Valve</h3>
-        <p>90 seconds. Re-enterable. For when there's nothing left to move and you still need somewhere to put it.</p>
-        <div class="valve-fields">
-          <div><span class="k">timestamp</span>, <span class="k">duration_s</span>,</div>
-          <div><span class="k">felt_after</span> (1–5 tap),</div>
-          <div><span class="k">category_tag</span></div>
-        </div>
-        <p class="valve-decay">−<span class="num">0.12</span> credit on that category, decaying to zero over <span class="num">48h</span>. It didn't fix your week — it bought you two days. <em>Credit expires Thursday.</em></p>
       </div>
     </div>
   </div>
@@ -714,12 +832,10 @@
     circleEl._ringFrame = requestAnimationFrame(step);
   }
 
+  var currentBadgePct = 72;
   function setBadge(pct) {
     var band = bandOf(pct);
-    var navVal = document.getElementById('navVal');
-    navVal.textContent = pct + '%';
-    navVal.style.color = band.color;
-    document.getElementById('navDot').style.background = band.color;
+    currentBadgePct = pct;
     var bandSlug = band.name === 'at the line' ? 'line' : band.name;
     document.documentElement.setAttribute('data-band', bandSlug);
   }
@@ -867,7 +983,7 @@
       var button = document.getElementById(prefix + action);
       function preview() {
         if (active === button) return;
-        if (badgeBefore === null) badgeBefore = parseFloat(document.getElementById('navVal').textContent);
+        if (badgeBefore === null) badgeBefore = currentBadgePct;
         active = button;
         var value = Math.max(0, Math.min(100, current() + (action === 'Accept' ? increase : -decrease)));
         paint(value);
@@ -927,42 +1043,18 @@
     costResult.innerHTML = '<button class="again" id="costAgain1">start over</button>';
     document.getElementById('costAgain1').addEventListener('click', resetCost);
   });
-  document.getElementById('costRoom').addEventListener('click', function() {
-    goCost(91, 'Moved: the lab report → Sunday. Still at the line, but nothing fixed got touched.', 'mental');
-    costResult.innerHTML = '<button class="again" id="costAgain2">start over</button>';
-    document.getElementById('costAgain2').addEventListener('click', resetCost);
-  });
   document.getElementById('costDecline').addEventListener('click', function() {
     goCost(74, 'Declining costs nothing — except the group project.', 'mental');
     costResult.innerHTML = '<button class="again" id="costAgain3">start over</button>';
     document.getElementById('costAgain3').addEventListener('click', resetCost);
   });
   function resetCost() {
-    goCost(74, "Make room finds the heaviest thing you can still move and moves it. It never touches what's fixed.", 'mental');
+    goCost(74, 'Accept and the ring locks in. Decline and nothing moves — it costs you nothing here.', 'mental');
     costResult.textContent = '';
   }
 
   wirePercentagePreview('cost', costRing, costPct, costBand, costPhone,
     function() { return costCurrent; }, 23, 23);
-
-  // ---- Days before/after toggle (Make room = release) ----
-  var beforeBtn = document.getElementById('toggleBefore');
-  var afterBtn = document.getElementById('toggleAfter');
-  var bars = document.querySelectorAll('#daysStrip .day-bar');
-  var roomQuote = document.getElementById('roomQuote');
-  function showState(state) {
-    bars.forEach(function(b) { b.style.height = b.getAttribute('data-' + state) + '%'; });
-    beforeBtn.classList.toggle('active', state === 'before');
-    afterBtn.classList.toggle('active', state === 'after');
-    beforeBtn.setAttribute('aria-pressed', state === 'before');
-    afterBtn.setAttribute('aria-pressed', state === 'after');
-    roomQuote.style.letterSpacing = state === 'after' ? '.012em' : '0';
-    roomQuote.style.lineHeight = state === 'after' ? '1.7' : '1.5';
-  }
-  beforeBtn.setAttribute('aria-pressed', 'true');
-  afterBtn.setAttribute('aria-pressed', 'false');
-  beforeBtn.addEventListener('click', function() { showState('before'); });
-  afterBtn.addEventListener('click', function() { showState('after'); });
 
   // ---- Pinned scroll-scrub reveal: accumulation compresses the type as it loads ----
   var tokens = [
@@ -1009,14 +1101,14 @@
       }
     });
   }, { threshold: 0 });
-  document.querySelectorAll('.tri-card, .step, .valve-card, .quote-block-l, .ledger-legend, .ledger-caption, #cost h2, #room h2, .final-grid').forEach(function(el, index) {
+  document.querySelectorAll('.tri-card, .step, .quote-block-l, .ledger-legend, .ledger-caption, #cost h2, .final-grid').forEach(function(el, index) {
     el.classList.add('motion-reveal');
     el.style.setProperty('--reveal-delay', (index % 3) * 65 + 'ms');
     entranceObserver.observe(el);
   });
-  document.querySelectorAll('.cat-row, .ledger-bar, .days').forEach(function(el) {
+  document.querySelectorAll('.cat-row, .ledger-bar').forEach(function(el) {
     el.classList.add('chart-enter');
-    el.querySelectorAll('.cat-fill, .day-bar').forEach(function(bar, index) {
+    el.querySelectorAll('.cat-fill').forEach(function(bar, index) {
       bar.style.transitionDelay = '0ms, 0ms, ' + (index * 65) + 'ms';
     });
     entranceObserver.observe(el);
@@ -1060,5 +1152,56 @@
   window.addEventListener('pageshow', scheduleScrollUpdate);
   if (document.fonts) document.fonts.ready.then(scheduleScrollUpdate);
   updateScroll();
+
+  // ---- Hero background video (boomerang loop) + music (hero section only) ----
+  var heroBgVideo = document.getElementById('heroBgVideo');
+  var heroMusic = document.getElementById('heroMusic');
+  var heroSoundToggle = document.getElementById('heroSoundToggle');
+  var heroSoundIcon = document.getElementById('heroSoundIcon');
+  var heroSoundLabel = document.getElementById('heroSoundLabel');
+  var heroSection = document.getElementById('decision');
+  var heroInView = false;
+  var soundWanted = false;
+
+  function syncVideoPlayback() {
+    if (!heroBgVideo) return;
+    if (heroInView && !reduceMotion) {
+      var playAttempt = heroBgVideo.play();
+      if (playAttempt && playAttempt.catch) playAttempt.catch(function() {});
+    } else {
+      heroBgVideo.pause();
+    }
+  }
+
+  function syncMusicPlayback() {
+    if (!heroMusic) return;
+    if (soundWanted && heroInView) {
+      var playAttempt = heroMusic.play();
+      if (playAttempt && playAttempt.catch) playAttempt.catch(function() {});
+    } else {
+      heroMusic.pause();
+    }
+  }
+
+  if (heroSoundToggle && heroMusic) {
+    heroSoundToggle.addEventListener('click', function() {
+      soundWanted = !soundWanted;
+      heroSoundToggle.setAttribute('aria-pressed', String(soundWanted));
+      heroSoundIcon.textContent = soundWanted ? '🔊' : '🔇';
+      heroSoundLabel.textContent = soundWanted ? 'Music on' : 'Music off';
+      syncMusicPlayback();
+    });
+  }
+
+  if (heroSection) {
+    var heroMediaObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        heroInView = entry.isIntersecting;
+        syncVideoPlayback();
+        syncMusicPlayback();
+      });
+    }, { threshold: 0.2 });
+    heroMediaObserver.observe(heroSection);
+  }
 })();
 </script>

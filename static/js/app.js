@@ -13,7 +13,7 @@
   const themeChoices = document.querySelectorAll("[data-set-theme]");
 
   function currentTheme() {
-    return root.dataset.theme === "dark" ? "dark" : "light";
+    return root.dataset.theme === "light" ? "light" : "dark";
   }
 
   // Installed as a PWA, the OS paints the status bar with theme-color, so it
@@ -23,15 +23,15 @@
   function paintThemeControls() {
     const theme = currentTheme();
     if (themeIcon) themeIcon.textContent = theme === "dark" ? "light_mode" : "dark_mode";
-    if (themeMeta) themeMeta.content = theme === "dark" ? "#19191a" : "#286653";
+    if (themeMeta) themeMeta.content = theme === "dark" ? "#0c111d" : "#f3f2ee";
     themeChoices.forEach((btn) => {
       btn.classList.toggle("is-active", btn.dataset.setTheme === theme);
     });
   }
 
   function setTheme(theme) {
-    if (theme === "dark") {
-      root.dataset.theme = "dark";
+    if (theme === "light") {
+      root.dataset.theme = "light";
     } else {
       delete root.dataset.theme;
     }
@@ -112,7 +112,7 @@
   addEventListener("appinstalled", () => {
     installPrompt = null;
     paintInstallBtn();
-    showToast("Balance installed", { icon: "check_circle" });
+    showToast("Carry installed", { icon: "check_circle" });
   });
 
   // ---------- Header dropdowns (settings + account) ----------

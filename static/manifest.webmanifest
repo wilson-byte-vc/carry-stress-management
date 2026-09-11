@@ -1,14 +1,14 @@
 {
   "id": "/",
-  "name": "Balance - student stress & workload",
-  "short_name": "Balance",
+  "name": "Carry - student stress & workload",
+  "short_name": "Carry",
   "description": "Track your capacity, log what's coming up, and see when your week is overloaded.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#fef9f1",
-  "theme_color": "#286653",
+  "background_color": "#0c111d",
+  "theme_color": "#0c111d",
   "categories": ["health", "lifestyle", "productivity"],
   "icons": [
     { "src": "/static/image/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },

@@ -297,6 +297,47 @@ def current_checkin():
     return session.get("checkin")
 
 
+def checkin_dates():
+    """Distinct calendar days the user has checked in on -- a day can hold
+    more than one CheckIn row, so this dedupes before a streak is counted."""
+    if not current_user.is_authenticated:
+        return set()
+    return {c.created_at.date() for c in current_user.checkins}
+
+
+def current_streak():
+    """Consecutive days ending today (or yesterday, so the streak doesn't
+    die the moment the clock ticks past midnight before today's check-in).
+    A single missed day breaks it."""
+    days = checkin_dates()
+    if not days:
+        return 0
+    today = datetime.now(timezone.utc).date()
+    if max(days) < today - timedelta(days=1):
+        return 0
+    streak = 1
+    cursor = max(days)
+    while cursor - timedelta(days=1) in days:
+        streak += 1
+        cursor -= timedelta(days=1)
+    return streak
+
+
+def streak_week(n=7):
+    """The last n calendar days, oldest first, each flagged for whether a
+    check-in landed on it -- the data behind the week's row of streak dots."""
+    days = checkin_dates()
+    today = datetime.now(timezone.utc).date()
+    return [
+        {
+            "label": (today - timedelta(days=i)).strftime("%a")[0],
+            "done": (today - timedelta(days=i)) in days,
+            "is_today": i == 0,
+        }
+        for i in range(n - 1, -1, -1)
+    ]
+
+
 def energy_percent(checkin):
     """How much is in the tank, straight from the last check-in."""
     levels = [checkin["time"], checkin["social"], checkin["physical"], checkin["mental"]]
@@ -632,6 +673,27 @@ def welcome():
     return render_template("landingyuji.html")
 
 
+# One line per day rather than restating the capacity number the ring
+# already shows. Same quote for everyone on a given day -- indexed by date,
+# not random, so it doesn't change on every refresh.
+CAPACITY_QUOTES = (
+    "Rest is part of the work, not a reward for finishing it.",
+    "You don't owe anyone your last 10%.",
+    "A slower week is still a week that counts.",
+    "Saying no to one thing is saying yes to something else.",
+    "Capacity isn't a test you pass or fail — it's just where you are today.",
+    "Small and finished beats big and stalled.",
+    "You're allowed to need a lighter day.",
+    "Nobody remembers the week you rested. Everybody feels the week you didn't.",
+    "One thing at a time is still progress.",
+    "Your worth isn't measured in hours logged.",
+)
+
+
+def quote_of_day():
+    return CAPACITY_QUOTES[datetime.now(timezone.utc).toordinal() % len(CAPACITY_QUOTES)]
+
+
 # Moved off "/" so the landing page can own the root. The endpoint is still
 # "home", so every url_for("home") link in the templates follows it here.
 @app.route("/app")
@@ -640,24 +702,67 @@ def home():
     checkin = current_checkin()
     commitments = get_commitments()
     upcoming = upcoming_commitments(commitments)
-    points = load_points(commitments)
 
     return render_template(
         "home.html",
         checkin=checkin,
         capacity=compute_capacity(checkin, commitments),
-        energy=energy_percent(checkin) if checkin else None,
+        quote=quote_of_day(),
+        streak=current_streak(),
+        streak_days=streak_week(),
         labels=CATEGORY_LABELS,
         commitments=upcoming,
         fixed_count=sum(1 for c in upcoming if not c["movable"]),
         movable_count=sum(1 for c in upcoming if c["movable"]),
-        load_points=points,
-        load_pct=min(100, round(points / WEEK_EFFORT_BUDGET * 100)),
         load_horizon=LOAD_HORIZON_DAYS,
         categories=Commitment.CATEGORIES,
         today=datetime.now(timezone.utc).date().isoformat(),
         just_saved=request.args.get("saved") == "1",
+        # Lowest check-in slider = the category with the least capacity left.
+        top_drain_key=min(CATEGORY_LABELS, key=lambda k: checkin[k]) if checkin else None,
+        # Heaviest upcoming work, for the same "what's driving this" panel.
+        top_commitments=sorted(upcoming, key=lambda c: c["effort"], reverse=True)[:2],
     )
+
+
+@app.route("/app/summary", methods=["POST"])
+@login_required
+def home_summary():
+    """One-off AI suggestion for the capacity ring's expandable detail panel.
+
+    Deliberately not computed on every home() render -- it's only fetched
+    when a user actually opens the panel, so a page load never waits on or
+    pays for a completion nobody asked to see.
+    """
+    checkin = current_checkin()
+    if checkin is None:
+        return jsonify({"error": "Do a check-in first and this'll have something to go on."}), 400
+
+    commitments = get_commitments()
+    top = sorted(upcoming_commitments(commitments), key=lambda c: c["effort"], reverse=True)[:3]
+    load_text = "; ".join(
+        f"{c['title']} (effort {c['effort']}/5, {'movable' if c['movable'] else 'fixed'})" for c in top
+    ) or "nothing logged"
+
+    prompt = (
+        f"Check-in -- time {checkin['time']}/5, social {checkin['social']}/5, "
+        f"physical {checkin['physical']}/5, mental {checkin['mental']}/5. "
+        f"Note: {checkin['note'] or 'none'}. "
+        f"Heaviest upcoming commitments: {load_text}. "
+        "In two short sentences: name what's most likely driving their capacity down "
+        "this week, then suggest one small, concrete thing they could actually do about it."
+    )
+
+    try:
+        response = client.chat.completions.create(
+            model=GROQ_MODEL,
+            max_tokens=150,
+            messages=[CHAT_SYSTEM_PROMPT, {"role": "user", "content": prompt}],
+        )
+    except Exception as e:
+        return jsonify({"error": f"{type(e).__name__}: {e}"}), 502
+
+    return jsonify({"summary": response.choices[0].message.content})
 
 
 # --- Commitments ---

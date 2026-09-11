@@ -1,416 +1,100 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sign up — Carry</title>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-  /* Tokens copied verbatim from landingyuji.html so the two pages stay in
-     step. Only the dark zone is used here; the -l / light variables are
-     deliberately absent. */
-  :root {
-    --navy: #0c111d;
-    --navy-2: #101624;
-    --panel: #161b26;
-    --panel-2: #1c2231;
-    --hair-navy: rgba(255,255,255,0.09);
-    --ink-hi: #f5f6f8;
-    --ink-lo: #94969c;
-    --ink-faint: #5b5e6b;
+{% extends "base.html" %}
 
-    --band-room: #26a26b;
-    --band-tight: #d0972f;
-    --band-line: #d97a3f;
-    --band-over: #d1483a;
+{% block title %}Sign up — Carry{% endblock %}
 
-    --shadow: rgba(0,0,0,0.4);
-    --font: "Inter", "Segoe UI", sans-serif;
-  }
+{% block body_class %}auth-page{% endblock %}
 
-  * { box-sizing: border-box; }
+{% block header_nav %}{% endblock %}
+{% block demo_banner %}{% endblock %}
+{% block bottom_nav %}{% endblock %}
 
-  html { scroll-behavior: smooth; }
-  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+{% block content %}
+<main class="auth-wrap">
+  <div class="stage-glow" aria-hidden="true"></div>
 
-  /* Lenis owns the scroll position once it loads. */
-  html.lenis, html.lenis body { height: auto; }
-  html.lenis.lenis-smooth { scroll-behavior: auto !important; }
-  .lenis.lenis-stopped { overflow: hidden; }
-
-  body {
-    margin: 0;
-    background: var(--navy);
-    color: var(--ink-hi);
-    font-family: var(--font);
-    font-size: 17px;
-    line-height: 1.6;
-  }
-
-  img, svg { max-width: 100%; }
-  h1, h2, h3 { font-family: var(--font); text-wrap: balance; margin: 0; letter-spacing: -0.02em; }
-  a { color: inherit; }
-
-  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 28px; }
-  @media (max-width: 480px) { .wrap { padding: 0 16px; } }
-
-  .eyebrow {
-    font-size: 12.5px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-  .zone-dark { background: var(--navy); color: var(--ink-hi); }
-  .zone-dark .eyebrow { color: var(--ink-lo); }
-
-  /* ---------- floating pill nav ---------- */
-  .topnav {
-    position: fixed;
-    top: 18px; left: 0; right: 0;
-    z-index: 50;
-    display: flex;
-    justify-content: center;
-    padding: 0 20px;
-  }
-  .topnav-inner {
-    display: flex;
-    align-items: center;
-    gap: 28px;
-    background: rgba(18,22,34,0.82);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--hair-navy);
-    border-radius: 999px;
-    padding: 8px 10px 8px 16px;
-    box-shadow: 0 12px 30px -14px var(--shadow);
-    max-width: 100%;
-  }
-  .brand {
-    display: flex; align-items: center; gap: 10px;
-    font-weight: 700; font-size: 15px;
-    color: var(--ink-hi); white-space: nowrap;
-    text-decoration: none;
-    letter-spacing: 0.02em;
-  }
-  .mark { display: inline-flex; }
-  .mark i {
-    width: 13px; height: 13px; border-radius: 50%;
-    display: inline-block; margin-left: -5px;
-    border: 2px solid var(--navy);
-  }
-  .mark i:first-child { margin-left: 0; background: var(--band-room); }
-  .mark i:nth-child(2) { background: var(--band-tight); }
-  .mark i:nth-child(3) { background: var(--band-line); }
-
-  .nav-right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
-
-  .pill-btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    background: #fff; color: #0c111d;
-    font-family: var(--font);
-    font-weight: 600; font-size: 13.5px;
-    padding: 10px 18px;
-    border-radius: 999px;
-    text-decoration: none;
-    white-space: nowrap;
-    border: none;
-    cursor: pointer;
-    transition: transform .15s, filter .15s;
-  }
-  .pill-btn:hover { filter: brightness(0.94); }
-  .pill-btn:active { transform: scale(0.97); }
-  .pill-btn.big { font-size: 15px; padding: 14px 26px; }
-  .pill-btn.ghost { background: transparent; color: var(--ink-hi); border: 1px solid var(--hair-navy); }
-  .pill-btn.block { width: 100%; }
-  .pill-btn:focus-visible { outline: 2px solid var(--band-room); outline-offset: 3px; }
-
-  /* ---------- auth layout ---------- */
-  .auth-shell {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    padding: 150px 0 90px;
-  }
-  .auth-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 72px;
-    align-items: center;
-    width: 100%;
-  }
-  @media (max-width: 900px) {
-    .auth-grid { grid-template-columns: 1fr; gap: 44px; }
-    .auth-shell { padding: 124px 0 72px; }
-  }
-
-  /* Left rail: the same editorial framing the landing page opens with,
-     rather than a lone card floating in the middle of the viewport. */
-  .auth-intro { opacity: 0; animation: soft-in .6s ease-out .05s forwards; }
-  .auth-intro h1 {
-    font-size: clamp(30px, 4.2vw, 44px);
-    line-height: 1.12;
-    font-weight: 800;
-    margin: 16px 0 0;
-    max-width: 14ch;
-  }
-  .auth-intro .lede {
-    margin: 18px 0 0;
-    color: var(--ink-lo);
-    font-size: 17px;
-    max-width: 40ch;
-  }
-
-  .facts { margin: 34px 0 0; padding: 0; list-style: none; max-width: 40ch; }
-  .facts li {
-    padding: 13px 0;
-    border-top: 1px solid var(--hair-navy);
-    font-size: 14.5px;
-    color: var(--ink-lo);
-  }
-  .facts li:last-child { border-bottom: 1px solid var(--hair-navy); }
-  .facts b { color: var(--ink-hi); font-weight: 600; }
-
-  /* Right rail: same card treatment as the phone frame on the landing page. */
-  .auth-panel {
-    background: var(--panel);
-    border: 1px solid var(--hair-navy);
-    border-radius: 24px;
-    padding: 32px 30px 30px;
-    box-shadow: 0 30px 60px -24px var(--shadow);
-    opacity: 0;
-    animation: soft-in .6s ease-out .18s forwards;
-  }
-  @media (max-width: 480px) { .auth-panel { padding: 26px 20px 24px; } }
-
-  .panel-head { display: flex; justify-content: space-between; align-items: baseline; }
-  .panel-head .step {
-    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
-    color: var(--ink-faint);
-  }
-  .auth-panel h2 { font-size: 21px; font-weight: 700; margin: 14px 0 0; }
-  .auth-panel .sub { color: var(--ink-lo); font-size: 14.5px; margin: 6px 0 0; }
-
-  /* Flashed messages. base.html hands these to app.js as toasts, but these
-     pages stand alone, and a failed signup belongs on the form anyway. */
-  .flash { margin: 18px 0 0; padding: 0; list-style: none; }
-  .flash li {
-    background: var(--panel-2);
-    border: 1px solid var(--hair-navy);
-    border-left: 2px solid var(--band-line);
-    border-radius: 10px;
-    padding: 11px 13px;
-    font-size: 13.5px;
-    color: var(--ink-hi);
-    margin-bottom: 8px;
-  }
-
-  .auth-google {
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    width: 100%;
-    margin-top: 20px;
-    background: transparent;
-    color: var(--ink-hi);
-    border: 1px solid var(--hair-navy);
-    border-radius: 999px;
-    padding: 12px 18px;
-    font-weight: 600; font-size: 14px;
-    text-decoration: none;
-    transition: background .15s, border-color .15s;
-  }
-  .auth-google:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.16); }
-  .auth-google svg { width: 17px; height: 17px; flex: none; }
-  .auth-google:focus-visible { outline: 2px solid var(--band-room); outline-offset: 3px; }
-
-  .auth-divider { display: flex; align-items: center; gap: 12px; margin: 22px 0 0; }
-  .auth-divider::before, .auth-divider::after {
-    content: ""; flex: 1; height: 1px; background: var(--hair-navy);
-  }
-  .auth-divider span {
-    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
-    color: var(--ink-faint);
-  }
-
-  .field { margin-top: 20px; }
-  .field-label {
-    display: block;
-    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
-    font-weight: 600;
-    color: var(--ink-faint);
-    margin-bottom: 8px;
-  }
-  .field input {
-    width: 100%;
-    background: var(--panel-2);
-    border: 1px solid var(--hair-navy);
-    border-radius: 12px;
-    padding: 13px 14px;
-    color: var(--ink-hi);
-    font-family: var(--font);
-    font-size: 15px;
-    line-height: 1.4;
-    transition: border-color .15s;
-  }
-  .field input::placeholder { color: var(--ink-faint); }
-  .field input:hover { border-color: rgba(255,255,255,0.16); }
-  .field input:focus-visible {
-    outline: 2px solid var(--band-room);
-    outline-offset: 2px;
-    border-color: transparent;
-  }
-  .field .hint { display: block; margin-top: 7px; font-size: 12.5px; color: var(--ink-faint); }
-
-  .field-error {
-    margin: 10px 0 0;
-    font-size: 13px;
-    color: var(--band-over);
-  }
-
-  .submit-row { margin-top: 26px; }
-
-  .alt {
-    margin: 18px 0 0;
-    text-align: center;
-    font-size: 14px;
-    color: var(--ink-lo);
-  }
-  .alt a { color: var(--ink-hi); text-decoration: underline; text-underline-offset: 3px; }
-  .alt a:hover { color: #fff; }
-
-  @keyframes soft-in { from { opacity: 0; } to { opacity: 1; } }
-
-  @media (prefers-reduced-motion: reduce) {
-    .auth-intro, .auth-panel { animation: none; opacity: 1; }
-    .pill-btn { transition: none; }
-  }
-</style>
-</head>
-<body class="zone-dark">
-
-<nav class="topnav">
-  <div class="topnav-inner">
-    <a href="{{ url_for('welcome') }}" class="brand"><span class="mark"><i></i><i></i><i></i></span>carry</a>
-    <div class="nav-right">
-      <a href="{{ url_for('login') }}" class="pill-btn ghost">Log in</a>
-    </div>
-  </div>
-</nav>
-
-<main class="auth-shell">
-  <div class="wrap auth-grid">
-
-    <div class="auth-intro">
-      <p class="eyebrow">Create your account</p>
-      <h1>One number, kept honestly.</h1>
-      <p class="lede">
-        Carry tracks how much of your week is already spoken for, so you can see
-        the cost of a yes before you give it.
-      </p>
-      <ul class="facts">
-        <li>Five categories against <b>one weekly budget</b>, not five separate worries.</li>
-        <li>Your first check-in takes <b>under a minute</b>. Nothing to configure first.</li>
-        <li>Check-ins are tied to your account and <b>visible only to you</b>.</li>
-      </ul>
+  <div class="card auth-card">
+    <div class="auth-head">
+      <span class="mark auth-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <h1 class="text-headline">Set up your week</h1>
+      <p class="text-body">You'll do your first check-in straight after this.</p>
     </div>
 
-    <div class="auth-panel">
-      <div class="panel-head">
-        <span class="step">Sign up</span>
-        <span class="step">Step 1 of 2</span>
+    <ul class="account-perks">
+      <li class="account-perk">
+        <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+        <span><strong>One weekly budget.</strong> Five categories rolled into one number, not five separate worries.</span>
+      </li>
+      <li class="account-perk">
+        <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+        <span><strong>Under a minute.</strong> Your first check-in comes right after this, nothing to configure first.</span>
+      </li>
+      <li class="account-perk">
+        <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+        <span><strong>Visible only to you.</strong> Check-ins are tied to your account.</span>
+      </li>
+    </ul>
+
+    <a class="auth-google" href="{{ url_for('auth_google') }}">
+      <svg viewBox="0 0 18 18" aria-hidden="true">
+        <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/>
+        <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/>
+        <path fill="#FBBC05" d="M3.97 10.72a5.4 5.4 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z"/>
+        <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.9 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/>
+      </svg>
+      Sign up with Google
+    </a>
+
+    <div class="auth-divider"><span>or</span></div>
+
+    <form class="auth-form" method="post" id="signupForm">
+      <div class="auth-field">
+        <label class="field-label" for="display_name">Name</label>
+        <input class="auth-input" id="display_name" name="display_name" type="text" maxlength="80"
+               autocomplete="name" required autofocus>
       </div>
 
-      <h2>Set up your week</h2>
-      <p class="sub">You'll do your first check-in straight after this.</p>
+      <div class="auth-field">
+        <label class="field-label" for="email">Email</label>
+        <input class="auth-input" id="email" name="email" type="email" autocomplete="email"
+               placeholder="you@university.edu" required>
+      </div>
 
-      {% with messages = get_flashed_messages() %}
-        {% if messages %}
-          <ul class="flash">
-            {% for message in messages %}<li>{{ message }}</li>{% endfor %}
-          </ul>
-        {% endif %}
-      {% endwith %}
+      <div class="auth-field">
+        <label class="field-label" for="password">Password</label>
+        <input class="auth-input" id="password" name="password" type="password"
+               autocomplete="new-password" minlength="8" required>
+        <span class="auth-hint">At least 8 characters.</span>
+      </div>
 
-      <a class="auth-google" href="{{ url_for('auth_google') }}">
-        <svg viewBox="0 0 18 18" aria-hidden="true">
-          <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/>
-          <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/>
-          <path fill="#FBBC05" d="M3.97 10.72a5.4 5.4 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z"/>
-          <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.9 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/>
-        </svg>
-        Sign up with Google
-      </a>
+      <div class="auth-field">
+        <label class="field-label" for="confirm">Confirm password</label>
+        <input class="auth-input" id="confirm" name="confirm" type="password"
+               autocomplete="new-password" minlength="8" required
+               aria-describedby="pwError">
+      </div>
 
-      <div class="auth-divider"><span>or</span></div>
+      <p class="is-error" id="pwError" role="alert" hidden>
+        Those two passwords don't match.
+      </p>
 
-      <form method="post" id="signupForm">
-        <div class="field">
-          <label class="field-label" for="display_name">Name</label>
-          <input id="display_name" name="display_name" type="text" maxlength="80"
-                 autocomplete="name" required autofocus>
-        </div>
+      <button type="submit" class="pill-btn big block">Create account</button>
+    </form>
 
-        <div class="field">
-          <label class="field-label" for="email">Email</label>
-          <input id="email" name="email" type="email" autocomplete="email"
-                 placeholder="you@university.edu" required>
-        </div>
-
-        <div class="field">
-          <label class="field-label" for="password">Password</label>
-          <input id="password" name="password" type="password"
-                 autocomplete="new-password" minlength="8" required>
-          <span class="hint">At least 8 characters.</span>
-        </div>
-
-        <div class="field">
-          <label class="field-label" for="confirm">Confirm password</label>
-          <input id="confirm" name="confirm" type="password"
-                 autocomplete="new-password" minlength="8" required
-                 aria-describedby="pwError">
-        </div>
-
-        <p class="field-error" id="pwError" role="alert" hidden>
-          Those two passwords don't match.
-        </p>
-
-        <div class="submit-row">
-          <button type="submit" class="pill-btn big block">Create account</button>
-        </div>
-      </form>
-
-      <p class="alt">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
-    </div>
-
+    <p class="auth-alt">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
   </div>
 </main>
 
-<script async src="https://unpkg.com/lenis@1.3.26/dist/lenis.min.js" id="lenisScript"></script>
 <script>
-(function() {
-  var motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
-  var reduceMotion = motionPreference.matches;
-  var lenis;
-  function setupLenis() {
-    if (lenis) { lenis.destroy(); lenis = null; }
-    if (!reduceMotion && window.Lenis) {
-      lenis = new Lenis({ autoRaf: true, duration: 1.05, syncTouch: false, anchors: true });
-    }
-  }
-  document.getElementById('lenisScript').addEventListener('load', setupLenis);
-  setupLenis();
-  motionPreference.addEventListener('change', function(event) {
-    reduceMotion = event.matches;
-    setupLenis();
-  });
-
+(function () {
   // Confirm-password check. Runs on submit rather than on every keystroke so
   // the message doesn't flicker while the second field is still being typed.
   // The server ignores "confirm"; this only stops an obvious typo early.
-  var form = document.getElementById('signupForm');
-  var password = document.getElementById('password');
-  var confirm = document.getElementById('confirm');
-  var error = document.getElementById('pwError');
+  var form = document.getElementById("signupForm");
+  var password = document.getElementById("password");
+  var confirm = document.getElementById("confirm");
+  var error = document.getElementById("pwError");
 
-  form.addEventListener('submit', function(event) {
+  form.addEventListener("submit", function (event) {
     if (password.value && confirm.value && password.value !== confirm.value) {
       event.preventDefault();
       error.hidden = false;
@@ -418,9 +102,7 @@
     }
   });
 
-  confirm.addEventListener('input', function() { error.hidden = true; });
+  confirm.addEventListener("input", function () { error.hidden = true; });
 })();
 </script>
-
-</body>
-</html>
+{% endblock %}

@@ -1,4 +1,4 @@
-/* Service worker for the Balance PWA.
+/* Service worker for the Carry PWA.
  *
  * Deliberately conservative about what it stores. Pages are rendered per-user
  * and can contain someone's check-ins and email, so HTML is NEVER
@@ -11,14 +11,15 @@
  */
 
 // Bump this to retire every previously cached asset in one go.
-const CACHE = "balance-v1";
+const CACHE = "carry-v2";
 
 const OFFLINE_URL = "/offline";
 
 const PRECACHE = [
   OFFLINE_URL,
-  "/static/css/style.css",
+  "/static/css/carry-ui.css",
   "/static/js/app.js",
+  "/static/js/carry-ui.js",
   "/static/image/icon-192.png",
   "/static/image/icon-512.png",
 ];

@@ -1,248 +1,307 @@
 <!DOCTYPE html>
 <html lang="en"
-      {% if current_user.is_authenticated and current_user.theme == 'dark' %}data-theme="dark"{% endif %}
+      {% if current_user.is_authenticated and current_user.theme == 'light' %}data-theme="light"{% endif %}
       data-authed="{{ '1' if current_user.is_authenticated else '0' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>{% block title %}Equilibrium{% endblock %}</title>
+    <title>{% block title %}Carry{% endblock %}</title>
 
     {# --- PWA --- #}
     <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
-    {# Tints the Android status bar; app.js keeps it in step with the theme. #}
-    <meta name="theme-color" content="#286653">
+    {# Tints the Android status bar; app.js keeps it in step with the theme.
+       Navy is the default theme, so navy is the default tint. #}
+    <meta name="theme-color" content="#0c111d">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Balance">
+    <meta name="apple-mobile-web-app-title" content="Carry">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='image/apple-touch-icon.png') }}">
 
     <script>
-      // Set the theme before first paint so there's no light-theme flash on
-      // load. Signed-in users get their saved preference straight off the
-      // <html> tag above (server is the source of truth); anonymous visitors
-      // fall back to whatever they last picked in this browser.
+      // Set the theme before first paint so there's no flash of the wrong
+      // palette. Navy is the default, so the only thing worth doing early is
+      // opting *into* light. Signed-in users get their saved preference
+      // straight off the <html> tag above (the server is the source of
+      // truth); anonymous visitors fall back to whatever they last picked in
+      // this browser.
       (function () {
         if (document.documentElement.dataset.authed === "1") return;
-        if (localStorage.getItem("theme") === "dark") {
-          document.documentElement.dataset.theme = "dark";
+        try {
+          if (localStorage.getItem("theme") === "light") {
+            document.documentElement.dataset.theme = "light";
+          }
+        } catch (e) {
+          /* private mode / storage disabled -- stay on the navy default */
         }
       })();
     </script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block" rel="stylesheet">
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/carry-ui.css') }}">
     {% block styles %}{% endblock %}
 </head>
 
 <body class="{% block body_class %}{% endblock %}">
 
-    {# Flashed messages are handed to app.js, which shows them as toasts. #}
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <script type="application/json" id="flash-data">{{ messages | tojson }}</script>
-      {% endif %}
-    {% endwith %}
+    {# One read of the flash queue, two consumers: the JSON payload app.js
+       turns into toasts, and the inline list below it for anyone who never
+       sees a toast (screen readers, reduced motion, a slow tab). Calling
+       get_flashed_messages() twice would empty the queue on the first call. #}
+    {% set flash_messages = get_flashed_messages() %}
+    {% if flash_messages %}
+      <script type="application/json" id="flash-data">{{ flash_messages | tojson }}</script>
+
+      <div class="flash-list">
+        {% for message in flash_messages %}
+          <p class="flash" role="status">
+            <span class="material-symbols-outlined" aria-hidden="true">info</span>
+            <span>{{ message }}</span>
+          </p>
+        {% endfor %}
+      </div>
+    {% endif %}
 
     {% block topnav %}
-      <header class="site-header">
-        <div class="container">
+      <header class="topnav">
+        <div class="topnav-inner">
 
-          <div class="settings-menu" data-dropdown>
-            <button type="button" class="icon-btn" id="settings-toggle" data-dropdown-toggle
-                    aria-label="Settings" aria-expanded="false" aria-controls="settings-panel">
-              <span class="material-symbols-outlined">settings</span>
-            </button>
+          <a class="brand" href="{{ url_for('home') }}" aria-label="Carry — home">
+            <span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span>carry</span>
+          </a>
 
-            <div class="settings-panel" id="settings-panel" data-dropdown-panel hidden>
-              {% if current_user.is_authenticated %}
-                <div class="settings-identity">
-                  <span class="settings-name">{{ current_user.display_name }}</span>
-                  <span class="settings-email">{{ current_user.email }}</span>
-                </div>
+          {# Its own block so the auth pages can drop the links without
+             re-declaring the whole nav. #}
+          {% block header_nav %}
+            <nav class="nav-links" aria-label="Primary">
+              <a class="{% if request.endpoint == 'home' %}active{% endif %}"
+                 {% if request.endpoint == 'home' %}aria-current="page"{% endif %}
+                 href="{{ url_for('home') }}">Home</a>
+              <a class="{% if request.endpoint == 'checkin' %}active{% endif %}"
+                 {% if request.endpoint == 'checkin' %}aria-current="page"{% endif %}
+                 href="{{ url_for('checkin') }}">Check-in</a>
+              <a class="{% if request.endpoint == 'insights' %}active{% endif %}"
+                 {% if request.endpoint == 'insights' %}aria-current="page"{% endif %}
+                 href="{{ url_for('insights') }}">Insights</a>
+              <a class="{% if request.endpoint == 'assistant' %}active{% endif %}"
+                 {% if request.endpoint == 'assistant' %}aria-current="page"{% endif %}
+                 href="{{ url_for('assistant') }}">Assistant</a>
+            </nav>
+          {% endblock %}
 
-                <form class="settings-section" method="post" action="{{ url_for('settings') }}">
-                  <label class="settings-label" for="display-name-input">Display name</label>
-                  <div class="settings-row">
-                    <input class="settings-input" id="display-name-input" type="text"
-                           name="display_name" value="{{ current_user.display_name }}"
-                           maxlength="80" required>
-                    <button type="submit" class="btn btn-primary settings-save">Save</button>
-                  </div>
-                </form>
-              {% else %}
-                <div class="settings-identity">
-                  <span class="settings-name">Browsing as guest</span>
-                  <span class="settings-email">Your check-ins stay in this browser only.</span>
-                </div>
-              {% endif %}
+          <div class="nav-right">
 
-
-              <div class="settings-section settings-links">
-                {# Unhidden by app.js only when the browser says the app is
-                   actually installable -- otherwise the button does nothing. #}
-                <button type="button" class="settings-link" id="install-app" hidden>
-                  <span class="material-symbols-outlined">install_mobile</span> Install app
-                </button>
-
-                <a class="settings-link" href="{{ url_for('welcome') }}">
-                  <span class="material-symbols-outlined">auto_stories</span> What Carry is
-                </a>
-
-                {% if current_user.is_authenticated %}
-                  <form method="post" action="{{ url_for('logout') }}">
-                    <button type="submit" class="settings-link settings-link-danger">
-                      <span class="material-symbols-outlined">logout</span> Log out
-                    </button>
-                  </form>
-                {% elif auth_enabled %}
-                  <a class="settings-link" href="{{ url_for('login') }}">
-                    <span class="material-symbols-outlined">login</span> Log in
-                  </a>
-                  <a class="settings-link" href="{{ url_for('signup') }}">
-                    <span class="material-symbols-outlined">person_add</span> Create an account
-                  </a>
-                {% endif %}
-              </div>
-            </div>
-          </div>
-
-          <h1 class="text-headline-sm accent">Balance</h1>
-
-          <div class="header-right">
-
-            {# Every item in here is about accounts, so the whole control
-               goes while auth is switched off -- an empty dropdown is worse
-               than no dropdown. #}
-            {% if auth_enabled %}
-            <div class="account-menu" data-dropdown>
-              <button type="button" class="icon-btn" id="account-toggle" data-dropdown-toggle
-                      aria-label="Account" aria-expanded="false" aria-controls="account-panel">
-                <span class="material-symbols-outlined">account_circle</span>
+            <div class="settings-menu" data-dropdown>
+              <button type="button" class="icon-btn" id="settings-toggle" data-dropdown-toggle
+                      aria-label="Settings" aria-expanded="false" aria-controls="settings-panel">
+                <span class="material-symbols-outlined" aria-hidden="true">settings</span>
               </button>
 
-              <div class="settings-panel settings-panel-right" id="account-panel" data-dropdown-panel hidden>
+              <div class="settings-panel" id="settings-panel" data-dropdown-panel hidden>
                 {% if current_user.is_authenticated %}
                   <div class="settings-identity">
                     <span class="settings-name">{{ current_user.display_name }}</span>
                     <span class="settings-email">{{ current_user.email }}</span>
                   </div>
 
-                  <div class="settings-section">
-                    <span class="settings-label">Your account</span>
-                    <div class="account-stat">
-                      <span class="material-symbols-outlined">event</span>
-                      <span>Joined {{ current_user.created_at.strftime('%d %b %Y') }}</span>
+                  <form class="settings-section" method="post" action="{{ url_for('settings') }}">
+                    <label class="settings-label" for="display-name-input">Display name</label>
+                    <div class="settings-row">
+                      <input class="settings-input" id="display-name-input" type="text"
+                             name="display_name" value="{{ current_user.display_name }}"
+                             maxlength="80" required>
+                      <button type="submit" class="btn btn-primary settings-save">Save</button>
                     </div>
-                    <div class="account-stat">
-                      <span class="material-symbols-outlined">history</span>
-                      <span>{{ current_user.checkins | length }} check-in{{ '' if current_user.checkins | length == 1 else 's' }} saved</span>
-                    </div>
-                    <div class="account-stat">
-                      <span class="material-symbols-outlined">forum</span>
-                      <span>Unlimited assistant messages</span>
-                    </div>
-                  </div>
-
-                  <div class="settings-section settings-links">
-                    <form method="post" action="{{ url_for('logout') }}">
-                      <button type="submit" class="settings-link settings-link-danger">
-                        <span class="material-symbols-outlined">logout</span> Log out
-                      </button>
-                    </form>
-                  </div>
+                  </form>
                 {% else %}
                   <div class="settings-identity">
                     <span class="settings-name">Browsing as guest</span>
-                    <span class="settings-email">You can try everything — nothing is saved yet.</span>
-                  </div>
-
-                  <div class="settings-section">
-                    <span class="settings-label">Unlock with an account</span>
-                    <ul class="account-perks">
-                      <li class="account-perk">
-                        <span class="material-symbols-outlined">lock</span>
-                        <span><strong>Keep your check-ins.</strong> Right now they vanish when this browser clears its cookies.</span>
-                      </li>
-                      <li class="account-perk">
-                        <span class="material-symbols-outlined">lock</span>
-                        <span><strong>Insights from your history.</strong> Patterns need more than one saved day to show up.</span>
-                      </li>
-                      <li class="account-perk">
-                        <span class="material-symbols-outlined">lock</span>
-                        <span><strong>Unlimited assistant chat.</strong> The demo stops after {{ demo_chat_limit }} messages.</span>
-                      </li>
-                      <li class="account-perk">
-                        <span class="material-symbols-outlined">lock</span>
-                        <span><strong>Settings that follow you.</strong> Your name and theme sync to any device you log in on.</span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div class="settings-section account-cta">
-                    <a class="btn btn-primary btn-block" href="{{ url_for('signup') }}">Create a free account</a>
-                    <a class="settings-link account-login-link" href="{{ url_for('login') }}">
-                      <span class="material-symbols-outlined">login</span> I already have one — log in
-                    </a>
+                    <span class="settings-email">Your check-ins stay in this browser only.</span>
                   </div>
                 {% endif %}
+
+                {# Same state as the header toggle -- app.js routes both
+                   through setTheme so they can never disagree. #}
+                <div class="settings-section">
+                  <span class="settings-label">Appearance</span>
+                  <div class="settings-theme-group">
+                    <button type="button" class="settings-theme-btn" data-set-theme="dark">
+                      <span class="material-symbols-outlined" aria-hidden="true">dark_mode</span> Dark
+                    </button>
+                    <button type="button" class="settings-theme-btn" data-set-theme="light">
+                      <span class="material-symbols-outlined" aria-hidden="true">light_mode</span> Light
+                    </button>
+                  </div>
+                </div>
+
+                <div class="settings-section settings-links">
+                  {# Unhidden by app.js only when the browser says the app is
+                     actually installable -- otherwise the button does nothing. #}
+                  <button type="button" class="settings-link" id="install-app" hidden>
+                    <span class="material-symbols-outlined" aria-hidden="true">install_mobile</span> Install app
+                  </button>
+
+                  <a class="settings-link" href="{{ url_for('welcome') }}">
+                    <span class="material-symbols-outlined" aria-hidden="true">auto_stories</span> What Carry is
+                  </a>
+
+                  {% if current_user.is_authenticated %}
+                    <form method="post" action="{{ url_for('logout') }}">
+                      <button type="submit" class="settings-link settings-link-danger">
+                        <span class="material-symbols-outlined" aria-hidden="true">logout</span> Log out
+                      </button>
+                    </form>
+                  {% elif auth_enabled %}
+                    <a class="settings-link" href="{{ url_for('login') }}">
+                      <span class="material-symbols-outlined" aria-hidden="true">login</span> Log in
+                    </a>
+                    <a class="settings-link" href="{{ url_for('signup') }}">
+                      <span class="material-symbols-outlined" aria-hidden="true">person_add</span> Create an account
+                    </a>
+                  {% endif %}
+                </div>
               </div>
             </div>
+
+            {# Every item in here is about accounts, so the whole control
+               goes while auth is switched off -- an empty dropdown is worse
+               than no dropdown. #}
+            {% if auth_enabled %}
+              <div class="account-menu" data-dropdown>
+                <button type="button" class="icon-btn" id="account-toggle" data-dropdown-toggle
+                        aria-label="Account" aria-expanded="false" aria-controls="account-panel">
+                  <span class="material-symbols-outlined" aria-hidden="true">account_circle</span>
+                </button>
+
+                <div class="settings-panel settings-panel-right" id="account-panel" data-dropdown-panel hidden>
+                  {% if current_user.is_authenticated %}
+                    <div class="settings-identity">
+                      <span class="settings-name">{{ current_user.display_name }}</span>
+                      <span class="settings-email">{{ current_user.email }}</span>
+                    </div>
+
+                    <div class="settings-section">
+                      <span class="settings-label">Your account</span>
+                      <div class="account-stat">
+                        <span class="material-symbols-outlined" aria-hidden="true">event</span>
+                        <span>Joined {{ current_user.created_at.strftime('%d %b %Y') }}</span>
+                      </div>
+                      <div class="account-stat">
+                        <span class="material-symbols-outlined" aria-hidden="true">history</span>
+                        <span>{{ current_user.checkins | length }} check-in{{ '' if current_user.checkins | length == 1 else 's' }} saved</span>
+                      </div>
+                      <div class="account-stat">
+                        <span class="material-symbols-outlined" aria-hidden="true">forum</span>
+                        <span>Unlimited assistant messages</span>
+                      </div>
+                    </div>
+
+                    <div class="settings-section settings-links">
+                      <form method="post" action="{{ url_for('logout') }}">
+                        <button type="submit" class="settings-link settings-link-danger">
+                          <span class="material-symbols-outlined" aria-hidden="true">logout</span> Log out
+                        </button>
+                      </form>
+                    </div>
+                  {% else %}
+                    <div class="settings-identity">
+                      <span class="settings-name">Browsing as guest</span>
+                      <span class="settings-email">You can try everything — nothing is saved yet.</span>
+                    </div>
+
+                    <div class="settings-section">
+                      <span class="settings-label">Unlock with an account</span>
+                      <ul class="account-perks">
+                        <li class="account-perk">
+                          <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+                          <span><strong>Keep your check-ins.</strong> Right now they vanish when this browser clears its cookies.</span>
+                        </li>
+                        <li class="account-perk">
+                          <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+                          <span><strong>Insights from your history.</strong> Patterns need more than one saved day to show up.</span>
+                        </li>
+                        <li class="account-perk">
+                          <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+                          <span><strong>Unlimited assistant chat.</strong> The demo stops after {{ demo_chat_limit }} messages.</span>
+                        </li>
+                        <li class="account-perk">
+                          <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+                          <span><strong>Settings that follow you.</strong> Your name and theme sync to any device you log in on.</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div class="settings-section account-cta">
+                      <a class="btn btn-primary btn-block" href="{{ url_for('signup') }}">Create a free account</a>
+                      <a class="settings-link account-login-link" href="{{ url_for('login') }}">
+                        <span class="material-symbols-outlined" aria-hidden="true">login</span> I already have one — log in
+                      </a>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
             {% endif %}
           </div>
         </div>
-
-        {# Its own block so the auth pages can drop the nav without
-           re-declaring the whole header. #}
-        {% block header_nav %}
-          <nav class="nav-links container">
-            <a class="{% if request.endpoint == 'home' %}active{% endif %}" href="{{ url_for('home') }}">Home</a>
-            <a class="{% if request.endpoint == 'checkin' %}active{% endif %}" href="{{ url_for('checkin') }}">Check-in</a>
-            <a class="{% if request.endpoint == 'insights' %}active{% endif %}" href="{{ url_for('insights') }}">Insights</a>
-          </nav>
-        {% endblock %}
       </header>
     {% endblock %}
 
-    {% block demo_banner %}
-      {% if demo_mode and auth_enabled %}
-        <div class="demo-banner">
-          <span class="material-symbols-outlined">visibility</span>
-          <span>You're trying the demo — nothing is saved to an account yet.</span>
-          <a href="{{ url_for('signup') }}">Create a free account</a>
-        </div>
-      {% endif %}
-    {% endblock %}
+    {% block demo_banner %}{% endblock %}
 
     <!-- Page unique content goes here -->
     {% block content %}{% endblock %}
 
     {% block bottom_nav %}
-      <nav class="bottom-nav">
-        <a class="bottom-nav-item {% if request.endpoint == 'home' %}active{% endif %}" href="{{ url_for('home') }}">
-          <span class="material-symbols-outlined">home</span>
+      <nav class="bottom-nav" aria-label="Primary">
+        <a class="bottom-nav-item {% if request.endpoint == 'home' %}active{% endif %}"
+           {% if request.endpoint == 'home' %}aria-current="page"{% endif %}
+           href="{{ url_for('home') }}">
+          <span class="material-symbols-outlined" aria-hidden="true">home</span>
           <span>Home</span>
         </a>
-        <a class="bottom-nav-item {% if request.endpoint == 'checkin' %}active{% endif %}" href="{{ url_for('checkin') }}">
-          <span class="material-symbols-outlined">rebase_edit</span>
+        <a class="bottom-nav-item {% if request.endpoint == 'checkin' %}active{% endif %}"
+           {% if request.endpoint == 'checkin' %}aria-current="page"{% endif %}
+           href="{{ url_for('checkin') }}">
+          <span class="material-symbols-outlined" aria-hidden="true">rebase_edit</span>
           <span>Check-in</span>
         </a>
-        <a class="bottom-nav-item {% if request.endpoint == 'insights' %}active{% endif %}" href="{{ url_for('insights') }}">
-          <span class="material-symbols-outlined">analytics</span>
+        <a class="bottom-nav-item {% if request.endpoint == 'insights' %}active{% endif %}"
+           {% if request.endpoint == 'insights' %}aria-current="page"{% endif %}
+           href="{{ url_for('insights') }}">
+          <span class="material-symbols-outlined" aria-hidden="true">analytics</span>
           <span>Insights</span>
         </a>
-        <a class="bottom-nav-item {% if request.endpoint == 'assistant' %}active{% endif %}" href="{{ url_for('assistant') }}">
-          <span class="material-symbols-outlined">smart_toy</span>
+        <a class="bottom-nav-item {% if request.endpoint == 'assistant' %}active{% endif %}"
+           {% if request.endpoint == 'assistant' %}aria-current="page"{% endif %}
+           href="{{ url_for('assistant') }}">
+          <span class="material-symbols-outlined" aria-hidden="true">smart_toy</span>
           <span>Assistant</span>
         </a>
       </nav>
     {% endblock %}
 
-    {% block footer %}{% endblock %}
+    {% block footer %}
+      <footer class="site-footer">
+        <span class="footer-brand">
+          <span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>
+          carry
+        </span>
+        <nav class="footer-links" aria-label="Footer">
+          <a href="{{ url_for('welcome') }}">What Carry is</a>
+          <a href="{{ url_for('checkin') }}">Today's check-in</a>
+          <a href="{{ url_for('insights') }}">Insights</a>
+        </nav>
+        <span>Capacity, not productivity.</span>
+      </footer>
+    {% endblock %}
 
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/carry-ui.js') }}"></script>
     {% block scripts %}{% endblock %}
 
 </body>
