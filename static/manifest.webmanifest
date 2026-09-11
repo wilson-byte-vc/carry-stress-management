@@ -16,7 +16,6 @@
     { "src": "/static/image/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
-    { "name": "Do a check-in", "url": "/checkin" },
-    { "name": "Ask the assistant", "url": "/assistant" }
+    { "name": "Do a check-in", "url": "/checkin" }
   ]
 }

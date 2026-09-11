@@ -1,0 +1,23 @@
+.game-choices { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:24px; }
+.game-choices>a { display:flex; flex-direction:column; gap:16px; padding:14px 14px 22px; border:1px solid var(--hair); border-radius:12px; text-decoration:none; color:var(--ink-hi); transition:transform .2s,border-color .2s; }
+.game-choices>a:hover { transform:translateY(-4px); border-color:#a5cbe7; }
+.game-choices h2 { font-size:26px; line-height:1.2; }
+.game-choices p { color:var(--ink-lo); line-height:1.7; flex:1; }
+.game-choices h2,.game-choices p,.game-choices .eyebrow,.game-play { margin:0 9px; }
+.game-preview { height:220px; border-radius:7px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.game-preview-crush { background:#344b60; flex-direction:column; font-size:58px; font-weight:800; letter-spacing:-4px; color:#c1def4; line-height:.95; }
+.game-preview-crush>span:first-child { transform:translateX(-14px) rotate(-7deg); }
+.game-preview-crush>span:last-child { transform:translateX(15px) rotate(6deg); }
+.game-preview-break { background:#384e44; flex-direction:column; gap:8px; padding:20px; }
+.game-preview-break i { background:#afcbbb; color:#213e30; padding:12px 20px; border-radius:3px; font-style:normal; font-size:12px; font-weight:600; letter-spacing:1px; }
+.game-preview-break i:first-child { transform:rotate(-10deg); }
+.game-preview-break i:nth-child(2) { transform:rotate(7deg); }
+.game-preview-break i:last-child { transform:rotate(-4deg); }
+.game-preview-targets { background:#51483b; }
+.preview-target { width:140px; height:140px; border-radius:50%; border:1px solid #cbb087; display:grid; place-items:center; box-shadow:inset 0 0 0 18px #51483b,inset 0 0 0 19px #ad956e,inset 0 0 0 38px #51483b,inset 0 0 0 39px #ad956e; }
+.preview-target i { width:17px; height:17px; background:#e0c69d; border-radius:50%; }
+.game-play { display:flex; justify-content:space-between; border-top:1px solid var(--hair); padding-top:18px; font-size:14px; }
+.game-more { margin:32px 0; color:var(--ink-lo); }
+.game-more a { color:var(--ink-hi); }
+@media(max-width:800px) { .game-choices { grid-template-columns:1fr; } .game-preview { height:190px; } }
+@media(prefers-reduced-motion:reduce) { .game-choices>a { transition:none; } .game-choices>a:hover { transform:none; } }

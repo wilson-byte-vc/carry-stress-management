@@ -88,9 +88,9 @@
               <a class="{% if request.endpoint == 'insights' %}active{% endif %}"
                  {% if request.endpoint == 'insights' %}aria-current="page"{% endif %}
                  href="{{ url_for('insights') }}">Insights</a>
-              <a class="{% if request.endpoint == 'assistant' %}active{% endif %}"
-                 {% if request.endpoint == 'assistant' %}aria-current="page"{% endif %}
-                 href="{{ url_for('assistant') }}">Assistant</a>
+              <a class="{% if request.endpoint == 'games' %}active{% endif %}"
+                 {% if request.endpoint == 'games' %}aria-current="page"{% endif %}
+                 href="{{ url_for('games') }}">Games</a>
             </nav>
           {% endblock %}
 
@@ -195,10 +195,6 @@
                         <span class="material-symbols-outlined" aria-hidden="true">history</span>
                         <span>{{ current_user.checkins | length }} check-in{{ '' if current_user.checkins | length == 1 else 's' }} saved</span>
                       </div>
-                      <div class="account-stat">
-                        <span class="material-symbols-outlined" aria-hidden="true">forum</span>
-                        <span>Unlimited assistant messages</span>
-                      </div>
                     </div>
 
                     <div class="settings-section settings-links">
@@ -224,10 +220,6 @@
                         <li class="account-perk">
                           <span class="material-symbols-outlined" aria-hidden="true">lock</span>
                           <span><strong>Insights from your history.</strong> Patterns need more than one saved day to show up.</span>
-                        </li>
-                        <li class="account-perk">
-                          <span class="material-symbols-outlined" aria-hidden="true">lock</span>
-                          <span><strong>Unlimited assistant chat.</strong> The demo stops after {{ demo_chat_limit }} messages.</span>
                         </li>
                         <li class="account-perk">
                           <span class="material-symbols-outlined" aria-hidden="true">lock</span>
@@ -276,11 +268,11 @@
           <span class="material-symbols-outlined" aria-hidden="true">analytics</span>
           <span>Insights</span>
         </a>
-        <a class="bottom-nav-item {% if request.endpoint == 'assistant' %}active{% endif %}"
-           {% if request.endpoint == 'assistant' %}aria-current="page"{% endif %}
-           href="{{ url_for('assistant') }}">
-          <span class="material-symbols-outlined" aria-hidden="true">smart_toy</span>
-          <span>Assistant</span>
+        <a class="bottom-nav-item {% if request.endpoint == 'games' %}active{% endif %}"
+           {% if request.endpoint == 'games' %}aria-current="page"{% endif %}
+           href="{{ url_for('games') }}">
+          <span class="material-symbols-outlined" aria-hidden="true">sports_esports</span>
+          <span>Games</span>
         </a>
       </nav>
     {% endblock %}

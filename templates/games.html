@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Games — Carry{% endblock %}
+{% block body_class %}has-bottom-nav{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/games-menu.css') }}">
+{% endblock %}
+{% block content %}
+<main class="wrap">
+  <div class="page-intro">
+    <p class="eyebrow">Games</p>
+    <h1 class="text-headline">Put it down. For a minute.</h1>
+    <p class="text-body">A short reset. Your tasks and capacity stay exactly as they are.</p>
+  </div>
+  <div class="game-choices">
+    {% for slug, number, title, description in [
+      ('crush', '01', 'Crush a Word', 'Type it. Break it. Take a breath.'),
+      ('break', '02', 'Break the Pile', 'Thirty seconds of falling responsibilities.'),
+      ('targets', '03', 'Target Range', 'A fixed view. Aim at what’s on your mind.')
+    ] %}
+    <a href="{{ url_for('play_game', slug=slug) }}">
+      <div class="game-preview game-preview-{{ slug }}" aria-hidden="true">
+        {% if slug == 'crush' %}<span>OVER</span><span>LOAD</span>
+        {% elif slug == 'break' %}<i>DEADLINES</i><i>EMAILS</i><i>ONE MORE THING</i>
+        {% else %}<div class="preview-target"><i></i></div>{% endif %}
+      </div>
+      <span class="eyebrow">{{ number }} / Reset</span>
+      <h2>{{ title }}</h2>
+      <p>{{ description }}</p>
+      <span class="game-play">Play now <span aria-hidden="true">↗</span></span>
+    </a>
+    {% endfor %}
+  </div>
+  <p class="game-more">Want a longer reset? <a href="{{ url_for('game') }}">Open Pressure Valve →</a></p>
+</main>
+{% endblock %}

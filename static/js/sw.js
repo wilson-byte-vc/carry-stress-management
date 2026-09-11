@@ -11,7 +11,7 @@
  */
 
 // Bump this to retire every previously cached asset in one go.
-const CACHE = "carry-v2";
+const CACHE = "carry-v3";
 
 const OFFLINE_URL = "/offline";
 
@@ -49,9 +49,9 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   const url = new URL(req.url);
 
-  // Never touch POSTs, other origins, or the auth/chat endpoints.
+  // Never touch POSTs, other origins, or the auth endpoints.
   if (req.method !== "GET" || url.origin !== self.location.origin) return;
-  if (url.pathname.startsWith("/auth") || url.pathname.startsWith("/chat")) return;
+  if (url.pathname.startsWith("/auth")) return;
 
   // Page loads: network only, with a static offline fallback.
   if (req.mode === "navigate") {

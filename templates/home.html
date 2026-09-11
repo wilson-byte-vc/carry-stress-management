@@ -216,11 +216,13 @@
         </div>
 
         <div class="cf-row">
-          <label class="settings-label" for="c-effort">
-            How draining? <span data-effort-out>3</span>/5
-          </label>
-          <input class="checkin-slider" id="c-effort" name="effort" type="range"
-                 min="1" max="5" value="3" data-effort-input>
+          <label class="settings-label" for="c-details">Difficulty details (optional)</label>
+          <textarea class="auth-input" id="c-details" name="details" rows="3"
+                    maxlength="1000" aria-describedby="c-effort-help"
+                    placeholder="e.g. A 2,000-word essay, about 4 hours of research, on an unfamiliar topic"></textarea>
+          <small id="c-effort-help">AI will assess the difficulty and choose an effort score
+            from 1–5 when you add this commitment. Include time, preparation, or anything
+            that makes it easier or harder. These details are used only for the estimate.</small>
         </div>
 
         <label class="cf-toggle">
