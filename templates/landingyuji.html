@@ -340,6 +340,11 @@
      long stretch of nothing happening. */
   #reviewsPinWrap { height: 190vh; }
   @media (max-width: 780px) { #reviewsPinWrap { height: 160vh; } }
+  /* The arc's off-screen card positions must clip at the section, not leak
+     into real page scroll -- safe to put on .pin-inner itself (not on
+     #reviewsPinWrap, which is the sticky element's own scrolling ancestor
+     and would break the pin the same way html/body overflow did above). */
+  #reviewsPinWrap .pin-inner { overflow-x: hidden; }
   .reviews-track { display: flex; gap: 28px; padding: 0 4px; will-change: transform; }
   .review-card {
     flex: 0 0 auto;
@@ -571,6 +576,16 @@
     .cp-neon-tag { animation: none !important; }
     .cp-light-sweep { animation: none !important; }
   }
+
+  .scroll-progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    width: 0%;
+    background: var(--band-room);
+    z-index: 9999;
+    pointer-events: none;
+  }
 </style>
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -583,6 +598,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Carry">
 <link rel="apple-touch-icon" href="{{ url_for('static', filename='image/apple-touch-icon.png') }}">
+
+<div class="scroll-progress-bar" id="scrollProgressBar" aria-hidden="true"></div>
 
 <nav class="topnav">
   <div class="topnav-inner">
@@ -1255,11 +1272,17 @@
   var exitBlocks = Array.from(document.querySelectorAll('section:not(#load):not(#why) > .wrap'));
   exitBlocks.forEach(function(el) { el.classList.add('motion-exit'); });
   var navLinks = Array.from(document.querySelectorAll('.nav-links a'));
+  var progressBar = document.getElementById('scrollProgressBar');
   var ticking = false;
   function updateScroll() {
     ticking = false;
     updatePinReveal();
     updateReviewsArc();
+    if (progressBar) {
+      var scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      var pct = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
+      progressBar.style.width = pct + '%';
+    }
     var vh = window.innerHeight;
     var geometry = sections.map(function(section) { return section.getBoundingClientRect(); });
     var active = sections[0].id;
