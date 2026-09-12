@@ -1601,6 +1601,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   .cf-grid { grid-template-columns: 1fr 1fr; }
 }
 
+.cf-due-inputs { display: flex; gap: 8px; }
+.cf-due-inputs .auth-input { min-width: 0; flex: 1; }
+
 .cf-toggle,
 .auth-remember,
 .checkbox-row {
@@ -2414,6 +2417,136 @@ input[type="checkbox"] {
   font-size: 14.5px;
   line-height: 1.55;
   color: var(--ink-lo);
+}
+
+/* --- voice-to-commitment -------------------------------------------------- */
+.voice-commitment { margin-top: var(--s-4); margin-bottom: var(--s-4); }
+
+.voice-commitment-btn { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.voice-commitment-btn.is-recording {
+  background: var(--band-over-bg, rgba(209, 72, 58, .12));
+  border-color: var(--band-over);
+  color: var(--band-over-ink);
+  animation: voice-pulse 1.4s ease-in-out infinite;
+}
+@keyframes voice-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .6; }
+}
+
+.voice-status {
+  margin: 8px 0 0;
+  font-size: 13.5px;
+  color: var(--ink-lo);
+}
+
+.voice-confirm-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--ink-lo);
+  cursor: pointer;
+}
+
+.voice-confirm-card {
+  margin-top: 10px;
+  background: var(--panel-2);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+}
+.voice-confirm-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+/* --- today timeline ------------------------------------------------------
+   Sleep is a real shaded span (inferred from activity gaps); commitments
+   only carry a due moment, not a duration, so each is a dot, not a block. */
+.today-timeline { margin-bottom: var(--s-8); }
+
+.timeline-card {
+  background: var(--panel-2);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+}
+
+.timeline-strip {
+  position: relative;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--panel);
+  overflow: visible;
+}
+
+.timeline-sleep {
+  position: absolute;
+  top: 0; bottom: 0;
+  background: color-mix(in srgb, var(--ink-hi) 16%, transparent);
+  border-radius: 999px;
+}
+
+.timeline-now {
+  position: absolute;
+  top: -4px; bottom: -4px;
+  width: 2px;
+  background: var(--ink-hi);
+  opacity: .55;
+}
+
+.timeline-event {
+  position: absolute;
+  top: 50%; transform: translate(-50%, -50%);
+}
+
+.timeline-event-dot {
+  display: block;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--ink-hi);
+  border: 2px solid var(--panel-2);
+  cursor: default;
+}
+
+.timeline-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 11px;
+  letter-spacing: .04em;
+  color: var(--ink-lo);
+}
+
+.timeline-legend {
+  display: flex;
+  gap: var(--s-4);
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--ink-lo);
+}
+.timeline-legend-item { display: flex; align-items: center; gap: 6px; }
+.timeline-legend-swatch { width: 10px; height: 10px; border-radius: 50%; }
+.timeline-legend-swatch.is-sleep { background: color-mix(in srgb, var(--ink-hi) 16%, transparent); }
+.timeline-legend-swatch.is-event { background: var(--ink-hi); }
+
+.timeline-list {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14.5px;
+  color: var(--ink-lo);
+}
+.timeline-list-time {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-hi);
+  font-weight: 600;
+  margin-right: 8px;
 }
 
 /* --- insights ----------------------------------------------------------- */

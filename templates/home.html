@@ -156,6 +156,47 @@
     </section>
   {% endif %}
 
+  {# ---------------- Today timeline ---------------- #}
+  <section class="today-timeline">
+    <div class="section-head">
+      <h3 class="text-headline-sm">Today</h3>
+    </div>
+
+    <div class="timeline-card">
+      <div class="timeline-strip" role="img" aria-label="Today's schedule, midnight to midnight">
+        {% for seg in today_timeline.sleep_segments %}
+          <div class="timeline-sleep" style="left: {{ seg.start_pct }}%; width: {{ seg.width_pct }}%;"></div>
+        {% endfor %}
+        {% if today_timeline.now_pct is not none %}
+          <div class="timeline-now" style="left: {{ today_timeline.now_pct }}%;"></div>
+        {% endif %}
+        {% for ev in today_timeline.events %}
+          <div class="timeline-event" style="left: {{ ev.pct }}%;" title="{{ ev.title }} · {{ ev.time_label }}">
+            <span class="timeline-event-dot"></span>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="timeline-axis" aria-hidden="true">
+        <span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span><span>12 AM</span>
+      </div>
+
+      <div class="timeline-legend">
+        <span class="timeline-legend-item"><span class="timeline-legend-swatch is-sleep"></span> Sleep</span>
+        <span class="timeline-legend-item"><span class="timeline-legend-swatch is-event"></span> Due today</span>
+      </div>
+
+      {% if today_timeline.events %}
+        <ul class="timeline-list">
+          {% for ev in today_timeline.events %}
+            <li><span class="timeline-list-time">{{ ev.time_label }}</span>{{ ev.title }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-body">Nothing due at a specific time today.</p>
+      {% endif %}
+    </div>
+  </section>
+
   {# ---------------- Commitments ---------------- #}
   <section class="commitments">
     <div class="section-head">
@@ -210,12 +251,34 @@
       </p>
     {% endif %}
 
+    <div class="voice-commitment" id="voiceCommitment">
+      <button type="button" class="btn btn-outline btn-block voice-commitment-btn" id="voiceBtn">
+        <span class="material-symbols-outlined" aria-hidden="true">mic</span>
+        <span id="voiceBtnLabel">Speak a commitment</span>
+      </button>
+
+      <p class="voice-status" id="voiceStatus" hidden></p>
+
+      <label class="voice-confirm-toggle">
+        <input type="checkbox" id="voiceConfirmToggle" checked>
+        Confirm before adding
+      </label>
+
+      <div class="voice-confirm-card" id="voiceConfirmCard" hidden>
+        <p class="text-body" id="voiceConfirmSummary"></p>
+        <div class="voice-confirm-actions">
+          <button type="button" class="btn btn-primary" id="voiceConfirmYes">Yes, add it</button>
+          <button type="button" class="btn btn-outline" id="voiceConfirmEdit">Let me edit first</button>
+        </div>
+      </div>
+    </div>
+
     <details class="commitment-add" id="add-commitment">
       <summary>
         <span class="material-symbols-outlined">add</span> Add a commitment
       </summary>
 
-      <form method="post" action="{{ url_for('add_commitment') }}" class="commitment-form">
+      <form method="post" action="{{ url_for('add_commitment') }}" class="commitment-form" id="commitmentForm">
         <div class="cf-row">
           <label class="settings-label" for="c-title">What is it?</label>
           <input class="auth-input" id="c-title" name="title" type="text"
@@ -233,8 +296,11 @@
           </div>
 
           <div class="cf-row">
-            <label class="settings-label" for="c-due">Due (optional)</label>
-            <input class="auth-input" id="c-due" name="due_at" type="date" min="{{ today }}">
+            <label class="settings-label" for="c-due-date">Due (optional)</label>
+            <div class="cf-due-inputs">
+              <input class="auth-input" id="c-due-date" name="due_date" type="date" min="{{ today }}">
+              <input class="auth-input" id="c-due-time" name="due_time" type="time" aria-label="Time (optional)">
+            </div>
           </div>
         </div>
 
@@ -261,89 +327,6 @@
   </section>
 
   {# ---------------- Insights (folded in from the old /insights page) ---------------- #}
-  <section class="insights-section">
-    <div class="page-intro">
-      <p class="eyebrow">The last seven days</p>
-      <h1 class="text-headline">Your patterns</h1>
-      <p class="text-body">What the check-ins keep saying about where your week actually goes — and the one small move that changes it.</p>
-    </div>
-
-    <h2 class="sr-only">This week's insights</h2>
-
-    <div class="insight-grid">
-
-      <article class="insight-card wide motion-reveal">
-        <div>
-          <div class="insight-tag-row">
-            <span class="material-symbols-outlined" aria-hidden="true">trending_up</span>
-            <span class="text-label-sm">Stress pattern detected</span>
-          </div>
-          <h3 class="text-title">3 of your last 5 stress spikes came from group project deadlines.</h3>
-          <p class="text-body">Your energy dipped consistently the day before "Marketing Strategy" deliverables were due. The data suggests these collaborative tasks drain your reserves faster than individual study.</p>
-        </div>
-        <div class="insight-actions">
-          <button type="button" class="btn btn-primary" data-insight-action="Walk scheduled for later today">Schedule a 15-min walk</button>
-          <button type="button" class="btn btn-ghost" data-toggle-detail="#stress-detail"
-                  aria-expanded="false" aria-controls="stress-detail">
-            View detail <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-          </button>
-        </div>
-        <div class="insight-detail" id="stress-detail" role="region" aria-label="Stress pattern detail">
-          <p class="text-body">Looking at your last five check-ins: energy dropped on the two days right before a "Marketing Strategy" deliverable was due, and recovered within a day of it being submitted. The pattern doesn't show up around solo assignments in the same window — it's specific to coordinating with a group.</p>
-        </div>
-      </article>
-
-      <article class="insight-card wide motion-reveal" id="sleep-card">
-        <div>
-          <div class="insight-tag-row">
-            <span class="material-symbols-outlined" aria-hidden="true">bedtime</span>
-            <span class="text-label-sm">Sleep, last 30 days</span>
-          </div>
-          <h3 class="text-title">Restful recovery</h3>
-        </div>
-
-        <div class="sleep-chart">
-          <div class="sleep-chart-axis" aria-hidden="true">
-            <span>10h</span>
-            <span>5h</span>
-            <span>0h</span>
-          </div>
-          <div class="cat-row chart-enter is-dense" id="sleep-chart-bars">
-            {% for day in sleep_days %}
-              <button type="button" class="cat" data-hours="{{ day.hours }}" data-date-label="{{ day.date_label }}"
-                      aria-label="{{ day.date_label }}, {{ day.hours }} hours">
-                <div class="cat-track">
-                  <div class="cat-fill" style="height: {{ (day.hours / 10 * 100) | round | int }}%"></div>
-                </div>
-                <div class="cat-label" aria-hidden="true">{{ day.label }}</div>
-              </button>
-            {% endfor %}
-          </div>
-        </div>
-        <p class="text-body">
-          <span id="sleep-chart-detail">{{ sleep_days[-1].hours }}h last night</span> · {{ (sleep_days | sum(attribute='hours') / sleep_days | length) | round(1) }}h average this month
-        </p>
-
-        <p class="text-body sleep-ai-summary is-loading" data-sleep-summary>Generating a suggestion…</p>
-
-        <div class="insight-actions sleep-reminder-row">
-          <input type="time" class="auth-input" id="bedtime-input" value="{{ current_user.bedtime_reminder or '22:30' }}">
-          <button type="button" class="btn btn-outline btn-block" id="bedtime-toggle"
-                  data-enabled="{{ '1' if current_user.bedtime_reminder else '0' }}"
-                  data-vapid-key="{{ vapid_public_key }}">
-            {{ 'Disable bedtime reminder' if current_user.bedtime_reminder else 'Enable bedtime reminder' }}
-          </button>
-        </div>
-      </article>
-
-    </div>
-
-    <div class="empty-cta">
-      <button type="button" class="btn btn-ghost">
-        <span class="material-symbols-outlined" aria-hidden="true">history</span> View all past insights
-      </button>
-    </div>
-  </section>
 </main>
 
 {% endblock %}
@@ -376,13 +359,17 @@
   // Each step spotlights the real section it's talking about -- comma-listed
   // selectors cover both the empty-state and populated-state markup so the
   // tour still degrades gracefully for a brand-new user with no check-in yet.
+  // Steps whose target doesn't exist at all (like the streak card, before a
+  // first check-in) are dropped rather than shown pointing at nothing.
   var STEPS = [
     { text: "Hey — I'm here to show you around Carry.", target: ".hero" },
     { text: "This ring is your capacity: how much you've got left today, worked out from your check-in and what's coming up.", target: ".ring-wrap.capacity-trigger, .empty-ring" },
     { text: "A one-minute check-in each day is what keeps that number honest.", target: ".ring-wrap.capacity-trigger, .empty-ring" },
     { text: "This is your streak. Check in most days and it keeps growing.", target: ".streak-card" },
-    { text: "That's the tour. You can always add what's on your plate below, and I'll be here if you need me.", target: ".commitments" }
-  ];
+    { text: "That's the tour. You can always add what's on your plate below — type it out, or tap the mic and just say it. I'll be here if you need me.", target: ".commitments" }
+  ].filter(function (step) {
+    return document.querySelector(step.target) !== null;
+  });
 
   var spotlight = document.getElementById("onboardingSpotlight");
   var bubble = document.getElementById("onboardingBubble");
@@ -390,6 +377,7 @@
   var nextBtn = document.getElementById("onboardingNext");
   var skipBtn = document.getElementById("onboardingSkip");
   var progressDots = Array.prototype.slice.call(overlay.querySelectorAll(".onboarding-progress-dot"));
+  progressDots.slice(STEPS.length).forEach(function (dot) { dot.style.display = "none"; });
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var stepIndex = 0;
   var positionTimer = null;
@@ -424,6 +412,8 @@
       bubble.classList.toggle("arrow-down", !placeBelow);
     } else {
       spotlight.classList.remove("is-visible");
+      spotlight.style.width = "0px";
+      spotlight.style.height = "0px";
       var bw = bubble.getBoundingClientRect();
       bubble.style.top = ((window.innerHeight - bw.height) / 2) + "px";
       bubble.style.left = ((window.innerWidth - bw.width) / 2) + "px";
@@ -685,6 +675,163 @@
         });
       });
     });
+  });
+})();
+
+(function () {
+  // Voice-to-commitment: record a short clip, transcribe + extract fields
+  // with Groq, then either ask before saving or (if the user turned that
+  // off) submit straight through the existing add-commitment form.
+  var micBtn = document.getElementById("voiceBtn");
+  var micLabel = document.getElementById("voiceBtnLabel");
+  var statusEl = document.getElementById("voiceStatus");
+  var confirmToggle = document.getElementById("voiceConfirmToggle");
+  var confirmCard = document.getElementById("voiceConfirmCard");
+  var confirmSummary = document.getElementById("voiceConfirmSummary");
+  var confirmYesBtn = document.getElementById("voiceConfirmYes");
+  var confirmEditBtn = document.getElementById("voiceConfirmEdit");
+  var form = document.getElementById("commitmentForm");
+  var addDetails = document.getElementById("add-commitment");
+  if (!micBtn || !form) return;
+
+  var STORAGE_KEY = "carry_voice_confirm";
+  try {
+    var saved = localStorage.getItem(STORAGE_KEY);
+    if (saved !== null) confirmToggle.checked = saved === "1";
+  } catch (e) {}
+  confirmToggle.addEventListener("change", function () {
+    try { localStorage.setItem(STORAGE_KEY, confirmToggle.checked ? "1" : "0"); } catch (e) {}
+  });
+
+  var mediaRecorder = null;
+  var chunks = [];
+  var recording = false;
+  var stopTimer = null;
+
+  function setStatus(text) {
+    statusEl.hidden = !text;
+    statusEl.textContent = text || "";
+  }
+
+  function fillForm(data) {
+    form.querySelector("#c-title").value = data.title || "";
+    form.querySelector("#c-category").value = data.category || "academic";
+    var datePart = "", timePart = "";
+    if (data.due_at) {
+      var split = data.due_at.split("T");
+      datePart = split[0] || "";
+      timePart = split[1] || "";
+    }
+    form.querySelector("#c-due-date").value = datePart;
+    form.querySelector("#c-due-time").value = timePart;
+    var movableInput = form.querySelector('input[name="movable"]');
+    if (movableInput) movableInput.checked = !!data.movable;
+  }
+
+  function summaryText(data) {
+    var parts = [data.title];
+    if (data.category) parts.push(data.category.charAt(0).toUpperCase() + data.category.slice(1));
+    if (data.due_at) {
+      var d = new Date(data.due_at);
+      parts.push("due " + d.toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }));
+    } else {
+      parts.push("no due date");
+    }
+    parts.push(data.movable ? "movable" : "fixed");
+    return "Add: " + parts.join(" · ") + "?";
+  }
+
+  function speak(text) {
+    try {
+      if (!window.speechSynthesis) return;
+      window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+    } catch (e) {}
+  }
+
+  function handleParsed(data) {
+    fillForm(data);
+    if (confirmToggle.checked) {
+      var text = summaryText(data);
+      confirmSummary.textContent = text;
+      confirmCard.hidden = false;
+      speak(text);
+    } else {
+      if (addDetails) addDetails.open = true;
+      form.requestSubmit();
+    }
+  }
+
+  confirmYesBtn.addEventListener("click", function () {
+    confirmCard.hidden = true;
+    form.requestSubmit();
+  });
+  confirmEditBtn.addEventListener("click", function () {
+    confirmCard.hidden = true;
+    if (addDetails) addDetails.open = true;
+    form.querySelector("#c-title").focus();
+  });
+
+  function transcribeAndParse(blob) {
+    setStatus("Working out what you meant…");
+    var fd = new FormData();
+    fd.append("audio", blob, "commitment.webm");
+    fetch("{{ url_for('voice_transcribe') }}", { method: "POST", body: fd })
+      .then(function (res) { return res.json(); })
+      .then(function (result) {
+        if (result.error || !result.text) {
+          setStatus(result.error || "Didn't catch that — try again?");
+          return null;
+        }
+        setStatus("Heard: “" + result.text + "”");
+        return fetch("{{ url_for('voice_parse_commitment') }}", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: result.text }),
+        }).then(function (res) { return res.json(); });
+      })
+      .then(function (parsed) {
+        if (!parsed) return;
+        if (parsed.error) { setStatus(parsed.error); return; }
+        setStatus("");
+        handleParsed(parsed);
+      })
+      .catch(function () { setStatus("Something went wrong — try again?"); });
+  }
+
+  function startRecording() {
+    if (!navigator.mediaDevices || !window.MediaRecorder) {
+      setStatus("Voice input needs microphone support this browser doesn't have.");
+      return;
+    }
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+      recording = true;
+      chunks = [];
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.addEventListener("dataavailable", function (e) {
+        if (e.data.size) chunks.push(e.data);
+      });
+      mediaRecorder.addEventListener("stop", function () {
+        stream.getTracks().forEach(function (t) { t.stop(); });
+        recording = false;
+        micLabel.textContent = "Speak a commitment";
+        micBtn.classList.remove("is-recording");
+        clearTimeout(stopTimer);
+        if (chunks.length) transcribeAndParse(new Blob(chunks, { type: "audio/webm" }));
+      });
+      mediaRecorder.start();
+      micLabel.textContent = "Listening… tap to stop";
+      micBtn.classList.add("is-recording");
+      setStatus("Listening…");
+      stopTimer = setTimeout(function () { if (recording) mediaRecorder.stop(); }, 15000);
+    }).catch(function () {
+      setStatus("Microphone access was blocked — allow it to use voice input.");
+    });
+  }
+
+  micBtn.addEventListener("click", function () {
+    if (recording) { mediaRecorder.stop(); return; }
+    confirmCard.hidden = true;
+    startRecording();
   });
 })();
 </script>

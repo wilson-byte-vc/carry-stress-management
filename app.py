@@ -157,6 +157,73 @@ Return ONLY one number from 1 to 5.
         print("AI effort error:", e)
         return 3
 
+
+def parse_commitment_from_speech(text):
+    """Turns a spoken sentence into commitment fields, so the add-commitment
+    form can be filled from voice instead of typed field by field."""
+    now = datetime.now(timezone.utc)
+    prompt = f"""
+You are helping a university student add a commitment to their planner by voice.
+
+Current date and time (UTC): {now.strftime('%A, %Y-%m-%d %H:%M')}
+
+They said: "{text}"
+
+Extract a single commitment from this. Return ONLY valid JSON exactly like this:
+
+{{
+  "title": "short title, under 12 words",
+  "category": "one of academic, work, social, health, personal",
+  "due_at": "YYYY-MM-DDTHH:MM in UTC, or null if no date or time was mentioned",
+  "movable": true or false -- false only if it sounds fixed and unmovable, like a lecture, shift, or exam
+}}
+
+Rules:
+- Resolve relative dates ("tomorrow", "next Friday", "in two days") against the current date above.
+- Resolve rough times of day: morning = 09:00, afternoon = 14:00, evening or tonight = 19:00, night = 21:00.
+- If no date or time is mentioned at all, use 09:00.
+- Do not include markdown or any text outside the JSON.
+"""
+    # gpt-oss occasionally burns its whole token budget on hidden reasoning
+    # and comes back with an empty visible reply -- one retry clears almost
+    # all of these, since it's transient, not a property of the input text.
+    for attempt in range(2):
+        try:
+            response = client.chat.completions.create(
+                model=GROQ_MODEL,
+                max_tokens=800,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            raw = (response.choices[0].message.content or "").strip()
+            raw = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw, flags=re.IGNORECASE)
+            data = json.loads(raw)
+
+            title = str(data.get("title", "")).strip()[:160]
+            if not title:
+                continue
+
+            category = data.get("category")
+            if category not in Commitment.CATEGORIES:
+                category = "academic"
+
+            due_at = None
+            if data.get("due_at"):
+                try:
+                    due_at = datetime.strptime(data["due_at"], "%Y-%m-%dT%H:%M")
+                except (ValueError, TypeError):
+                    due_at = None
+
+            return {
+                "title": title,
+                "category": category,
+                "due_at": due_at,
+                "movable": bool(data.get("movable", True)),
+            }
+        except Exception as e:
+            print("AI voice-commitment parse error:", e)
+    return None
+
+
 def generate_personalized_questions(user_context):
     default_questions = {
         "time": "How manageable does your schedule feel today?",
@@ -436,6 +503,78 @@ def compute_sleep_days(user, n=30):
     return results
 
 
+def compute_today_sleep_window(user):
+    """Last night's inferred sleep as a real (start, end) timestamp pair, or
+    None. Same window/gap logic as compute_sleep_days, but keeps the actual
+    times instead of collapsing to a duration -- needed to place it on a
+    same-day timeline."""
+    intervals = sorted(
+        (s.started_at, s.ended_at or s.last_ping_at) for s in user.activity_sessions
+    )
+    today = datetime.now(timezone.utc).date()
+    window_start = datetime.combine(today - timedelta(days=1), datetime.min.time()) \
+        + timedelta(hours=SLEEP_WINDOW_START_HOUR)
+    window_end = datetime.combine(today, datetime.min.time()) \
+        + timedelta(hours=SLEEP_WINDOW_END_HOUR)
+
+    best = None
+    best_hours = 0
+    for j in range(len(intervals) - 1):
+        gap_start = max(intervals[j][1], window_start)
+        gap_end = min(intervals[j + 1][0], window_end)
+        if gap_end > gap_start:
+            hours = (gap_end - gap_start).total_seconds() / 3600
+            if hours >= MIN_SLEEP_HOURS and hours > best_hours:
+                best_hours = hours
+                best = (gap_start, gap_end)
+    return best
+
+
+def compute_today_timeline(user, commitments):
+    """What's real about today, laid along a 24h strip: last night's
+    inferred sleep window (from activity gaps) and today's commitments.
+    Commitments only carry a due *moment*, not a duration, so each renders
+    as a point on the strip rather than an occupied span."""
+    today = datetime.now(timezone.utc).date()
+    midnight = datetime.combine(today, datetime.min.time())
+
+    def hour_of(dt):
+        if dt.tzinfo:
+            dt = dt.replace(tzinfo=None)
+        return (dt - midnight).total_seconds() / 3600
+
+    sleep_segments = []
+    window = compute_today_sleep_window(user)
+    if window:
+        start_h = max(0.0, hour_of(window[0]))
+        end_h = min(24.0, hour_of(window[1]))
+        if end_h > start_h:
+            sleep_segments.append({"start_pct": start_h / 24 * 100, "width_pct": (end_h - start_h) / 24 * 100})
+
+    events = []
+    for c in commitments:
+        due = c["due_at"]
+        # Midnight is the "no time given" default (the due-date field's time
+        # is optional) -- plotting a dot there would claim a precision that
+        # was never actually entered, so those just don't get one.
+        if due and due.date() == today and (due.hour, due.minute) != (0, 0):
+            hour = hour_of(due)
+            hour12 = due.hour % 12 or 12
+            events.append({
+                "pct": hour / 24 * 100,
+                "time_label": f"{hour12}:{due.strftime('%M')} {'AM' if due.hour < 12 else 'PM'}",
+                "title": c["title"],
+                "category": c["category"],
+                "effort": c["effort"],
+            })
+    events.sort(key=lambda e: e["pct"])
+
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    now_pct = hour_of(now) / 24 * 100 if now.date() == today else None
+
+    return {"sleep_segments": sleep_segments, "events": events, "now_pct": now_pct}
+
+
 def energy_percent(checkin):
     """How much is in the tank, straight from the last check-in."""
     levels = [checkin["time"], checkin["social"], checkin["physical"], checkin["mental"]]
@@ -520,13 +659,16 @@ def get_commitments():
     return items
 
 
-def parse_due_date(raw):
-    """<input type="date"> gives YYYY-MM-DD, or empty for no deadline."""
-    raw = (raw or "").strip()
-    if not raw:
+def parse_due_datetime(date_str, time_str):
+    """Date is the real field (<input type="date">, YYYY-MM-DD); time is a
+    separate, optional <input type="time"> -- left blank, it defaults to
+    midnight, same as a commitment with no time ever specified."""
+    date_str = (date_str or "").strip()
+    if not date_str:
         return None
+    time_str = (time_str or "").strip() or "00:00"
     try:
-        return datetime.strptime(raw, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        return datetime.strptime(f"{date_str}T{time_str}", "%Y-%m-%dT%H:%M").replace(tzinfo=timezone.utc)
     except ValueError:
         return None
 
@@ -854,6 +996,7 @@ def home():
         streak=current_streak(),
         streak_days=streak_week(),
         sleep_days=compute_sleep_days(current_user),
+        today_timeline=compute_today_timeline(current_user, commitments),
         vapid_public_key=VAPID_PUBLIC_KEY,
         labels=CATEGORY_LABELS,
         commitments=upcoming,
@@ -997,7 +1140,7 @@ def add_commitment():
         "category": category,
         # Absent checkbox means unchecked, which here means fixed.
         "movable": request.form.get("movable") == "1",
-        "due_at": parse_due_date(request.form.get("due_at")),
+        "due_at": parse_due_datetime(request.form.get("due_date"), request.form.get("due_time")),
         "effort": ai_effort,
         "completed": False,
     }
@@ -1015,6 +1158,42 @@ def add_commitment():
 
     flash(f"Added “{title}” — AI estimated effort: {ai_effort}/5.")
     return redirect(url_for("home"))
+
+
+@app.route("/commitments/voice/transcribe", methods=["POST"])
+@login_required
+def voice_transcribe():
+    audio = request.files.get("audio")
+    if not audio:
+        return jsonify({"error": "No audio received"}), 400
+    try:
+        result = client.audio.transcriptions.create(
+            file=(audio.filename or "audio.webm", audio.read()),
+            model="whisper-large-v3-turbo",
+        )
+        return jsonify({"text": (result.text or "").strip()})
+    except Exception as e:
+        app.logger.exception("voice transcribe failed")
+        return jsonify({"error": "Could not transcribe that — try again?"}), 500
+
+
+@app.route("/commitments/voice/parse", methods=["POST"])
+@login_required
+def voice_parse_commitment():
+    text = (request.get_json(silent=True) or {}).get("text", "").strip()
+    if not text:
+        return jsonify({"error": "No text to parse"}), 400
+
+    parsed = parse_commitment_from_speech(text)
+    if not parsed:
+        return jsonify({"error": "Couldn't make out a commitment in that"}), 422
+
+    return jsonify({
+        "title": parsed["title"],
+        "category": parsed["category"],
+        "due_at": parsed["due_at"].strftime("%Y-%m-%dT%H:%M") if parsed["due_at"] else "",
+        "movable": parsed["movable"],
+    })
 
 
 @app.route("/commitments/<int:commitment_id>/toggle", methods=["POST"])
