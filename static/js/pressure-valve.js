@@ -269,8 +269,8 @@ function burst(rect, opts){
       vy: dy*speed + rnd(-190,-40) + (opts.vy||0)*0.35,
       rot: 0, vr: rnd(-7,7),
       life: 1, decay: rnd(0.24, 0.42),
-      fill: opts.fill || "#1B1C21",
-      stroke: opts.stroke || "#3A3B42",
+      fill: opts.fill || "#2D2430",
+      stroke: opts.stroke || "#4A3F4D",
       settled: false
     });
   }
@@ -283,7 +283,7 @@ function burst(rect, opts){
         x: ox, y: oy,
         vx: Math.cos(a)*s, vy: Math.sin(a)*s - 60,
         life: 1, decay: rnd(1.2, 2.6),
-        col: Math.random() < .6 ? "#FF3B14" : "#FFB03A"
+        col: Math.random() < .6 ? "#E2707D" : "#F0B979"
       });
     }
   }
@@ -356,8 +356,8 @@ requestAnimationFrame(frame);
 /* ============================================================
    4. temperature — the palette IS the progress indicator
    ============================================================ */
-const HOT = { ground:[11,11,13],   ground2:[19,19,22],  chalk:[232,230,225], steel:[122,126,134], hair:[35,36,42] };
-const COOL= { ground:[239,234,225],ground2:[228,222,211],chalk:[26,28,27],   steel:[94,96,90],   hair:[209,203,192] };
+const HOT = { ground:[40,32,42],   ground2:[52,42,54],  chalk:[238,230,232], steel:[150,136,146], hair:[60,48,60] };
+const COOL= { ground:[246,238,239],ground2:[236,226,229],chalk:[64,50,58],   steel:[150,128,136], hair:[225,205,212] };
 const rgb = a => "rgb("+a[0]+","+a[1]+","+a[2]+")";
 const mix = (a,b,t) => [Math.round(lerp(a[0],b[0],t)), Math.round(lerp(a[1],b[1],t)), Math.round(lerp(a[2],b[2],t))];
 
@@ -536,7 +536,7 @@ const dial = {
       ctx.moveTo(Math.cos(a)*inner, Math.sin(a)*inner);
       ctx.lineTo(Math.cos(a)*outer, Math.sin(a)*outer);
       ctx.lineWidth = 2;
-      ctx.strokeStyle = v > .55 ? "#FF3B14" : (v > .28 ? "#FFB03A" : "#3A3B42");
+      ctx.strokeStyle = v > .55 ? "#E2707D" : (v > .28 ? "#F0B979" : "#4A3F4D");
       ctx.globalAlpha = 0.35 + v*0.65;
       ctx.stroke();
     }
@@ -747,7 +747,7 @@ function detonate(){
   $$(".ltr", targetWord).forEach(l => {
     const r = l.getBoundingClientRect();
     if(r.width < 1) return;
-    burst(r, { fill: chalk, stroke: "#FF3B14", depth: RM?1:3, force: 1.25 });
+    burst(r, { fill: chalk, stroke: "#E2707D", depth: RM?1:3, force: 1.25 });
     l.style.visibility = "hidden";
   });
 
@@ -800,7 +800,7 @@ function breakBlock(el, vx, vy){
 
   const speed = Math.hypot(vx||0, vy||0);
   const force = clamp(0.85 + speed/1400, .85, 2.1);
-  burst(r, { fill:"#1B1C21", stroke:"#4A4B54", vx:vx||0, vy:vy||0, force:force, depth: RM?2:4 });
+  burst(r, { fill:"#2D2430", stroke:"#4A3F4D", vx:vx||0, vy:vy||0, force:force, depth: RM?2:4 });
   Sound.shatter(force);
   buzz(22);
   setHeat(.32);

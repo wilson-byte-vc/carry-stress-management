@@ -1131,6 +1131,24 @@ def play_pressure_valve():
     return render_template("pressure_valve.html")
 
 
+@app.route("/game/grow")
+@login_required
+def play_grow():
+    return render_template("grow.html")
+
+
+@app.route("/game/keep-the-light")
+@login_required
+def play_keep_the_light():
+    return render_template("keep_the_light.html")
+
+
+@app.route("/game/target-range")
+@login_required
+def play_target_range():
+    return render_template("target_range.html")
+
+
 @app.route("/meditate")
 @login_required
 def meditate():

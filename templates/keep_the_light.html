@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#f3ecfa">
+  <title>Keep the Light — Carry</title>
+  <style>
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+    }
+    body {
+      position: relative;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f3ecfa;
+      color: #4a3f52;
+    }
+
+    .exit-link {
+      position: fixed; top: 20px; left: 20px; z-index: 5;
+      color: #4a3f52; text-decoration: none; font-weight: 600; font-size: 14px;
+      background: rgba(255,255,255,.7); padding: 8px 16px; border-radius: 999px;
+      backdrop-filter: blur(6px);
+    }
+    .sound-toggle {
+      position: fixed; top: 20px; right: 20px; z-index: 5;
+      appearance: none; border: none; cursor: pointer;
+      color: #4a3f52; font-weight: 600; font-size: 14px; font-family: inherit;
+      background: rgba(255,255,255,.7); padding: 8px 16px; border-radius: 999px;
+      backdrop-filter: blur(6px);
+    }
+
+    main { position: relative; z-index: 2; width: min(92vw, 460px); padding: 24px; text-align: center; }
+    .stage { display: none; flex-direction: column; align-items: center; gap: 18px; }
+    .stage.is-active { display: flex; }
+
+    .eyebrow { letter-spacing: .08em; text-transform: uppercase; font-size: 12px; font-weight: 700; color: #8a6a9a; margin: 0; }
+    h1 { font-size: clamp(24px, 4vw, 32px); margin: 0; }
+    .lead { margin: 0; color: #6b5a75; font-size: 15px; line-height: 1.5; min-height: 1.4em; }
+
+    .key-legend { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .key-pill {
+      appearance: none; cursor: pointer; font-family: inherit;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 10px 14px; border-radius: 16px; border: 1px solid #d8c6ea;
+      background: #fff; min-width: 56px;
+    }
+    .key-pill .cap {
+      width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 15px; color: #3a2d4a; background: #f3ecfa; border: 2px solid #d8c6ea;
+      text-transform: uppercase;
+    }
+    .key-pill.is-listening .cap { border-color: #c9b3e6; background: #ede0fb; }
+    .key-pill .lbl { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: #8a6a9a; }
+    .rebind-hint { font-size: 12px; color: #8a6a9a; }
+
+    .road-wrap {
+      position: relative;
+      width: min(76vw, 300px); height: min(46vh, 300px);
+      perspective: 500px;
+      border-radius: 20px; overflow: hidden;
+      background: linear-gradient(180deg, #e8dcf5 0%, #fbf5ff 65%);
+      box-shadow: inset 0 2px 14px rgba(138,106,154,.14);
+    }
+    .road {
+      position: absolute; inset: -20% 0 0 0; height: 130%;
+      display: flex;
+      transform: rotateX(50deg) scale(1.25);
+      transform-origin: 50% 100%;
+    }
+    .lane { position: relative; flex: 1; border-right: 1px solid rgba(138,106,154,.16); }
+    .lane:last-child { border-right: none; }
+    .orb { position: absolute; left: 50%; width: 24px; height: 24px; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+
+    .feedback {
+      position: absolute; top: 10px; left: 50%;
+      font-weight: 800; font-size: 17px; color: #8a6a9a;
+      opacity: 0; pointer-events: none;
+    }
+    .feedback.show { animation: floatUp .8s ease forwards; }
+    @keyframes floatUp {
+      0% { opacity: 0; transform: translate(-50%, 10px) scale(.8); }
+      25% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -24px) scale(1.05); }
+    }
+
+    .buttons { display: flex; gap: 14px; justify-content: center; }
+    .tap-btn {
+      position: relative; width: 58px; height: 58px; border-radius: 50%;
+      appearance: none; cursor: pointer; font: inherit; touch-action: manipulation;
+      border: 3px solid #d8c6ea;
+      background: radial-gradient(circle at 35% 30%, #fff 0%, #f3ecfa 75%);
+      color: #8a6a9a; font-weight: 700; font-size: 15px; text-transform: uppercase;
+      box-shadow: 0 3px 10px rgba(138,106,154,.22);
+      transition: box-shadow .15s ease, transform .1s ease;
+    }
+    .tap-btn.is-hit {
+      box-shadow: 0 0 0 6px rgba(201,179,230,.35), 0 0 28px 10px rgba(201,179,230,.55);
+      transform: scale(.94);
+    }
+    .sparkle { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #fff6d8; pointer-events: none; left: 50%; top: 50%; }
+
+    .btn {
+      appearance: none; border: none; cursor: pointer;
+      padding: 14px 28px; border-radius: 999px; font-weight: 700; font-size: 15px;
+      background: #c9b3e6; color: #3a2d4a;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-ghost {
+      background: transparent; color: #8a6a9a; border: 1px solid #c9b3d6;
+      text-decoration: none; display: inline-flex; align-items: center; padding: 14px 28px;
+      border-radius: 999px; font-weight: 700; font-size: 15px;
+    }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .progress { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #8a6a9a; }
+  </style>
+</head>
+<body>
+  <a class="exit-link" href="{{ url_for('game') }}">&larr; Back to games</a>
+  <button type="button" class="sound-toggle" id="soundBtn" aria-pressed="false">Sound Off</button>
+  <audio id="ambient" src="{{ url_for('static', filename='audio/meditate-music.mp3') }}" loop preload="none"></audio>
+
+  <main>
+    <section class="stage is-active" data-stage="setup">
+      <p class="eyebrow">Quick relief</p>
+      <h1>Keep the Light</h1>
+      <p class="lead">Four lights, low note to high. Keep them whenever you like — early, late, or not at all, every one is kept.</p>
+      <div class="key-legend" id="keyLegend" hidden></div>
+      <p class="rebind-hint" id="rebindHint" hidden>Tap a key above, then press the key you want to use.</p>
+      <p class="lead" id="touchHint" hidden>Tap each lane's dot as the light drifts down to it.</p>
+      <button type="button" class="btn" id="startBtn">Begin</button>
+    </section>
+
+    <section class="stage" data-stage="playing">
+      <p class="progress" id="progress">0 of 12 kept</p>
+      <div class="road-wrap">
+        <div class="road" id="road">
+          <div class="lane" data-lane="0"></div>
+          <div class="lane" data-lane="1"></div>
+          <div class="lane" data-lane="2"></div>
+          <div class="lane" data-lane="3"></div>
+        </div>
+        <div class="feedback" id="feedback">Kept!</div>
+      </div>
+      <div class="buttons" id="buttons">
+        <button type="button" class="tap-btn" data-lane="0" data-role="key">D</button>
+        <button type="button" class="tap-btn" data-lane="1" data-role="key">F</button>
+        <button type="button" class="tap-btn" data-lane="2" data-role="key">J</button>
+        <button type="button" class="tap-btn" data-lane="3" data-role="key">K</button>
+      </div>
+    </section>
+
+    <section class="stage" data-stage="done">
+      <h1>Kept the rhythm.</h1>
+      <p class="lead">However you played it, you kept every one. Come back whenever you want a slow minute.</p>
+      <div class="row">
+        <button type="button" class="btn" id="againBtn">Do it again</button>
+        <a class="btn-ghost" href="{{ url_for('game') }}">Back to games</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+  (function () {
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var isTouch = window.matchMedia('(pointer: coarse)').matches;
+
+    var ambient = document.getElementById('ambient');
+    var soundBtn = document.getElementById('soundBtn');
+    soundBtn.addEventListener('click', function () {
+      var on = ambient.paused;
+      if (on) { ambient.play().catch(function () {}); } else { ambient.pause(); }
+      soundBtn.setAttribute('aria-pressed', String(on));
+      soundBtn.textContent = on ? 'Sound On' : 'Sound Off';
+    });
+
+    var stages = Array.prototype.slice.call(document.querySelectorAll('.stage'));
+    function showStage(name) {
+      stages.forEach(function (el) { el.classList.toggle('is-active', el.dataset.stage === name); });
+    }
+
+    // ---------- adjustable key bindings ----------
+    var STORAGE_KEY = 'carry_keep_the_light_keys';
+    var DEFAULT_KEYS = ['d', 'f', 'j', 'k'];
+
+    function loadKeys() {
+      try {
+        var saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (Array.isArray(saved) && saved.length === 4) return saved;
+      } catch (e) {}
+      return DEFAULT_KEYS.slice();
+    }
+    function saveKeys(keys) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(keys)); } catch (e) {}
+    }
+    var laneKeys = loadKeys();
+
+    var keyLegend = document.getElementById('keyLegend');
+    var rebindHint = document.getElementById('rebindHint');
+    var touchHint = document.getElementById('touchHint');
+    var laneDotKeyEls = Array.prototype.map.call(
+      document.querySelectorAll('.tap-btn[data-role="key"]'), function (el) { return el; }
+    );
+
+    var listeningLane = null;
+    function renderLegend() {
+      keyLegend.innerHTML = '';
+      for (var i = 0; i < 4; i++) {
+        (function (i) {
+          var pill = document.createElement('button');
+          pill.type = 'button';
+          pill.className = 'key-pill';
+          pill.innerHTML = '<span class="cap">' + laneKeys[i] + '</span><span class="lbl">Lane ' + (i + 1) + '</span>';
+          pill.addEventListener('click', function () {
+            listeningLane = i;
+            rebindHint.hidden = false;
+            Array.prototype.forEach.call(keyLegend.children, function (c) { c.classList.remove('is-listening'); });
+            pill.classList.add('is-listening');
+          });
+          keyLegend.appendChild(pill);
+        })(i);
+      }
+      laneDotKeyEls.forEach(function (el, i) { el.textContent = laneKeys[i]; });
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (listeningLane === null) return;
+      var key = e.key.length === 1 ? e.key.toLowerCase() : '';
+      if (!key) return;
+      e.preventDefault();
+      if (laneKeys.indexOf(key) !== -1) return; // already bound to another lane
+      laneKeys[listeningLane] = key;
+      saveKeys(laneKeys);
+      listeningLane = null;
+      renderLegend();
+    });
+
+    renderLegend();
+    if (isTouch) {
+      touchHint.hidden = false;
+    } else {
+      keyLegend.hidden = false;
+    }
+
+    // ---------- game ----------
+    var LANE_NOTES = [523.25, 587.33, 659.25, 783.99]; // low -> high, left -> right
+    var LANE_COLORS = ['#8fc9ae', '#f5b8c4', '#c9b3e6', '#f5dd90'];
+    var LANE_PATTERN = [0, 1, 2, 3, 2, 1]; // a gentle, learnable up-down run, not random
+    var ORB_COUNT = 12;
+    var SPAWN_MS = 1500;
+    var TRAVEL_MS = 3600;
+
+    var laneEls = Array.prototype.slice.call(document.querySelectorAll('.lane'));
+    var tapBtns = Array.prototype.slice.call(document.querySelectorAll('.tap-btn'));
+    var laneQueues = [[], [], [], []];
+    var progress = document.getElementById('progress');
+    var feedback = document.getElementById('feedback');
+
+    var audioCtx = null;
+    function playChime(freq) {
+      try {
+        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        var t = audioCtx.currentTime;
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.exponentialRampToValueAtTime(0.16, t + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
+        osc.connect(gain).connect(audioCtx.destination);
+        osc.start(t);
+        osc.stop(t + 0.9);
+      } catch (e) {}
+    }
+
+    function sparkleBurst(container) {
+      if (reduceMotion) return;
+      for (var i = 0; i < 6; i++) {
+        (function (i) {
+          var angle = (Math.PI * 2 * i) / 6;
+          var dot = document.createElement('div');
+          dot.className = 'sparkle';
+          container.appendChild(dot);
+          var start = null;
+          function step(ts) {
+            if (!start) start = ts;
+            var p = Math.min((ts - start) / 450, 1);
+            var dx = Math.cos(angle) * 30 * p, dy = Math.sin(angle) * 30 * p;
+            dot.style.transform = 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px))';
+            dot.style.opacity = String(1 - p);
+            if (p < 1) requestAnimationFrame(step);
+            else dot.remove();
+          }
+          requestAnimationFrame(step);
+        })(i);
+      }
+    }
+
+    function flashButton(i) {
+      var btn = tapBtns[i];
+      btn.classList.add('is-hit');
+      sparkleBurst(btn);
+      setTimeout(function () { btn.classList.remove('is-hit'); }, 200);
+    }
+
+    function popFeedback() {
+      feedback.classList.remove('show');
+      void feedback.offsetWidth;
+      feedback.classList.add('show');
+    }
+
+    var kept = 0, spawned = 0, patternIndex = 0;
+    var spawnTimer = null;
+
+    function resolveFront(laneIndex) {
+      var queue = laneQueues[laneIndex];
+      var orb = queue.shift();
+      if (!orb || orb.dataset.resolved) return;
+      orb.dataset.resolved = '1';
+      flashButton(laneIndex);
+      popFeedback();
+      playChime(LANE_NOTES[laneIndex]);
+      orb.remove();
+      kept += 1;
+      progress.textContent = kept + ' of ' + ORB_COUNT + ' kept';
+      if (kept >= ORB_COUNT) {
+        clearInterval(spawnTimer);
+        setTimeout(function () { showStage('done'); }, 900);
+      }
+    }
+
+    tapBtns.forEach(function (btn, i) {
+      btn.addEventListener('click', function () { resolveFront(i); });
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (listeningLane !== null) return;
+      if (!document.querySelector('.stage[data-stage="playing"]').classList.contains('is-active')) return;
+      if (e.repeat) return;
+      var key = e.key.length === 1 ? e.key.toLowerCase() : '';
+      var laneIndex = laneKeys.indexOf(key);
+      if (laneIndex === -1) return;
+      resolveFront(laneIndex);
+    });
+
+    function spawnOrb() {
+      if (spawned >= ORB_COUNT) { clearInterval(spawnTimer); return; }
+      var laneIndex = LANE_PATTERN[patternIndex % LANE_PATTERN.length];
+      patternIndex += 1;
+      spawned += 1;
+
+      var laneEl = laneEls[laneIndex];
+      var laneHeight = laneEl.clientHeight;
+      var orb = document.createElement('div');
+      orb.className = 'orb';
+      orb.style.background = LANE_COLORS[laneIndex];
+      orb.style.top = '0px';
+      laneEl.appendChild(orb);
+      laneQueues[laneIndex].push(orb);
+
+      var start = null;
+      var endY = laneHeight - 40;
+      function step(ts) {
+        if (!orb.isConnected) return;
+        if (!start) start = ts;
+        var p = Math.min((ts - start) / TRAVEL_MS, 1);
+        orb.style.top = (endY * p) + 'px';
+        if (p < 1) requestAnimationFrame(step);
+        else resolveFront(laneIndex);
+      }
+      requestAnimationFrame(step);
+    }
+
+    function reset() {
+      kept = 0; spawned = 0; patternIndex = 0;
+      laneQueues = [[], [], [], []];
+      laneEls.forEach(function (el) {
+        Array.prototype.slice.call(el.querySelectorAll('.orb')).forEach(function (n) { n.remove(); });
+      });
+      tapBtns.forEach(function (el) {
+        Array.prototype.slice.call(el.querySelectorAll('.sparkle')).forEach(function (n) { n.remove(); });
+        el.classList.remove('is-hit');
+      });
+      progress.textContent = '0 of ' + ORB_COUNT + ' kept';
+      clearInterval(spawnTimer);
+      spawnOrb();
+      spawnTimer = setInterval(spawnOrb, SPAWN_MS);
+    }
+
+    document.getElementById('startBtn').addEventListener('click', function () {
+      reset();
+      showStage('playing');
+      ambient.play().then(function () {
+        soundBtn.setAttribute('aria-pressed', 'true');
+        soundBtn.textContent = 'Sound On';
+      }).catch(function () {});
+    });
+    document.getElementById('againBtn').addEventListener('click', function () {
+      reset();
+      showStage('playing');
+    });
+  })();
+  </script>
+</body>
+</html>

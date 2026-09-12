@@ -2288,6 +2288,19 @@ input[type="checkbox"] {
    icon, this card is meant to look like a place, not a feature. */
 .habit-card { gap: var(--s-4); }
 
+.game-scene {
+  width: 100%;
+  height: 96px;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.game-scene svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .habit-scene-wrap { position: relative; }
 
 .habit-scene {

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#f8f0fa">
+  <title>Grow Something — Carry</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+    }
+    body {
+      position: relative;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f8f0fa;
+      color: #4a3f52;
+    }
+
+    .exit-link {
+      position: fixed; top: 20px; left: 20px; z-index: 5;
+      color: #4a3f52; text-decoration: none; font-weight: 600; font-size: 14px;
+      background: rgba(255,255,255,.7); padding: 8px 16px; border-radius: 999px;
+      backdrop-filter: blur(6px);
+    }
+
+    main { position: relative; z-index: 2; width: min(90vw, 420px); padding: 24px; text-align: center; }
+    .stage { display: none; flex-direction: column; align-items: center; gap: 18px; }
+    .stage.is-active { display: flex; }
+
+    .eyebrow { letter-spacing: .08em; text-transform: uppercase; font-size: 12px; font-weight: 700; color: #8a6a9a; margin: 0; }
+    h1 { font-size: clamp(24px, 4vw, 32px); margin: 0; }
+    .lead { margin: 0; color: #6b5a75; font-size: 15px; line-height: 1.5; min-height: 1.4em; }
+
+    .scene-wrap { width: min(80vw, 300px); }
+    .scene-wrap svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+    .orb { cursor: pointer; transition: transform .15s ease; }
+    .orb:hover { transform: scale(1.08); }
+    .orb.spent { pointer-events: none; }
+
+    .leaf, .petal, #bud { opacity: 0; transform-origin: center; }
+    .leaf.shown, .petal.shown, #bud.shown { animation: pop .5s cubic-bezier(.22,.61,.36,1) forwards; }
+    @keyframes pop {
+      from { opacity: 0; transform: scale(.3); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .btn {
+      appearance: none; border: none; cursor: pointer;
+      padding: 14px 28px; border-radius: 999px; font-weight: 700; font-size: 15px;
+      background: #8fc9ae; color: #234032;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-ghost {
+      background: transparent; color: #8a6a9a; border: 1px solid #c9b3d6;
+      text-decoration: none; display: inline-flex; align-items: center; padding: 14px 28px;
+      border-radius: 999px; font-weight: 700; font-size: 15px;
+    }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .leaf.shown, .petal.shown, #bud.shown { animation: none; opacity: 1; transform: scale(1); }
+      .orb { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="exit-link" href="{{ url_for('game') }}">&larr; Back to games</a>
+
+  <main>
+    <section class="stage is-active" data-stage="setup">
+      <p class="eyebrow">Quick relief</p>
+      <h1>Grow Something</h1>
+      <p class="lead">One seed, a little water, a little light. It always blooms.</p>
+      <button type="button" class="btn" id="startBtn">Plant a seed</button>
+    </section>
+
+    <section class="stage" data-stage="growing">
+      <p class="lead" id="growHint">Tap the soil to plant a seed.</p>
+      <div class="scene-wrap">
+        <svg id="scene" viewBox="0 0 300 300">
+          <rect width="300" height="300" fill="#f6eef9" rx="18"/>
+          <circle cx="228" cy="58" r="24" fill="#f5dd90"/>
+
+          <ellipse cx="150" cy="268" rx="120" ry="18" fill="#e3c6b8"/>
+          <ellipse id="soilTarget" cx="150" cy="262" rx="120" ry="24" fill="transparent" style="cursor:pointer"/>
+
+          <line id="stem" x1="150" y1="262" x2="150" y2="262" stroke="#8fc9ae" stroke-width="6" stroke-linecap="round"/>
+          <circle id="seed" cx="150" cy="258" r="0" fill="#a8836b"/>
+
+          <g id="leaves"></g>
+          <circle id="bud" cx="150" cy="102" r="9" fill="#9ed1b8"/>
+          <g id="petals"></g>
+          <g id="orbs"></g>
+        </svg>
+      </div>
+    </section>
+
+    <section class="stage" data-stage="done">
+      <h1>Something bloomed.</h1>
+      <p class="lead">However small, it grew. Come back and plant another whenever you like.</p>
+      <div class="row">
+        <button type="button" class="btn" id="againBtn">Plant another</button>
+        <a class="btn-ghost" href="{{ url_for('game') }}">Back to games</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+  (function () {
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Single config for what's being grown this round. Adding a different
+    // grow-able thing later means adding another one of these, not touching
+    // the stage logic below.
+    var PLANT = {
+      orbCount: 5,
+      stemMaxRise: 160,
+      leafColor: '#8fc9ae',
+      petalColor: '#f5b8c4',
+      petalCenterColor: '#f5dd90',
+      petalCount: 6
+    };
+
+    var stages = Array.prototype.slice.call(document.querySelectorAll('.stage'));
+    function showStage(name) {
+      stages.forEach(function (el) { el.classList.toggle('is-active', el.dataset.stage === name); });
+    }
+
+    var svgNS = 'http://www.w3.org/2000/svg';
+    var hint = document.getElementById('growHint');
+    var soilTarget = document.getElementById('soilTarget');
+    var seed = document.getElementById('seed');
+    var stem = document.getElementById('stem');
+    var leavesG = document.getElementById('leaves');
+    var bud = document.getElementById('bud');
+    var petalsG = document.getElementById('petals');
+    var orbsG = document.getElementById('orbs');
+
+    var STEM_BASE_Y = 262;
+    var phase = 'seed';
+    var waterDone = 0, sunDone = 0;
+
+    function plantSeed() {
+      if (phase !== 'seed') return;
+      phase = 'water';
+      seed.setAttribute('r', 6);
+      soilTarget.style.cursor = 'default';
+      setTimeout(spawnWaterOrbs, 500);
+    }
+    soilTarget.addEventListener('click', plantSeed);
+
+    function makeOrb(x, y, fill) {
+      var el = document.createElementNS(svgNS, 'circle');
+      el.setAttribute('cx', x);
+      el.setAttribute('cy', y);
+      el.setAttribute('r', 11);
+      el.setAttribute('fill', fill);
+      el.classList.add('orb');
+      return el;
+    }
+
+    function spawnWaterOrbs() {
+      hint.textContent = 'Tap the raindrops.';
+      var xs = [55, 112, 150, 188, 245];
+      xs.forEach(function (x, i) {
+        var orb = makeOrb(x, 40, '#b8d4e8');
+        orbsG.appendChild(orb);
+        orb.addEventListener('click', function () { waterTap(orb); }, { once: true });
+      });
+    }
+
+    function waterTap(orb) {
+      orb.classList.add('spent');
+      orb.setAttribute('opacity', '0');
+      waterDone += 1;
+      var rise = (PLANT.stemMaxRise * waterDone) / PLANT.orbCount;
+      stem.setAttribute('y1', STEM_BASE_Y - rise);
+      seed.setAttribute('cy', STEM_BASE_Y - rise);
+      if (waterDone >= PLANT.orbCount) {
+        phase = 'sun';
+        setTimeout(spawnSunOrbs, 500);
+      }
+    }
+
+    function spawnSunOrbs() {
+      hint.textContent = 'Tap the sunlight.';
+      var pts = [[210, 30], [250, 55], [255, 95], [230, 20], [195, 60]];
+      pts.forEach(function (p) {
+        var orb = makeOrb(p[0], p[1], '#f5dd90');
+        orbsG.appendChild(orb);
+        orb.addEventListener('click', function () { sunTap(orb); }, { once: true });
+      });
+    }
+
+    var leafSlots = [
+      { y: 0.30, side: -1 }, { y: 0.48, side: 1 },
+      { y: 0.64, side: -1 }, { y: 0.80, side: 1 },
+      { y: 0.94, side: -1 }
+    ];
+
+    function sunTap(orb) {
+      orb.classList.add('spent');
+      orb.setAttribute('opacity', '0');
+      var slot = leafSlots[sunDone];
+      sunDone += 1;
+      var topY = STEM_BASE_Y - PLANT.stemMaxRise;
+      var ly = STEM_BASE_Y - (STEM_BASE_Y - topY) * slot.y;
+      var lx = 150 + slot.side * 24;
+      var leaf = document.createElementNS(svgNS, 'ellipse');
+      leaf.setAttribute('cx', lx);
+      leaf.setAttribute('cy', ly);
+      leaf.setAttribute('rx', 16);
+      leaf.setAttribute('ry', 9);
+      leaf.setAttribute('fill', PLANT.leafColor);
+      leaf.setAttribute('transform', 'rotate(' + (slot.side * 35) + ' ' + lx + ' ' + ly + ')');
+      leaf.classList.add('leaf');
+      leavesG.appendChild(leaf);
+      requestAnimationFrame(function () { leaf.classList.add('shown'); });
+
+      if (sunDone >= PLANT.orbCount) {
+        setTimeout(bloom, 600);
+      }
+    }
+
+    function bloom() {
+      hint.textContent = '';
+      bud.classList.add('shown');
+      var cx = 150, cy = STEM_BASE_Y - PLANT.stemMaxRise;
+      setTimeout(function () {
+        for (var i = 0; i < PLANT.petalCount; i++) {
+          (function (i) {
+            var angle = (360 / PLANT.petalCount) * i;
+            var petal = document.createElementNS(svgNS, 'ellipse');
+            petal.setAttribute('cx', cx);
+            petal.setAttribute('cy', cy - 16);
+            petal.setAttribute('rx', 9);
+            petal.setAttribute('ry', 16);
+            petal.setAttribute('fill', PLANT.petalColor);
+            petal.setAttribute('transform', 'rotate(' + angle + ' ' + cx + ' ' + cy + ')');
+            petal.classList.add('petal');
+            petalsG.appendChild(petal);
+            setTimeout(function () { petal.classList.add('shown'); }, i * 90);
+          })(i);
+        }
+        var center = document.createElementNS(svgNS, 'circle');
+        center.setAttribute('cx', cx);
+        center.setAttribute('cy', cy);
+        center.setAttribute('r', 10);
+        center.setAttribute('fill', PLANT.petalCenterColor);
+        center.classList.add('petal');
+        petalsG.appendChild(center);
+        setTimeout(function () { center.classList.add('shown'); }, PLANT.petalCount * 90);
+      }, 150);
+
+      setTimeout(function () { showStage('done'); }, 2200);
+    }
+
+    function reset() {
+      phase = 'seed'; waterDone = 0; sunDone = 0;
+      seed.setAttribute('r', 0);
+      seed.setAttribute('cy', STEM_BASE_Y - 4);
+      stem.setAttribute('y1', STEM_BASE_Y);
+      leavesG.innerHTML = '';
+      petalsG.innerHTML = '';
+      orbsG.innerHTML = '';
+      bud.classList.remove('shown');
+      soilTarget.style.cursor = 'pointer';
+      hint.textContent = 'Tap the soil to plant a seed.';
+    }
+
+    document.getElementById('startBtn').addEventListener('click', function () {
+      reset();
+      showStage('growing');
+    });
+    document.getElementById('againBtn').addEventListener('click', function () {
+      reset();
+      showStage('growing');
+    });
+  })();
+  </script>
+</body>
+</html>

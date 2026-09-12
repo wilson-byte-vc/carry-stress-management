@@ -6,16 +6,16 @@
 
 :root{
   /* temperature-driven tokens — JS lerps these across the session */
-  --ground:      #0B0B0D;
-  --ground-2:    #131316;
-  --chalk:       #E8E6E1;
-  --steel:       #7A7E86;
-  --hairline:    #23242A;
+  --ground:      #282029;
+  --ground-2:    #342A36;
+  --chalk:       #EEE6E8;
+  --steel:       #968892;
+  --hairline:    #3C303C;
 
   /* fixed */
-  --signal:      #FF3B14;
-  --ember:       #FFB03A;
-  --sage:        #3E6B5C;
+  --signal:      #E2707D;
+  --ember:       #F0B979;
+  --sage:        #7FA994;
 
   --display: "Big Shoulders Display", "Big Shoulders", "Oswald", "Arial Narrow", sans-serif;
   --mono: "IBM Plex Mono", "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
@@ -71,7 +71,7 @@ body{
   position: fixed; inset: 0;
   pointer-events: none;
   z-index: 0;
-  background: radial-gradient(70% 60% at 50% 55%, rgba(255,59,20,var(--heat,0)) 0%, transparent 70%);
+  background: radial-gradient(70% 60% at 50% 55%, rgba(226,112,125,var(--heat,0)) 0%, transparent 70%);
   transition: background .18s linear;
 }
 
@@ -275,7 +275,7 @@ body{
   z-index: -1;
 }
 .control:hover::before, .control:focus-visible::before{ transform: scaleY(1); }
-.control:hover, .control:focus-visible{ color: #0B0B0D; border-color: var(--signal); }
+.control:hover, .control:focus-visible{ color: var(--ground); border-color: var(--signal); }
 .control:focus-visible{ outline: none; box-shadow: 0 0 0 3px rgba(255,59,20,.28); }
 .control:active{ transform: translateY(1px); }
 .control.ghost{ border-color: var(--hairline); color: var(--steel); font-size: 12px; padding: 10px 20px 8px; }
@@ -304,7 +304,7 @@ body{
   caret-color: var(--signal);
   transition: border-color .3s var(--ease);
 }
-#grievance::placeholder{ color: #5A5D66; }
+#grievance::placeholder{ color: #7A6B78; }
 #grievance:focus{ outline: none; border-bottom-color: var(--signal); }
 
 .chips{ display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; }
@@ -405,8 +405,8 @@ body{
   display: grid;
   place-items: center;
   padding: 6px;
-  background: linear-gradient(158deg, #1C1D22 0%, #101116 100%);
-  border: 1px solid #2A2B31;
+  background: linear-gradient(158deg, #362C39 0%, #241C27 100%);
+  border: 1px solid #4A3F4D;
   color: var(--chalk);
   font-family: var(--display);
   font-weight: 800;

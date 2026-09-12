@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#a9754a">
+  <title>Target Range — Carry</title>
+  <style>
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+    }
+    body {
+      position: relative;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f4ece0;
+      color: #4a3826;
+    }
+
+    .exit-link {
+      position: fixed; top: 20px; left: 20px; z-index: 5;
+      color: #4a3826; text-decoration: none; font-weight: 600; font-size: 14px;
+      background: rgba(255,255,255,.75); padding: 8px 16px; border-radius: 999px;
+      backdrop-filter: blur(6px);
+    }
+
+    main { position: relative; z-index: 2; width: min(92vw, 460px); padding: 24px; text-align: center; }
+    .stage { display: none; flex-direction: column; align-items: center; gap: 18px; }
+    .stage.is-active { display: flex; }
+
+    .eyebrow { letter-spacing: .08em; text-transform: uppercase; font-size: 12px; font-weight: 700; color: #8a6a45; margin: 0; }
+    h1 { font-size: clamp(24px, 4vw, 32px); margin: 0; }
+    .lead { margin: 0; color: #6b5940; font-size: 15px; line-height: 1.5; min-height: 1.4em; }
+    .progress { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #8a6a45; }
+
+    .range-wrap {
+      position: relative;
+      width: min(84vw, 340px); height: min(56vh, 380px);
+      border-radius: 20px; overflow: hidden;
+      cursor: crosshair; touch-action: manipulation;
+      background:
+        repeating-linear-gradient(180deg, transparent 0 6px, rgba(0,0,0,.06) 6px 7px),
+        repeating-linear-gradient(180deg, #b3814f 0 34px, #a3733f 34px 36px);
+      box-shadow: inset 0 0 34px rgba(58, 36, 12, .35);
+    }
+    .fruit { position: absolute; width: 44px; height: 44px; pointer-events: none; }
+    .fruit svg { display: block; width: 100%; height: 100%; overflow: visible; }
+    .cannon {
+      position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 10px solid transparent; border-right: 10px solid transparent;
+      border-bottom: 16px solid #4a3826; opacity: .55;
+      pointer-events: none;
+    }
+    .shot {
+      position: absolute; width: 4px; background: #fff8ea; border-radius: 2px;
+      transform-origin: bottom center; pointer-events: none; opacity: .85;
+    }
+    .drop { position: absolute; width: 7px; height: 7px; border-radius: 50%; pointer-events: none; }
+
+    .btn {
+      appearance: none; border: none; cursor: pointer;
+      padding: 14px 28px; border-radius: 999px; font-weight: 700; font-size: 15px;
+      background: #d98a3f; color: #3a2510;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-ghost {
+      background: transparent; color: #8a6a45; border: 1px solid #c9a06a;
+      text-decoration: none; display: inline-flex; align-items: center; padding: 14px 28px;
+      border-radius: 999px; font-weight: 700; font-size: 15px;
+    }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  </style>
+</head>
+<body>
+  <a class="exit-link" href="{{ url_for('game') }}">&larr; Back to games</a>
+
+  <main>
+    <section class="stage is-active" data-stage="setup">
+      <p class="eyebrow">Quick relief</p>
+      <h1>Target Range</h1>
+      <p class="lead">Fruit arcs up from the block. Aim and shoot — whatever you don't catch just falls, no harm done.</p>
+      <button type="button" class="btn" id="startBtn">Begin</button>
+    </section>
+
+    <section class="stage" data-stage="playing">
+      <p class="progress" id="progress">0 of 15 thrown</p>
+      <div class="range-wrap" id="range">
+        <div class="cannon"></div>
+      </div>
+    </section>
+
+    <section class="stage" data-stage="done">
+      <h1>Range clear.</h1>
+      <p class="lead">However that felt, it's done. Come back whenever you want to aim at something.</p>
+      <div class="row">
+        <button type="button" class="btn" id="againBtn">Run it again</button>
+        <a class="btn-ghost" href="{{ url_for('game') }}">Back to games</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+  (function () {
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var stages = Array.prototype.slice.call(document.querySelectorAll('.stage'));
+    function showStage(name) {
+      stages.forEach(function (el) { el.classList.toggle('is-active', el.dataset.stage === name); });
+    }
+
+    var FRUITS = [
+      { splat: '#f0678a', svg: '<svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#6fb84f"/><path d="M22 4 Q28 22 22 40" stroke="#3f8a2f" stroke-width="3" fill="none"/><path d="M22 4 Q16 22 22 40" stroke="#3f8a2f" stroke-width="3" fill="none"/><circle cx="22" cy="22" r="6" fill="#f0678a"/></svg>' },
+      { splat: '#f5a742', svg: '<svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#f5a742"/><circle cx="22" cy="9" r="3" fill="#6fae4c"/></svg>' },
+      { splat: '#e0524f', svg: '<svg viewBox="0 0 44 44"><circle cx="22" cy="24" r="18" fill="#e0524f"/><rect x="20" y="3" width="4" height="10" rx="2" fill="#6a4a30"/><ellipse cx="27" cy="7" rx="6" ry="3" fill="#6fb84f" transform="rotate(20 27 7)"/></svg>' },
+      { splat: '#8e6bbf', svg: '<svg viewBox="0 0 44 44"><circle cx="16" cy="16" r="8" fill="#8e6bbf"/><circle cx="28" cy="16" r="8" fill="#8e6bbf"/><circle cx="22" cy="26" r="8" fill="#8e6bbf"/><circle cx="14" cy="28" r="7" fill="#8e6bbf"/><circle cx="30" cy="28" r="7" fill="#8e6bbf"/></svg>' }
+    ];
+
+    var GRAVITY = 1100;
+    var FRUIT_COUNT = 15;
+    var SPAWN_MS = 1100;
+
+    var rangeEl = document.getElementById('range');
+    var progress = document.getElementById('progress');
+    var fruits = [];
+    var thrown = 0;
+    var spawnTimer = null;
+    var lastTs = null;
+    var rafId = null;
+    var ended = false;
+
+    var audioCtx = null;
+    function playPop() {
+      try {
+        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        var t = audioCtx.currentTime;
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(420 + Math.random() * 120, t);
+        osc.frequency.exponentialRampToValueAtTime(120, t + 0.14);
+        gain.gain.setValueAtTime(0.001, t);
+        gain.gain.exponentialRampToValueAtTime(0.22, t + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+        osc.connect(gain).connect(audioCtx.destination);
+        osc.start(t);
+        osc.stop(t + 0.18);
+      } catch (e) {}
+    }
+
+    function positionFruit(f) {
+      f.el.style.left = (f.x - 22) + 'px';
+      f.el.style.top = (f.y - 22) + 'px';
+    }
+
+    function spawnFruit() {
+      if (thrown >= FRUIT_COUNT) { clearInterval(spawnTimer); return; }
+      thrown += 1;
+      progress.textContent = thrown + ' of ' + FRUIT_COUNT + ' thrown';
+
+      var w = rangeEl.clientWidth, h = rangeEl.clientHeight;
+      var type = FRUITS[Math.floor(Math.random() * FRUITS.length)];
+      var el = document.createElement('div');
+      el.className = 'fruit';
+      el.innerHTML = type.svg;
+      rangeEl.appendChild(el);
+
+      var f = {
+        x: w * 0.28 + Math.random() * w * 0.44,
+        y: h - 10,
+        vx: (Math.random() * 2 - 1) * 65,
+        vy: -(650 + Math.random() * 190),
+        el: el, type: type, resolved: false, h: h
+      };
+      fruits.push(f);
+      positionFruit(f);
+    }
+
+    function splatAt(x, y, color) {
+      if (reduceMotion) return;
+      for (var i = 0; i < 8; i++) {
+        (function (i) {
+          var angle = Math.random() * Math.PI * 2;
+          var speed = 60 + Math.random() * 90;
+          var drop = document.createElement('div');
+          drop.className = 'drop';
+          drop.style.background = color;
+          rangeEl.appendChild(drop);
+          var start = null;
+          function step(ts) {
+            if (!start) start = ts;
+            var dt = (ts - start) / 1000;
+            var dx = Math.cos(angle) * speed * dt;
+            var dy = Math.sin(angle) * speed * dt + 400 * dt * dt;
+            drop.style.left = (x - 3.5 + dx) + 'px';
+            drop.style.top = (y - 3.5 + dy) + 'px';
+            drop.style.opacity = String(Math.max(0, 1 - dt * 1.4));
+            if (dt < 0.7) requestAnimationFrame(step);
+            else drop.remove();
+          }
+          requestAnimationFrame(step);
+        })(i);
+      }
+    }
+
+    function shotLine(cx, cy) {
+      if (reduceMotion) return;
+      var ox = rangeEl.clientWidth / 2, oy = rangeEl.clientHeight - 6;
+      var dx = cx - ox, dy = cy - oy;
+      var len = Math.hypot(dx, dy);
+      var angle = Math.atan2(dx, -dy) * (180 / Math.PI);
+      var line = document.createElement('div');
+      line.className = 'shot';
+      line.style.height = len + 'px';
+      line.style.left = (ox - 2) + 'px';
+      line.style.top = (oy - len) + 'px';
+      line.style.transform = 'rotate(' + angle + 'deg)';
+      rangeEl.appendChild(line);
+      var start = null;
+      function step(ts) {
+        if (!start) start = ts;
+        var p = (ts - start) / 160;
+        line.style.opacity = String(Math.max(0, 0.85 - p));
+        if (p < 1) requestAnimationFrame(step);
+        else line.remove();
+      }
+      requestAnimationFrame(step);
+    }
+
+    function checkDone() {
+      if (ended) return;
+      if (thrown >= FRUIT_COUNT && fruits.length === 0) {
+        ended = true;
+        cancelAnimationFrame(rafId);
+        setTimeout(function () { showStage('done'); }, 500);
+      }
+    }
+
+    function tick(ts) {
+      if (!lastTs) lastTs = ts;
+      var dt = Math.min((ts - lastTs) / 1000, 0.05);
+      lastTs = ts;
+      for (var i = fruits.length - 1; i >= 0; i--) {
+        var f = fruits[i];
+        f.vy += GRAVITY * dt;
+        f.x += f.vx * dt;
+        f.y += f.vy * dt;
+        positionFruit(f);
+        if (f.y - 22 > f.h) {
+          f.el.remove();
+          fruits.splice(i, 1);
+          checkDone();
+        }
+      }
+      rafId = requestAnimationFrame(tick);
+    }
+
+    rangeEl.addEventListener('click', function (e) {
+      var rect = rangeEl.getBoundingClientRect();
+      var cx = e.clientX - rect.left, cy = e.clientY - rect.top;
+      shotLine(cx, cy);
+      var hitIndex = -1, hitDist = 9999;
+      for (var i = 0; i < fruits.length; i++) {
+        var f = fruits[i];
+        var d = Math.hypot(f.x - cx, f.y - cy);
+        if (d < 32 && d < hitDist) { hitDist = d; hitIndex = i; }
+      }
+      if (hitIndex !== -1) {
+        var f = fruits[hitIndex];
+        splatAt(f.x, f.y, f.type.splat);
+        playPop();
+        f.el.remove();
+        fruits.splice(hitIndex, 1);
+        checkDone();
+      }
+    });
+
+    function reset() {
+      fruits.forEach(function (f) { f.el.remove(); });
+      fruits = [];
+      thrown = 0;
+      ended = false;
+      lastTs = null;
+      progress.textContent = '0 of ' + FRUIT_COUNT + ' thrown';
+      clearInterval(spawnTimer);
+      cancelAnimationFrame(rafId);
+      spawnFruit();
+      spawnTimer = setInterval(spawnFruit, SPAWN_MS);
+      rafId = requestAnimationFrame(tick);
+    }
+
+    document.getElementById('startBtn').addEventListener('click', function () {
+      reset();
+      showStage('playing');
+    });
+    document.getElementById('againBtn').addEventListener('click', function () {
+      reset();
+      showStage('playing');
+    });
+  })();
+  </script>
+</body>
+</html>
