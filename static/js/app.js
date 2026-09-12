@@ -206,15 +206,6 @@
     }
   }
 
-  // ---------- Effort slider readout (add-commitment form) ----------
-  const effortInput = document.querySelector("[data-effort-input]");
-  const effortOut = document.querySelector("[data-effort-out]");
-  if (effortInput && effortOut) {
-    effortInput.addEventListener("input", () => {
-      effortOut.textContent = effortInput.value;
-    });
-  }
-
   // ---------- Live slider labels (check-in page) ----------
   document.querySelectorAll(".checkin-slider").forEach((slider) => {
     let labels;
@@ -236,6 +227,14 @@
     });
   });
 
+  // ---------- Effort slider readout (add-commitment form) ----------
+  const effortInput = document.querySelector("[data-effort-input]");
+  const effortOut = document.querySelector("[data-effort-out]");
+  if (effortInput && effortOut) {
+    effortInput.addEventListener("input", () => {
+      effortOut.textContent = effortInput.value;
+    });
+  }
 
   // ---------- Toast after a check-in is saved (home page) ----------
   const main = document.querySelector("main[data-just-saved]");

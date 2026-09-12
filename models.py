@@ -153,7 +153,7 @@ class Commitment(db.Model):
 class Insight(db.Model):
     """A generated observation about the user's patterns.
 
-    Written server-side (from check-in history, or by the assistant) -- users
+    Written server-side from check-in history -- users
     read and dismiss them but never author them, which the RLS policies
     enforce.
     """

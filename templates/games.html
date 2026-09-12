@@ -31,6 +31,28 @@
       </div>
     </article>
 
+    {% for slug, tag, title, description in [
+      ('crush', '~30 seconds', 'Crush a Word', 'Type it. Break it. Take a breath.'),
+      ('break', '~30 seconds', 'Break the Pile', 'Thirty seconds of falling responsibilities.'),
+      ('targets', '~1 minute', 'Target Range', 'A fixed view. Aim at what’s on your mind.')
+    ] %}
+      <article class="insight-card motion-reveal">
+        <div>
+          <div class="insight-tag-row">
+            <span class="material-symbols-outlined" aria-hidden="true">bolt</span>
+            <span class="text-label-sm">{{ tag }}</span>
+          </div>
+          <h3 class="text-title">{{ title }}</h3>
+          <p class="text-body">{{ description }}</p>
+        </div>
+        <div class="insight-actions">
+          <a class="btn btn-primary" href="{{ url_for('play_game', slug=slug) }}">
+            <span class="material-symbols-outlined" aria-hidden="true">play_arrow</span> Play
+          </a>
+        </div>
+      </article>
+    {% endfor %}
+
   </div>
 
 </main>

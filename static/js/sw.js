@@ -11,7 +11,7 @@
  */
 
 // Bump this to retire every previously cached asset in one go.
-const CACHE = "carry-v2";
+const CACHE = "carry-v3";
 
 const OFFLINE_URL = "/offline";
 

@@ -17,3 +17,6 @@ migrations/versions/__pycache__/
 
 # Generated locally, ties existing push subscriptions to this specific keypair
 vapid_private_key.pem
+
+# Throwaway output from local preview/render scripts, not real app content
+static/_preview_home.html

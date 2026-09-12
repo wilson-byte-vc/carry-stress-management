@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0c0b09">
+  <title>{{ title }} — Carry</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='games/games.css') }}">
+</head>
+<body>
+  <div id="game-root" data-game="{{ slug }}"></div>
+  <noscript>Enable JavaScript to play this game. <a href="{{ url_for('game') }}">Back to games</a></noscript>
+  <script defer src="{{ url_for('static', filename='games/games.js') }}"></script>
+</body>
+</html>

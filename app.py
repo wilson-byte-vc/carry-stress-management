@@ -1105,6 +1105,16 @@ def game():
 def play_pressure_valve():
     return render_template("pressure_valve.html")
 
+
+@app.route("/games/<slug>")
+@login_required
+def play_game(slug):
+    titles = {"crush": "Crush a Word", "break": "Break the Pile", "targets": "Target Range"}
+    if slug not in titles:
+        abort(404)
+    return render_template("play_game.html", slug=slug, title=titles[slug])
+
+
 @app.route("/landingyuji")
 def landingyuji():
     return render_template("landingyuji.html")
