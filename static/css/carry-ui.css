@@ -2282,6 +2282,55 @@ input[type="checkbox"] {
 
 .commitments { margin-bottom: var(--s-8); }
 
+.games-group { margin-bottom: var(--s-8); }
+
+/* Small preview of meditate.html's real scenery photo -- deliberately not an
+   icon, this card is meant to look like a place, not a feature. */
+.habit-card { gap: var(--s-4); }
+
+.habit-scene-wrap { position: relative; }
+
+.habit-scene {
+  display: block;
+  width: 100%;
+  height: 96px;
+  border-radius: var(--radius-card);
+  object-fit: cover;
+}
+
+.habit-progress {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, .85);
+  backdrop-filter: blur(4px);
+  padding: 4px 10px 4px 4px;
+  border-radius: 999px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .15);
+}
+
+.habit-progress-icon {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+
+.habit-progress-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.habit-progress-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #234126;
+  white-space: nowrap;
+}
+
 .commitment-list {
   display: flex;
   flex-direction: column;

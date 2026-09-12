@@ -328,9 +328,47 @@
   .why blockquote { font-weight: 800; font-size: clamp(26px, 3.8vw, 38px); line-height: 1.28; margin: 0; text-wrap: balance; }
   .why p.after { margin-top: 26px; color: var(--ink-lo); font-size: 16.5px; max-width: 58ch; }
 
-  /* ---------- final ---------- */
-  .final-grid { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; flex-wrap: wrap; margin-top: 30px; }
-  .final h2 { font-size: clamp(28px, 3.8vw, 40px); font-weight: 800; max-width: 18ch; }
+  /* ---------- closing CTA ---------- */
+  .cta-final .wrap { display: flex; flex-direction: column; align-items: flex-start; gap: 22px; }
+  .cta-heading { font-size: clamp(28px, 3.8vw, 40px); font-weight: 800; max-width: 20ch; margin: 0; }
+  .cta-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+
+  /* ---------- reviews (pinned horizontal scroll) ---------- */
+  /* Shorter than the shared 200vh .pin-wrap -- a straight slide of 6 cards
+     needs far less scroll distance than the word-reveal section does, so
+     this settles and hands off to the footer sooner instead of leaving a
+     long stretch of nothing happening. */
+  #reviewsPinWrap { height: 190vh; }
+  @media (max-width: 780px) { #reviewsPinWrap { height: 160vh; } }
+  .reviews-track { display: flex; gap: 28px; padding: 0 4px; will-change: transform; }
+  .review-card {
+    flex: 0 0 auto;
+    width: min(300px, 76vw);
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: var(--panel);
+    border: 1px solid var(--hair-navy);
+    border-radius: 18px;
+    padding: 26px;
+    box-shadow: 0 24px 44px -30px rgba(0,0,0,0.55);
+    will-change: transform, opacity;
+  }
+  .review-person { display: flex; align-items: center; gap: 12px; }
+  .review-avatar {
+    flex: 0 0 auto;
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 15px; color: #fff;
+  }
+  .review-quote { font-size: 15.5px; line-height: 1.5; color: var(--ink-hi); margin: 0; }
+  .review-attr { margin: 0; font-size: 12.5px; color: var(--ink-faint); font-weight: 600; }
+  @media (prefers-reduced-motion: reduce) {
+    .reviews-track { flex-wrap: wrap; transform: none !important; }
+    .review-card { transform: none !important; opacity: 1 !important; }
+  }
 
   footer { padding: 40px 0 60px; font-size: 12.5px; color: var(--ink-faint); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
 
@@ -538,6 +576,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+
+<link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+<meta name="theme-color" content="#0c111d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Carry">
+<link rel="apple-touch-icon" href="{{ url_for('static', filename='image/apple-touch-icon.png') }}">
 
 <nav class="topnav">
   <div class="topnav-inner">
@@ -759,12 +804,64 @@
   </div>
 </section>
 
-<section class="zone-dark final" id="try-again">
+<section class="zone-dark reviews" id="reviews">
+  <div class="pin-wrap" id="reviewsPinWrap">
+    <div class="pin-inner">
+      <div class="reviews-track" id="reviewsTrack">
+        <article class="review-card">
+          <div class="review-person">
+            <span class="review-avatar" style="background:var(--band-room)">A</span>
+            <p class="review-attr">Aisyah — 2nd-year, Computer Science</p>
+          </div>
+          <p class="review-quote">"I finally stopped pretending I had unlimited hours."</p>
+        </article>
+        <article class="review-card">
+          <div class="review-person">
+            <span class="review-avatar" style="background:var(--band-tight)">M</span>
+            <p class="review-attr">Marcus — Final-year, Business</p>
+          </div>
+          <p class="review-quote">"The ring told me what my calendar wouldn't admit."</p>
+        </article>
+        <article class="review-card">
+          <div class="review-person">
+            <span class="review-avatar" style="background:var(--band-line)">P</span>
+            <p class="review-attr">Priya — 3rd-year, Psychology</p>
+          </div>
+          <p class="review-quote">"Turns out 'just one more thing' was costing me sleep for a week straight."</p>
+        </article>
+        <article class="review-card">
+          <div class="review-person">
+            <span class="review-avatar" style="background:var(--band-room)">F</span>
+            <p class="review-attr">Farid — 1st-year, Engineering</p>
+          </div>
+          <p class="review-quote">"Cheaper than a burnout, and it actually fits in a minute."</p>
+        </article>
+        <article class="review-card">
+          <div class="review-person">
+            <span class="review-avatar" style="background:var(--band-tight)">W</span>
+            <p class="review-attr">Wei Ling — 2nd-year, Design</p>
+          </div>
+          <p class="review-quote">"My roommate thinks I got calmer. I just stopped saying yes to everything."</p>
+        </article>
+        <article class="review-card">
+          <div class="review-person">
+            <span class="review-avatar" style="background:var(--band-line)">D</span>
+            <p class="review-attr">Daniel — 3rd-year, Law</p>
+          </div>
+          <p class="review-quote">"It's the only app that asks how I'm doing before it asks what I'm doing."</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="zone-dark cta-final" id="get-started">
   <div class="wrap">
-    <p class="eyebrow">One number, kept open</p>
-    <div class="final-grid">
-      <h2>See it coming, then bleed it off.</h2>
-      <a class="pill-btn big" href="#decision">Try the decision again ↑</a>
+    <p class="eyebrow">Ready when you are</p>
+    <h2 class="cta-heading">See your number before the week does.</h2>
+    <div class="cta-row">
+      <a class="pill-btn big" href="{{ url_for('home') }}">Open Carry</a>
+      <button type="button" class="pill-btn big ghost" id="installBtn" hidden>Install app</button>
     </div>
   </div>
 </section>
@@ -1091,6 +1188,36 @@
     // Color carries the scroll progression; fixed metrics keep line breaks stable.
   }
 
+  // ---- Reviews: pinned horizontal scroll, cards riding a shallow arc ----
+  var reviewsPinWrap = document.getElementById('reviewsPinWrap');
+  var reviewsTrack = document.getElementById('reviewsTrack');
+  var reviewCards = reviewsTrack ? Array.from(reviewsTrack.querySelectorAll('.review-card')) : [];
+
+  function updateReviewsArc() {
+    if (!reviewsPinWrap || !reviewsTrack || reduceMotion) return;
+    var rect = reviewsPinWrap.getBoundingClientRect();
+    var vh = window.innerHeight;
+    var vw = window.innerWidth;
+    var total = rect.height - vh;
+    var progress = total > 0 ? (-rect.top) / total : 0;
+    progress = Math.max(0, Math.min(1, progress));
+
+    // The strip starts already filling the frame (first cards visible the
+    // moment the section is reached, nothing to wait for) and only travels
+    // as far as it needs to reveal the last card -- never further.
+    var startX = 0;
+    var endX = Math.min(0, vw - reviewsTrack.scrollWidth);
+    reviewsTrack.style.transform = 'translate3d(' + (startX + (endX - startX) * progress).toFixed(1) + 'px, 0, 0)';
+
+    // Straight line -- only a fade right at the screen edges, no arc.
+    reviewCards.forEach(function(card) {
+      var cardRect = card.getBoundingClientRect();
+      var norm = Math.max(0, Math.min(1, (cardRect.left + cardRect.width / 2) / vw));
+      var edgeFade = norm < 0.08 ? norm / 0.08 : (norm > 0.92 ? (1 - norm) / 0.08 : 1);
+      card.style.opacity = edgeFade.toFixed(2);
+    });
+  }
+
   // Replay existing cards and charts on each visit; reset only once offscreen.
   var entranceObserver = new IntersectionObserver(function(entries) {
     entries.forEach(function(entry) {
@@ -1101,9 +1228,14 @@
       }
     });
   }, { threshold: 0 });
-  document.querySelectorAll('.tri-card, .step, .quote-block-l, .ledger-legend, .ledger-caption, #cost h2, .final-grid').forEach(function(el, index) {
+  document.querySelectorAll('.tri-card, .step, .quote-block-l, .ledger-legend, .ledger-caption, #cost h2').forEach(function(el, index) {
     el.classList.add('motion-reveal');
     el.style.setProperty('--reveal-delay', (index % 3) * 65 + 'ms');
+    entranceObserver.observe(el);
+  });
+  document.querySelectorAll('#why .eyebrow, #why blockquote, #why .after, #get-started .eyebrow, #get-started .cta-heading, #get-started .pill-btn').forEach(function(el, index) {
+    el.classList.add('motion-reveal');
+    el.style.setProperty('--reveal-delay', (index % 3) * 90 + 'ms');
     entranceObserver.observe(el);
   });
   document.querySelectorAll('.cat-row, .ledger-bar').forEach(function(el) {
@@ -1127,6 +1259,7 @@
   function updateScroll() {
     ticking = false;
     updatePinReveal();
+    updateReviewsArc();
     var vh = window.innerHeight;
     var geometry = sections.map(function(section) { return section.getBoundingClientRect(); });
     var active = sections[0].id;
@@ -1203,5 +1336,44 @@
     }, { threshold: 0.2 });
     heroMediaObserver.observe(heroSection);
   }
+})();
+</script>
+
+<script>
+(function () {
+  // Registering here (not just on the app pages) is what makes this page
+  // itself installable -- beforeinstallprompt never fires without an active
+  // service worker plus the manifest link added to <head> above.
+  if ('serviceWorker' in navigator) {
+    addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js').catch(function () {
+        /* file://, unsupported browser, or non-localhost http -- page still works, just not installable */
+      });
+    });
+  }
+
+  var installPrompt = null;
+  var installBtn = document.getElementById('installBtn');
+  if (!installBtn) return;
+
+  addEventListener('beforeinstallprompt', function (event) {
+    event.preventDefault();
+    installPrompt = event;
+    installBtn.hidden = false;
+  });
+
+  installBtn.addEventListener('click', function () {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    installPrompt.userChoice.then(function () {
+      installPrompt = null;
+      installBtn.hidden = true;
+    });
+  });
+
+  addEventListener('appinstalled', function () {
+    installPrompt = null;
+    installBtn.hidden = true;
+  });
 })();
 </script>

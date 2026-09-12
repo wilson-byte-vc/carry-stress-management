@@ -1094,16 +1094,55 @@ Note: {checkin_data.get('note', '')}
     )
 
 
+# Cumulative-session thresholds for the Sunlit Breathing growth badge. Never
+# regresses -- a missed day just means no new growth, not a wilted tree.
+MEDITATION_GROWTH_STAGES = [
+    (0, "seed", "Just a seed"),
+    (1, "sprout", "Sprout"),
+    (3, "sapling", "Sapling"),
+    (6, "young-tree", "Young tree"),
+    (11, "blossom", "Full bloom"),
+]
+
+
+def meditation_growth_stage(count):
+    key, label = MEDITATION_GROWTH_STAGES[0][1], MEDITATION_GROWTH_STAGES[0][2]
+    for threshold, stage_key, stage_label in MEDITATION_GROWTH_STAGES:
+        if count >= threshold:
+            key, label = stage_key, stage_label
+    return key, label
+
+
 @app.route("/game")
 @login_required
 def game():
-    return render_template("games.html")
+    stage_key, stage_label = meditation_growth_stage(current_user.meditation_sessions_completed)
+    return render_template(
+        "games.html",
+        meditation_stage=stage_key,
+        meditation_stage_label=stage_label,
+        meditation_count=current_user.meditation_sessions_completed,
+    )
 
 
 @app.route("/game/pressure-valve")
 @login_required
 def play_pressure_valve():
     return render_template("pressure_valve.html")
+
+
+@app.route("/meditate")
+@login_required
+def meditate():
+    return render_template("meditate.html")
+
+
+@app.route("/meditate/complete", methods=["POST"])
+@login_required
+def meditate_complete():
+    current_user.meditation_sessions_completed += 1
+    db.session.commit()
+    return jsonify({"ok": True, "count": current_user.meditation_sessions_completed})
 
 
 @app.route("/games/<slug>")

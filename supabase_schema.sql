@@ -79,6 +79,13 @@ alter table public.users
   add column if not exists bedtime_reminder_sent_date  date;
 
 -- ---------------------------------------------------------------------------
+-- 2c. Meditation habit-tracker counter. Server-incremented only (no grant to
+-- `authenticated` below) so it can't be inflated via a direct REST call.
+-- ---------------------------------------------------------------------------
+alter table public.users
+  add column if not exists meditation_sessions_completed integer not null default 0;
+
+-- ---------------------------------------------------------------------------
 -- 3. Admin check as SECURITY DEFINER
 --
 -- The admin role itself was removed from the app (no `is_admin` column left

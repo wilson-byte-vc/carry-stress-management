@@ -36,6 +36,7 @@ class User(UserMixin, db.Model):
     # against re-sending every minute the clock matches while it's on.
     bedtime_reminder = db.Column(db.String(5), nullable=True)
     bedtime_reminder_sent_date = db.Column(db.Date, nullable=True)
+    meditation_sessions_completed = db.Column(db.Integer, nullable=False, default=0)
 
     checkins = db.relationship(
         "CheckIn",

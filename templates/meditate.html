@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#eaf6ea">
+  <title>Sunlit Breathing — Carry</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+    }
+    body {
+      position: relative;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #eaf3e2; /* shows briefly before the scenery photo loads */
+      color: #234126;
+    }
+
+    /* ---------- scenery: a real illustrated background, not CSS shapes ---------- */
+    .scenery {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ---------- chrome ---------- */
+    .exit-link {
+      position: fixed; top: 20px; left: 20px; z-index: 5;
+      color: #234126; text-decoration: none; font-weight: 600; font-size: 14px;
+      background: rgba(255,255,255,.65); padding: 8px 16px; border-radius: 999px;
+      backdrop-filter: blur(6px);
+    }
+    .sound-toggle {
+      position: fixed; top: 20px; right: 20px; z-index: 5;
+      appearance: none; border: none; cursor: pointer;
+      color: #234126; font-weight: 600; font-size: 14px; font-family: inherit;
+      background: rgba(255,255,255,.65); padding: 8px 16px; border-radius: 999px;
+      backdrop-filter: blur(6px);
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+
+    /* ---------- session stages ---------- */
+    main { position: relative; z-index: 2; width: min(90vw, 420px); padding: 24px; }
+    .stage { display: none; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
+    .stage.is-active { display: flex; }
+
+    .eyebrow { letter-spacing: .08em; text-transform: uppercase; font-size: 12px; font-weight: 700; color: #3d5a3f; margin: 0; }
+    h1 { font-size: clamp(26px, 4vw, 34px); margin: 0; }
+    .stage p.lead { margin: 0; color: #3d5a3f; font-size: 15px; line-height: 1.5; }
+
+    .breath-ring {
+      width: 220px; height: 220px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(circle, rgba(255,255,255,.6), rgba(255,255,255,.18));
+      border: 2px solid rgba(255,255,255,.75);
+      transition: transform 1s ease-in-out;
+    }
+    .breath-ring .phase { font-size: 20px; font-weight: 700; }
+    .breath-ring .count { font-size: 14px; color: #3d5a3f; margin-top: 4px; }
+    @media (prefers-reduced-motion: reduce) {
+      .breath-ring { transition: none; }
+    }
+
+    .btn {
+      appearance: none; border: none; cursor: pointer;
+      padding: 14px 28px; border-radius: 999px; font-weight: 700; font-size: 15px;
+      background: #2f6b34; color: #f7fbee;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-ghost {
+      background: transparent; color: #2f6b34; border: 1px solid #2f6b34;
+      text-decoration: none; display: inline-flex; align-items: center; padding: 14px 28px;
+      border-radius: 999px; font-weight: 700; font-size: 15px;
+    }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
+    .duration-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+    .duration-pill {
+      appearance: none; cursor: pointer; font-family: inherit;
+      padding: 10px 20px; border-radius: 999px; font-weight: 700; font-size: 14px;
+      background: rgba(255,255,255,.55); color: #234126; border: 1px solid rgba(47,107,52,.35);
+    }
+    .duration-pill.is-selected { background: #2f6b34; color: #f7fbee; border-color: #2f6b34; }
+  </style>
+</head>
+<body>
+  <a class="exit-link" href="{{ url_for('game') }}">&larr; Back to games</a>
+  <button type="button" class="sound-toggle" id="soundBtn" aria-pressed="false">Sound Off</button>
+
+  <img class="scenery" src="{{ url_for('static', filename='image/meditate-scenery.jpg') }}" alt="" aria-hidden="true">
+  <audio id="ambient" src="{{ url_for('static', filename='audio/meditate-music.mp3') }}" loop preload="none"></audio>
+
+  <main>
+    <section class="stage is-active" data-stage="setup">
+      <p class="eyebrow">Build a habit</p>
+      <h1>Sunlit Breathing</h1>
+      <p class="lead">Paced rounds of breathe in, hold, breathe out — nothing to win, nowhere to rush.</p>
+      <div class="duration-row" id="durationRow">
+        <button type="button" class="duration-pill is-selected" data-minutes="5">5 min</button>
+        <button type="button" class="duration-pill" data-minutes="10">10 min</button>
+        <button type="button" class="duration-pill" data-minutes="15">15 min</button>
+      </div>
+      <button type="button" class="btn" id="startBtn">Begin</button>
+    </section>
+
+    <section class="stage" data-stage="breathing">
+      <div class="breath-ring" id="ring">
+        <div>
+          <div class="phase" id="phaseLabel"></div>
+          <div class="count" id="phaseCount"></div>
+        </div>
+      </div>
+      <p class="lead" id="roundLabel"></p>
+    </section>
+
+    <section class="stage" data-stage="done">
+      <h1>That's the session.</h1>
+      <p class="lead">However that felt, it counts. Come back tomorrow and it'll count again.</p>
+      <div class="row">
+        <button type="button" class="btn" id="againBtn">Do it again</button>
+        <a class="btn-ghost" href="{{ url_for('game') }}">Back to games</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+  var startAmbient;
+  (function () {
+    var ambient = document.getElementById('ambient');
+    var soundBtn = document.getElementById('soundBtn');
+
+    function setSoundState(on) {
+      soundBtn.setAttribute('aria-pressed', String(on));
+      soundBtn.textContent = on ? 'Sound On' : 'Sound Off';
+    }
+
+    startAmbient = function () {
+      ambient.play().then(function () { setSoundState(true); }).catch(function () {});
+    };
+
+    soundBtn.addEventListener('click', function () {
+      var on = ambient.paused;
+      if (on) { startAmbient(); } else { ambient.pause(); setSoundState(false); }
+    });
+  })();
+
+  (function () {
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var stages = Array.prototype.slice.call(document.querySelectorAll('.stage'));
+    var ring = document.getElementById('ring');
+    var phaseLabel = document.getElementById('phaseLabel');
+    var phaseCount = document.getElementById('phaseCount');
+    var roundLabel = document.getElementById('roundLabel');
+
+    var PHASES = [
+      { name: 'Breathe in', seconds: 4, scale: 1.25 },
+      { name: 'Hold', seconds: 7, scale: 1.25 },
+      { name: 'Breathe out', seconds: 8, scale: 1 }
+    ];
+    var CYCLE_SECONDS = PHASES.reduce(function (sum, p) { return sum + p.seconds; }, 0);
+
+    var durationRow = document.getElementById('durationRow');
+    var selectedMinutes = 5;
+    var ROUNDS = Math.round(selectedMinutes * 60 / CYCLE_SECONDS);
+
+    durationRow.addEventListener('click', function (e) {
+      var pill = e.target.closest('.duration-pill');
+      if (!pill) return;
+      selectedMinutes = Number(pill.dataset.minutes);
+      ROUNDS = Math.round(selectedMinutes * 60 / CYCLE_SECONDS);
+      Array.prototype.forEach.call(durationRow.children, function (el) {
+        el.classList.toggle('is-selected', el === pill);
+      });
+    });
+
+    function showStage(name) {
+      stages.forEach(function (el) {
+        el.classList.toggle('is-active', el.dataset.stage === name);
+      });
+    }
+
+    var tick = null;
+    var round = 0;
+
+    function runPhase(index) {
+      if (index >= PHASES.length) {
+        round += 1;
+        if (round >= ROUNDS) {
+          showStage('done');
+          fetch("{{ url_for('meditate_complete') }}", { method: 'POST' }).catch(function () {});
+          return;
+        }
+        runPhase(0);
+        return;
+      }
+      var phase = PHASES[index];
+      phaseLabel.textContent = phase.name;
+      roundLabel.textContent = 'Round ' + (round + 1) + ' of ' + ROUNDS;
+      if (!reduceMotion) ring.style.transform = 'scale(' + phase.scale + ')';
+
+      var remaining = phase.seconds;
+      phaseCount.textContent = remaining;
+      clearInterval(tick);
+      tick = setInterval(function () {
+        remaining -= 1;
+        if (remaining <= 0) {
+          clearInterval(tick);
+          runPhase(index + 1);
+        } else {
+          phaseCount.textContent = remaining;
+        }
+      }, 1000);
+    }
+
+    document.getElementById('startBtn').addEventListener('click', function () {
+      round = 0;
+      showStage('breathing');
+      runPhase(0);
+      startAmbient();
+    });
+
+    document.getElementById('againBtn').addEventListener('click', function () {
+      round = 0;
+      showStage('breathing');
+      runPhase(0);
+      startAmbient();
+    });
+  })();
+  </script>
+</body>
+</html>
