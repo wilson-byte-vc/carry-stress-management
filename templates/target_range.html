@@ -44,7 +44,7 @@
       position: relative;
       width: min(84vw, 340px); height: min(56vh, 380px);
       border-radius: 20px; overflow: hidden;
-      cursor: crosshair; touch-action: manipulation;
+      cursor: crosshair; touch-action: none; user-select: none;
       background:
         repeating-linear-gradient(180deg, transparent 0 6px, rgba(0,0,0,.06) 6px 7px),
         repeating-linear-gradient(180deg, #b3814f 0 34px, #a3733f 34px 36px);
@@ -86,7 +86,7 @@
     <section class="stage is-active" data-stage="setup">
       <p class="eyebrow">Quick relief</p>
       <h1>Target Range</h1>
-      <p class="lead">Fruit arcs up from the block. Aim and shoot at it as it flies.</p>
+      <p class="lead">Hold left click and move across fruits to break them. On mobile, touch and hold, then slide your finger across fruits.</p>
       <button type="button" class="btn" id="startBtn">Begin</button>
     </section>
 
@@ -135,6 +135,8 @@
     var lastTs = null;
     var rafId = null;
     var ended = false;
+    var activePointer = null;
+    var pointerPosition = null;
 
     var audioCtx = null;
     function playPop() {
@@ -238,6 +240,7 @@
       if (ended) return;
       if (thrown >= FRUIT_COUNT && fruits.length === 0) {
         ended = true;
+        stopBreaking();
         cancelAnimationFrame(rafId);
         setTimeout(function () { showStage('done'); }, 500);
       }
@@ -259,30 +262,72 @@
           checkDone();
         }
       }
-      rafId = requestAnimationFrame(tick);
+      if (pointerPosition) breakAlongPath(pointerPosition, pointerPosition);
+      if (!ended) rafId = requestAnimationFrame(tick);
     }
 
-    rangeEl.addEventListener('click', function (e) {
+    function breakAlongPath(from, to) {
+      if (ended) return;
       var rect = rangeEl.getBoundingClientRect();
-      var cx = e.clientX - rect.left, cy = e.clientY - rect.top;
-      shotLine(cx, cy);
-      var hitIndex = -1, hitDist = 9999;
-      for (var i = 0; i < fruits.length; i++) {
+      var ax = from.x - rect.left, ay = from.y - rect.top;
+      var dx = to.x - from.x, dy = to.y - from.y;
+      var lengthSquared = dx * dx + dy * dy;
+      for (var i = fruits.length - 1; i >= 0; i--) {
         var f = fruits[i];
-        var d = Math.hypot(f.x - cx, f.y - cy);
-        if (d < 32 && d < hitDist) { hitDist = d; hitIndex = i; }
-      }
-      if (hitIndex !== -1) {
-        var f = fruits[hitIndex];
+        var t = lengthSquared ? Math.max(0, Math.min(1,
+          ((f.x - ax) * dx + (f.y - ay) * dy) / lengthSquared)) : 0;
+        var cx = ax + t * dx, cy = ay + t * dy;
+        if (cx < 0 || cy < 0 || cx > rect.width || cy > rect.height ||
+            Math.hypot(f.x - cx, f.y - cy) >= 32) continue;
+        shotLine(f.x, f.y);
         splatAt(f.x, f.y, f.type.splat);
         playPop();
         f.el.remove();
-        fruits.splice(hitIndex, 1);
-        checkDone();
+        fruits.splice(i, 1);
       }
+      checkDone();
+    }
+
+    function stopBreaking() {
+      var pointerId = activePointer;
+      activePointer = null;
+      pointerPosition = null;
+      if (pointerId !== null && rangeEl.hasPointerCapture(pointerId)) {
+        rangeEl.releasePointerCapture(pointerId);
+      }
+    }
+
+    rangeEl.addEventListener('pointerdown', function (e) {
+      if (ended || activePointer !== null || !e.isPrimary || e.button !== 0) return;
+      e.preventDefault();
+      activePointer = e.pointerId;
+      pointerPosition = { x: e.clientX, y: e.clientY };
+      rangeEl.setPointerCapture(e.pointerId);
+      breakAlongPath(pointerPosition, pointerPosition);
+    });
+    rangeEl.addEventListener('pointermove', function (e) {
+      if (e.pointerId !== activePointer) return;
+      if (e.pointerType === 'mouse' && !(e.buttons & 1)) {
+        stopBreaking();
+        return;
+      }
+      var next = { x: e.clientX, y: e.clientY };
+      var previous = pointerPosition;
+      pointerPosition = next;
+      breakAlongPath(previous, next);
+    });
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function (eventName) {
+      rangeEl.addEventListener(eventName, function (e) {
+        if (e.pointerId === activePointer) stopBreaking();
+      });
+    });
+    window.addEventListener('blur', stopBreaking);
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stopBreaking();
     });
 
     function reset() {
+      stopBreaking();
       fruits.forEach(function (f) { f.el.remove(); });
       fruits = [];
       thrown = 0;
@@ -297,12 +342,12 @@
     }
 
     document.getElementById('startBtn').addEventListener('click', function () {
-      reset();
       showStage('playing');
+      reset();
     });
     document.getElementById('againBtn').addEventListener('click', function () {
-      reset();
       showStage('playing');
+      reset();
     });
   })();
   </script>
