@@ -28,13 +28,22 @@ from flask_migrate import Migrate
 from dotenv import load_dotenv
 from groq import Groq
 from supabase import ClientOptions, create_client
+from sqlalchemy import or_
+
+from cryptography.hazmat.primitives import serialization
+from py_vapid import Vapid
+from pywebpush import webpush, WebPushException
 
 import os
 import json
 import re
 import uuid
+import base64
+import random
+import threading
+import time as time_module
 
-from models import CheckIn, Commitment, Insight, User, db
+from models import ActivitySession, CheckIn, Commitment, Insight, PushSubscription, User, db
 
 load_dotenv()
 
@@ -93,6 +102,21 @@ GROQ_MODEL = "openai/gpt-oss-120b"
 
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 GROQ_MODEL = "openai/gpt-oss-120b"
+
+# Generated once and kept on disk -- regenerating would silently invalidate
+# every browser's existing push subscription (they're signed against this
+# specific keypair). vapid_private_key=<path> is handed straight to pywebpush,
+# which loads it itself.
+VAPID_KEY_PATH = os.path.join(os.path.dirname(__file__), "vapid_private_key.pem")
+if not os.path.exists(VAPID_KEY_PATH):
+    _vapid = Vapid()
+    _vapid.generate_keys()
+    _vapid.save_key(VAPID_KEY_PATH)
+
+_vapid_public = Vapid.from_file(VAPID_KEY_PATH).public_key
+VAPID_PUBLIC_KEY = base64.urlsafe_b64encode(
+    _vapid_public.public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint)
+).decode().rstrip("=")
 
 
 def estimate_task_effort(task_title):
@@ -204,10 +228,6 @@ Rules:
         print("Personalized question error:", e)
         return default_questions
 
-# The assistant is usable in demo mode, but /chat spends real Groq quota and
-# sits on a public URL -- cap what one anonymous session can burn.
-DEMO_CHAT_LIMIT = 10
-
 
 # --- Auth kill switch ---
 #
@@ -251,12 +271,9 @@ def load_user(user_id):
 
 @app.context_processor
 def inject_demo_mode():
-    """Every page can ask whether it's being viewed without an account.
-    The chat limit is exposed too so the account panel quotes the real number
-    instead of a hardcoded one that could drift."""
+    """Every page can ask whether it's being viewed without an account."""
     return {
         "demo_mode": not current_user.is_authenticated,
-        "demo_chat_limit": DEMO_CHAT_LIMIT,
         "auth_enabled": AUTH_ENABLED,
     }
 
@@ -336,6 +353,87 @@ def streak_week(n=7):
         }
         for i in range(n - 1, -1, -1)
     ]
+
+
+# Overnight window a sleep gap has to fall inside, and the shortest gap that
+# counts as sleep rather than "put the phone down for a bit". UTC, same as
+# every other date computation in this file -- no per-user timezone stored.
+SLEEP_WINDOW_START_HOUR = 20
+SLEEP_WINDOW_END_HOUR = 12
+MIN_SLEEP_HOURS = 2
+
+
+def seed_sleep_history(user, nights=30):
+    """Backfills plausible activity gaps for a brand-new account so the sleep
+    chart isn't empty on day one. Deterministic per user (seeded on their
+    id), so it doesn't reshuffle on every page load -- and since real usage
+    naturally produces its own sessions from today onward, these seeded
+    nights simply age out of the display window over the following month
+    without needing a flag to tell them apart from real data."""
+    if user.activity_sessions:
+        return
+
+    rng = random.Random(user.id)
+    today = datetime.now(timezone.utc).date()
+    rows = []
+    for i in range(nights, 0, -1):
+        night = today - timedelta(days=i)
+        bedtime_hour = rng.uniform(21.5, 23.5)
+        sleep_hours = rng.uniform(5.5, 8.5)
+        went_still_at = datetime.combine(night, datetime.min.time(), tzinfo=timezone.utc) + timedelta(hours=bedtime_hour)
+        woke_at = went_still_at + timedelta(hours=sleep_hours)
+        rows.append(ActivitySession(user_id=user.id, started_at=went_still_at - timedelta(minutes=5),
+                                     last_ping_at=went_still_at, ended_at=went_still_at))
+        rows.append(ActivitySession(user_id=user.id, started_at=woke_at,
+                                     last_ping_at=woke_at + timedelta(minutes=5), ended_at=None))
+    db.session.add_all(rows)
+    db.session.commit()
+
+
+def compute_sleep_days(user, n=30):
+    """The last n nights' inferred sleep, oldest first. Sleep for a night is
+    the longest gap between one activity session ending and the next
+    starting, clipped to the overnight window so a long weekend nap doesn't
+    get counted as that night's sleep. `label` is only set every 7th day
+    (a sparse date tick) -- one per bar would be unreadable at 30 bars wide,
+    so `date` carries the real value for anything that needs every day
+    (the AI summary prompt)."""
+    # Naive throughout, to match how db.DateTime round-trips through Postgres
+    # (it drops tzinfo on read) -- every value here is implicitly UTC.
+    intervals = sorted(
+        (s.started_at, s.ended_at or s.last_ping_at) for s in user.activity_sessions
+    )
+    today = datetime.now(timezone.utc).date()
+
+    results = []
+    for i in range(n - 1, -1, -1):
+        day = today - timedelta(days=i)
+        window_start = datetime.combine(day - timedelta(days=1), datetime.min.time()) \
+            + timedelta(hours=SLEEP_WINDOW_START_HOUR)
+        window_end = datetime.combine(day, datetime.min.time()) \
+            + timedelta(hours=SLEEP_WINDOW_END_HOUR)
+
+        best_hours = 0
+        for j in range(len(intervals) - 1):
+            gap_start = max(intervals[j][1], window_start)
+            gap_end = min(intervals[j + 1][0], window_end)
+            if gap_end > gap_start:
+                hours = (gap_end - gap_start).total_seconds() / 3600
+                if hours >= MIN_SLEEP_HOURS:
+                    best_hours = max(best_hours, hours)
+
+        position = n - 1 - i  # 0 = oldest day shown
+        # %-d (no leading zero) isn't portable across platforms -- day.day
+        # gets the same result everywhere.
+        date_label = f"{day.strftime('%b')} {day.day}"
+        results.append({
+            "label": date_label if position % 7 == 0 else "",
+            "date": day.isoformat(),
+            "date_label": date_label,
+            "hours": round(best_hours, 1),
+            "is_today": i == 0,
+        })
+    return results
 
 
 def energy_percent(checkin):
@@ -627,8 +725,6 @@ def logout():
         # Local logout matters more than tidying up the remote session.
         pass
     logout_user()
-    session.pop("chat_history", None)
-    session.pop("demo_chat_count", None)
     flash("You've been logged out.")
     return redirect(url_for("login"))
 
@@ -657,6 +753,51 @@ def settings_theme():
     current_user.theme = theme
     db.session.commit()
     return jsonify({"ok": True, "theme": theme})
+
+
+# --- Activity tracking (sleep chart's data source) ---
+#
+# Page Visibility, not a whole-device signal: this only knows whether the
+# Carry tab itself is open and focused, not whether the phone is actually
+# asleep on the nightstand or just being used elsewhere. Good enough as an
+# honest proxy for a class project, not a real sleep tracker.
+
+@app.route("/activity/start", methods=["POST"])
+@login_required
+def activity_start():
+    row = ActivitySession(user_id=current_user.id)
+    db.session.add(row)
+    db.session.commit()
+    return jsonify({"session_id": row.id})
+
+
+@app.route("/activity/ping", methods=["POST"])
+@login_required
+def activity_ping():
+    session_id = (request.json or {}).get("session_id")
+    row = ActivitySession.query.filter_by(id=session_id, user_id=current_user.id).first()
+    if row:
+        row.last_ping_at = datetime.now(timezone.utc)
+        db.session.commit()
+    return jsonify({"ok": True})
+
+
+@app.route("/activity/end", methods=["POST"])
+@login_required
+def activity_end():
+    # Sent via navigator.sendBeacon on tab-hide/unload, which posts a plain
+    # text/plain blob rather than application/json -- request.json would
+    # reject it, so parse the raw body by hand.
+    try:
+        data = json.loads(request.get_data(as_text=True) or "{}")
+    except ValueError:
+        data = {}
+
+    row = ActivitySession.query.filter_by(id=data.get("session_id"), user_id=current_user.id).first()
+    if row:
+        row.ended_at = datetime.now(timezone.utc)
+        db.session.commit()
+    return jsonify({"ok": True})
 
 
 # --- App pages ---
@@ -703,6 +844,8 @@ def home():
     commitments = get_commitments()
     upcoming = upcoming_commitments(commitments)
 
+    seed_sleep_history(current_user)
+
     return render_template(
         "home.html",
         checkin=checkin,
@@ -710,6 +853,8 @@ def home():
         quote=quote_of_day(),
         streak=current_streak(),
         streak_days=streak_week(),
+        sleep_days=compute_sleep_days(current_user),
+        vapid_public_key=VAPID_PUBLIC_KEY,
         labels=CATEGORY_LABELS,
         commitments=upcoming,
         fixed_count=sum(1 for c in upcoming if not c["movable"]),
@@ -763,6 +908,72 @@ def home_summary():
         return jsonify({"error": f"{type(e).__name__}: {e}"}), 502
 
     return jsonify({"summary": response.choices[0].message.content})
+
+
+@app.route("/sleep/summary", methods=["POST"])
+@login_required
+def sleep_summary():
+    """One-off AI suggestion for the sleep card, fetched once when the chart
+    scrolls into view -- same lazy, pay-only-if-seen pattern as home_summary."""
+    days = compute_sleep_days(current_user)
+    nights = ", ".join(f"{d['date']} {d['hours']}h" for d in days)
+    avg = round(sum(d["hours"] for d in days) / len(days), 1)
+
+    prompt = (
+        f"A university student's inferred sleep for the last 30 nights: {nights}. Average {avg}h/night. "
+        "In one or two short sentences: name the one pattern that stands out, then suggest one small, "
+        "concrete change to their sleep routine."
+    )
+
+    try:
+        # A 30-night prompt gives gpt-oss more to reason about before it
+        # writes anything visible -- 150 tokens was enough budget for that
+        # hidden reasoning alone and cut the actual reply off mid-sentence.
+        response = client.chat.completions.create(
+            model=GROQ_MODEL,
+            max_tokens=350,
+            messages=[CHAT_SYSTEM_PROMPT, {"role": "user", "content": prompt}],
+        )
+    except Exception as e:
+        return jsonify({"error": f"{type(e).__name__}: {e}"}), 502
+
+    return jsonify({"summary": response.choices[0].message.content})
+
+
+@app.route("/push/subscribe", methods=["POST"])
+@login_required
+def push_subscribe():
+    """Saves (or clears) the bedtime reminder. `subscription` is only present
+    when turning the reminder on -- the browser's PushSubscription object,
+    JSON-serialized. `bedtime` null/absent disables the reminder."""
+    data = request.json or {}
+    bedtime = data.get("bedtime")
+
+    if bedtime:
+        if not re.fullmatch(r"[0-2]\d:[0-5]\d", bedtime):
+            return jsonify({"error": "bedtime must be HH:MM"}), 400
+
+        sub = data.get("subscription") or {}
+        endpoint = sub.get("endpoint")
+        keys = sub.get("keys") or {}
+        if not endpoint or not keys.get("p256dh") or not keys.get("auth"):
+            return jsonify({"error": "missing push subscription"}), 400
+
+        row = PushSubscription.query.filter_by(endpoint=endpoint).first()
+        if row is None:
+            row = PushSubscription(endpoint=endpoint)
+            db.session.add(row)
+        row.user_id = current_user.id
+        row.p256dh = keys["p256dh"]
+        row.auth = keys["auth"]
+
+        current_user.bedtime_reminder = bedtime
+        current_user.bedtime_reminder_sent_date = None
+    else:
+        current_user.bedtime_reminder = None
+
+    db.session.commit()
+    return jsonify({"ok": True, "bedtime": current_user.bedtime_reminder})
 
 
 # --- Commitments ---
@@ -883,21 +1094,15 @@ Note: {checkin_data.get('note', '')}
     )
 
 
-@app.route("/insights")
-@login_required
-def insights():
-    history = current_user.checkins[:7] if current_user.is_authenticated else []
-    return render_template("insights.html", history=history)
-
-
-@app.route("/assistant")
-@login_required
-def assistant():
-    return render_template("chat.html")
-
 @app.route("/game")
 @login_required
 def game():
+    return render_template("games.html")
+
+
+@app.route("/game/pressure-valve")
+@login_required
+def play_pressure_valve():
     return render_template("pressure_valve.html")
 
 @app.route("/landingyuji")
@@ -973,7 +1178,8 @@ def assetlinks():
     }])
 
 
-# --- Chat with memory ---
+# --- Shared Groq prompt (assistant chat is gone; the capacity-insight
+#     suggestion in /app/summary still reuses this system prompt) ---
 
 CHAT_SYSTEM_PROMPT = {
     "role": "system",
@@ -987,114 +1193,62 @@ CHAT_SYSTEM_PROMPT = {
 }
 
 
-# The mobile app has no Flask session to hang a transcript on, so it owns the
-# history and sends the whole thing. Cap the length: the transcript is
-# attacker-controlled and every turn is billed on the way to Groq.
-MAX_CLIENT_HISTORY = 40
-
-
-def _client_history(payload):
-    """Validate a caller-supplied transcript, or None if there isn't one.
-
-    Returns None (rather than raising) when `messages` is absent, so the
-    browser's session-backed path is left alone.
-    """
-    raw = payload.get("messages")
-    if not isinstance(raw, list) or not raw:
-        return None
-
-    cleaned = []
-    for item in raw[-MAX_CLIENT_HISTORY:]:
-        if not isinstance(item, dict):
-            continue
-        role = item.get("role")
-        content = item.get("content")
-        # Only user and assistant turns -- accepting "system" would let a
-        # caller replace the prompt that keeps this on-topic.
-        if role in ("user", "assistant") and isinstance(content, str) and content.strip():
-            cleaned.append({"role": role, "content": content[:4000]})
-
-    if not cleaned or cleaned[-1]["role"] != "user":
-        return None
-    return cleaned
-
-
-@app.route("/chat", methods=["POST"])
-@login_required
-def chat():
-    payload = request.json or {}
-    client_history = _client_history(payload)
-
-    user_message = client_history[-1]["content"] if client_history else payload.get("message")
-    if not user_message:
-        return jsonify({"error": "message is required"}), 400
-
-    if not current_user.is_authenticated:
-        used = session.get("demo_chat_count", 0)
-        if used >= DEMO_CHAT_LIMIT:
-            return (
-                jsonify(
-                    {
-                        "error": "You've used all the demo messages. "
-                        "Create a free account to keep chatting.",
-                        "limit_reached": True,
-                    }
-                ),
-                429,
+# --- Bedtime reminder push notifications ---
+#
+# ponytail: one thread per process polling every 60s, no job queue. Fine at
+# hackathon scale; with multiple gunicorn workers each worker runs its own
+# copy, so a user could in theory get a duplicate push in the same minute
+# before bedtime_reminder_sent_date commits. Move to a real scheduler
+# (Celery beat, APScheduler+Redis lock) if this needs to survive that.
+def send_bedtime_push(user):
+    payload = json.dumps({
+        "title": "Carry",
+        "body": "It's your bedtime -- time to start winding down.",
+    })
+    for sub in list(user.push_subscriptions):
+        try:
+            webpush(
+                subscription_info={
+                    "endpoint": sub.endpoint,
+                    "keys": {"p256dh": sub.p256dh, "auth": sub.auth},
+                },
+                data=payload,
+                vapid_private_key=VAPID_KEY_PATH,
+                vapid_claims={"sub": "mailto:carry-app@example.com"},
             )
-        session["demo_chat_count"] = used + 1
-
-    if client_history is not None:
-        history = client_history
-    else:
-        history = session.get("chat_history", [])
-        history.append({"role": "user", "content": user_message})
-
-    user_context = ""
-    if current_user.is_authenticated:
-        latest = current_user.latest_checkin
-        if latest:
-            user_context = f"""
-User's latest stress check-in:
-- Time capacity: {latest.time}/5
-- Social capacity: {latest.social}/5
-- Physical capacity: {latest.physical}/5
-- Mental capacity: {latest.mental}/5
-- Note: {latest.note}
-"""
-    try:
-        response = client.chat.completions.create(
-            model=GROQ_MODEL,
-            max_tokens=600,
-            # Send the FULL history every time, not just the latest message --
-            # the model has no memory of its own between requests.
-            messages=[
-    CHAT_SYSTEM_PROMPT,
-    {
-        "role": "system",
-        "content": user_context
-    }
-] + history,
-        )
-    except Exception as e:
-        return jsonify({"error": f"{type(e).__name__}: {e}"}), 502
-
-    reply = response.choices[0].message.content
-
-    # A stateless caller keeps its own transcript; only the browser's
-    # session-backed conversation is written back here.
-    if client_history is None:
-        history.append({"role": "assistant", "content": reply})
-        session["chat_history"] = history
-
-    return jsonify({"reply": reply})
+        except WebPushException as e:
+            status = getattr(e.response, "status_code", None)
+            if status in (404, 410):
+                # Browser dropped the subscription (uninstalled, expired) --
+                # stop trying to reach it.
+                db.session.delete(sub)
+            else:
+                print("Bedtime push error:", e)
+    db.session.commit()
 
 
-@app.route("/chat/reset", methods=["POST"])
-@login_required
-def chat_reset():
-    session.pop("chat_history", None)
-    return jsonify({"ok": True})
+def _bedtime_reminder_loop():
+    while True:
+        time_module.sleep(60)
+        try:
+            with app.app_context():
+                now = datetime.now(timezone.utc)
+                hhmm = now.strftime("%H:%M")
+                today = now.date()
+                due = User.query.filter(
+                    User.bedtime_reminder == hhmm,
+                    or_(User.bedtime_reminder_sent_date.is_(None), User.bedtime_reminder_sent_date != today),
+                ).all()
+                for user in due:
+                    send_bedtime_push(user)
+                    user.bedtime_reminder_sent_date = today
+                if due:
+                    db.session.commit()
+        except Exception as e:
+            print("Bedtime reminder loop error:", e)
+
+
+threading.Thread(target=_bedtime_reminder_loop, daemon=True).start()
 
 
 with app.app_context():

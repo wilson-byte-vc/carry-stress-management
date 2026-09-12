@@ -72,11 +72,19 @@ begin
 end $$;
 
 -- ---------------------------------------------------------------------------
+-- 2b. Sleep-tracking columns, added after the initial launch.
+-- ---------------------------------------------------------------------------
+alter table public.users
+  add column if not exists bedtime_reminder           varchar(5),
+  add column if not exists bedtime_reminder_sent_date  date;
+
+-- ---------------------------------------------------------------------------
 -- 3. Admin check as SECURITY DEFINER
 --
--- A policy on `users` that selects from `users` recurses infinitely. Running
--- the lookup as the function owner sidesteps RLS on the inner read, which is
--- the standard way out of that trap.
+-- The admin role itself was removed from the app (no `is_admin` column left
+-- on `users`), but the policies below still call this function -- kept as a
+-- permanent "no" so those `or public.is_admin()` clauses stay harmless no-ops
+-- instead of every policy needing to be rewritten.
 -- ---------------------------------------------------------------------------
 create or replace function public.is_admin()
 returns boolean
@@ -85,7 +93,7 @@ security definer
 set search_path = public
 stable
 as $$
-  select coalesce((select u.is_admin from public.users u where u.id = auth.uid()), false);
+  select false;
 $$;
 
 revoke all on function public.is_admin() from public;
@@ -96,10 +104,12 @@ grant execute on function public.is_admin() to authenticated;
 --
 -- RLS on with zero policies = deny all. Every table below is opt-in only.
 -- ---------------------------------------------------------------------------
-alter table public.users       enable row level security;
-alter table public.check_ins   enable row level security;
-alter table public.commitments enable row level security;
-alter table public.insights    enable row level security;
+alter table public.users              enable row level security;
+alter table public.check_ins          enable row level security;
+alter table public.commitments        enable row level security;
+alter table public.insights           enable row level security;
+alter table public.activity_sessions  enable row level security;
+alter table public.push_subscriptions enable row level security;
 
 -- Deliberately NOT `force row level security`. FORCE applies RLS to the table
 -- owner too, and Flask connects as `postgres` (the owner) with no JWT, so
@@ -115,18 +125,23 @@ alter table public.insights    enable row level security;
 -- RLS narrows it to their own rows. Column-level grants handle what RLS can't:
 -- stopping someone editing a *field* they shouldn't (is_admin especially).
 -- ---------------------------------------------------------------------------
-revoke all on public.users, public.check_ins, public.commitments, public.insights
+revoke all on public.users, public.check_ins, public.commitments, public.insights,
+  public.activity_sessions, public.push_subscriptions
   from anon, authenticated;
 
--- users: read/insert own row; may only ever change these two columns.
-grant select, insert                     on public.users to authenticated;
-grant update (display_name, theme)       on public.users to authenticated;
+-- users: read/insert own row; may only ever change these columns.
+grant select, insert                              on public.users to authenticated;
+grant update (display_name, theme, bedtime_reminder,
+              bedtime_reminder_sent_date)          on public.users to authenticated;
 
 grant select, insert, update, delete on public.check_ins   to authenticated;
 grant select, insert, update, delete on public.commitments to authenticated;
 -- insights are written by the server; users may only read and triage them.
 grant select                          on public.insights to authenticated;
 grant update (acted_on, dismissed)    on public.insights to authenticated;
+
+grant select, insert, update, delete on public.activity_sessions  to authenticated;
+grant select, insert, update, delete on public.push_subscriptions to authenticated;
 
 grant usage, select on all sequences in schema public to authenticated;
 
@@ -140,7 +155,6 @@ grant usage, select on all sequences in schema public to authenticated;
 -- ---------------------------------------------------------------------------
 alter table public.users
   alter column created_at set default now(),
-  alter column is_admin   set default false,
   alter column theme      set default 'light';
 
 alter table public.check_ins
@@ -162,6 +176,10 @@ alter table public.insights
   alter column acted_on   set default false,
   alter column dismissed  set default false;
 
+alter table public.activity_sessions
+  alter column started_at   set default now(),
+  alter column last_ping_at set default now();
+
 -- ---------------------------------------------------------------------------
 -- 6. Policies
 -- ---------------------------------------------------------------------------
@@ -175,10 +193,9 @@ create policy users_select_own on public.users
   for select to authenticated
   using (auth.uid() = id or public.is_admin());
 
--- New signups create their own row, and cannot arrive pre-promoted.
 create policy users_insert_own on public.users
   for insert to authenticated
-  with check (auth.uid() = id and is_admin = false);
+  with check (auth.uid() = id);
 
 create policy users_update_own on public.users
   for update to authenticated
@@ -246,5 +263,51 @@ create policy insights_update_own on public.insights
   for update to authenticated
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
+-- activity_sessions -------------------------------------------------------
+drop policy if exists activity_sessions_select_own on public.activity_sessions;
+drop policy if exists activity_sessions_insert_own on public.activity_sessions;
+drop policy if exists activity_sessions_update_own on public.activity_sessions;
+drop policy if exists activity_sessions_delete_own on public.activity_sessions;
+
+create policy activity_sessions_select_own on public.activity_sessions
+  for select to authenticated
+  using (auth.uid() = user_id);
+
+create policy activity_sessions_insert_own on public.activity_sessions
+  for insert to authenticated
+  with check (auth.uid() = user_id);
+
+create policy activity_sessions_update_own on public.activity_sessions
+  for update to authenticated
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy activity_sessions_delete_own on public.activity_sessions
+  for delete to authenticated
+  using (auth.uid() = user_id);
+
+-- push_subscriptions --------------------------------------------------------
+drop policy if exists push_subscriptions_select_own on public.push_subscriptions;
+drop policy if exists push_subscriptions_insert_own on public.push_subscriptions;
+drop policy if exists push_subscriptions_update_own on public.push_subscriptions;
+drop policy if exists push_subscriptions_delete_own on public.push_subscriptions;
+
+create policy push_subscriptions_select_own on public.push_subscriptions
+  for select to authenticated
+  using (auth.uid() = user_id);
+
+create policy push_subscriptions_insert_own on public.push_subscriptions
+  for insert to authenticated
+  with check (auth.uid() = user_id);
+
+create policy push_subscriptions_update_own on public.push_subscriptions
+  for update to authenticated
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create policy push_subscriptions_delete_own on public.push_subscriptions
+  for delete to authenticated
+  using (auth.uid() = user_id);
 
 commit;

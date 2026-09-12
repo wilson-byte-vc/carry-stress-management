@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en"
+      
+      data-authed="0">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Check-in — Carry</title>
+
+    
+    <link rel="manifest" href="/static/manifest.webmanifest">
+    
+    <meta name="theme-color" content="#0c111d">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Carry">
+    <link rel="apple-touch-icon" href="/static/image/apple-touch-icon.png">
+
+    <script>
+      // Set the theme before first paint so there's no flash of the wrong
+      // palette. Navy is the default, so the only thing worth doing early is
+      // opting *into* light. Signed-in users get their saved preference
+      // straight off the <html> tag above (the server is the source of
+      // truth); anonymous visitors fall back to whatever they last picked in
+      // this browser.
+      (function () {
+        if (document.documentElement.dataset.authed === "1") return;
+        try {
+          if (localStorage.getItem("theme") === "light") {
+            document.documentElement.dataset.theme = "light";
+          }
+        } catch (e) {
+          /* private mode / storage disabled -- stay on the navy default */
+        }
+      })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/css/carry-ui.css?cb=1789166885">
+    
+</head>
+
+<body class="has-bottom-nav">
+
+    
+    
+    
+
+    
+      <header class="topnav">
+        <div class="topnav-inner">
+
+          <a class="brand" href="/app" aria-label="Carry — home">
+            <span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span>carry</span>
+          </a>
+
+          
+          
+            <nav class="nav-links" aria-label="Primary">
+              <a class=""
+                 
+                 href="/app">Home</a>
+              <a class="active"
+                 aria-current="page"
+                 href="/checkin">Check-in</a>
+            </nav>
+          
+
+          <div class="nav-right">
+
+            <div class="settings-menu" data-dropdown>
+              <button type="button" class="icon-btn" id="settings-toggle" data-dropdown-toggle
+                      aria-label="Settings" aria-expanded="false" aria-controls="settings-panel">
+                <span class="material-symbols-outlined" aria-hidden="true">settings</span>
+              </button>
+
+              <div class="settings-panel" id="settings-panel" data-dropdown-panel hidden>
+                
+                  <div class="settings-identity">
+                    <span class="settings-name">Browsing as guest</span>
+                    <span class="settings-email">Your check-ins stay in this browser only.</span>
+                  </div>
+                
+
+                
+                <div class="settings-section">
+                  <span class="settings-label">Appearance</span>
+                  <div class="settings-theme-group">
+                    <button type="button" class="settings-theme-btn" data-set-theme="dark">
+                      <span class="material-symbols-outlined" aria-hidden="true">dark_mode</span> Dark
+                    </button>
+                    <button type="button" class="settings-theme-btn" data-set-theme="light">
+                      <span class="material-symbols-outlined" aria-hidden="true">light_mode</span> Light
+                    </button>
+                  </div>
+                </div>
+
+                <div class="settings-section settings-links">
+                  
+                  <button type="button" class="settings-link" id="install-app" hidden>
+                    <span class="material-symbols-outlined" aria-hidden="true">install_mobile</span> Install app
+                  </button>
+
+                  <a class="settings-link" href="/">
+                    <span class="material-symbols-outlined" aria-hidden="true">auto_stories</span> What Carry is
+                  </a>
+
+                  
+                    <a class="settings-link" href="/login">
+                      <span class="material-symbols-outlined" aria-hidden="true">login</span> Log in
+                    </a>
+                    <a class="settings-link" href="/signup">
+                      <span class="material-symbols-outlined" aria-hidden="true">person_add</span> Create an account
+                    </a>
+                  
+                </div>
+              </div>
+            </div>
+
+            
+            
+              <div class="account-menu" data-dropdown>
+                <button type="button" class="icon-btn" id="account-toggle" data-dropdown-toggle
+                        aria-label="Account" aria-expanded="false" aria-controls="account-panel">
+                  <span class="material-symbols-outlined" aria-hidden="true">account_circle</span>
+                </button>
+
+                <div class="settings-panel settings-panel-right" id="account-panel" data-dropdown-panel hidden>
+                  
+                    <div class="settings-identity">
+                      <span class="settings-name">Browsing as guest</span>
+                      <span class="settings-email">You can try everything — nothing is saved yet.</span>
+                    </div>
+
+                    <div class="settings-section">
+                      <span class="settings-label">Unlock with an account</span>
+                      <ul class="account-perks">
+                        <li class="account-perk">
+                          <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+                          <span><strong>Keep your check-ins.</strong> Right now they vanish when this browser clears its cookies.</span>
+                        </li>
+                        <li class="account-perk">
+                          <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+                          <span><strong>Insights from your history.</strong> Patterns need more than one saved day to show up.</span>
+                        </li>
+                        <li class="account-perk">
+                          <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+                          <span><strong>Settings that follow you.</strong> Your name and theme sync to any device you log in on.</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div class="settings-section account-cta">
+                      <a class="btn btn-primary btn-block" href="/signup">Create a free account</a>
+                      <a class="settings-link account-login-link" href="/login">
+                        <span class="material-symbols-outlined" aria-hidden="true">login</span> I already have one — log in
+                      </a>
+                    </div>
+                  
+                </div>
+              </div>
+            
+          </div>
+        </div>
+      </header>
+    
+
+    
+
+    <!-- Page unique content goes here -->
+    
+<main class="wrap-narrow">
+
+  <div class="page-intro">
+    <p class="eyebrow">Today</p>
+    <h1 class="text-headline">Where is the week sitting right now?</h1>
+    <p class="text-body">One question at a time. Read each one as capacity left — not as a score you passed or failed.</p>
+  </div>
+
+  <h2 class="sr-only">The four categories</h2>
+
+  <div class="checkin-progress" role="progressbar" aria-label="Check-in progress" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1">
+    <span class="checkin-progress-dot"></span>
+    <span class="checkin-progress-dot"></span>
+    <span class="checkin-progress-dot"></span>
+    <span class="checkin-progress-dot"></span>
+    <span class="checkin-progress-dot"></span>
+  </div>
+
+  <form class="checkin-form" method="post" data-checkin-form>
+    <div class="checkin-stage">
+
+      <div class="checkin-item" id="cat-time" data-step="0">
+        <div class="checkin-item-head">
+          <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+          <h3 class="text-subtitle" id="time-heading">Time</h3>
+          <span class="checkin-live-label" data-live-label id="time-live">Busy</span>
+        </div>
+        <p class="field-hint" id="time-question">How are you carving out any small blocks of time for rest amid the project crunch?</p>
+        <input class="checkin-slider" type="range" name="time_level" min="1" max="5" value="2"
+               data-labels='["Overloaded", "Busy", "Balanced", "Manageable", "Light"]'
+               aria-labelledby="time-heading" aria-describedby="time-question time-live">
+        <div class="checkin-scale" aria-hidden="true">
+          <span>Overloaded</span><span>Balanced</span><span>Light</span>
+        </div>
+        <div class="checkin-step-actions">
+          <button type="button" class="btn btn-primary btn-block" data-step-next>Next</button>
+        </div>
+      </div>
+
+      <div class="checkin-item" id="cat-social" data-step="1">
+        <div class="checkin-item-head">
+          <span class="material-symbols-outlined" aria-hidden="true">group</span>
+          <h3 class="text-subtitle" id="social-heading">Social</h3>
+          <span class="checkin-live-label" data-live-label id="social-live">Connected</span>
+        </div>
+        <p class="field-hint" id="social-question">Are you able to lean on friends or teammates for support this week?</p>
+        <input class="checkin-slider" type="range" name="social_level" min="1" max="5" value="4"
+               data-labels='["Isolated", "Quiet", "Neutral", "Connected", "Very connected"]'
+               aria-labelledby="social-heading" aria-describedby="social-question social-live">
+        <div class="checkin-scale" aria-hidden="true">
+          <span>Isolated</span><span>Neutral</span><span>Connected</span>
+        </div>
+        <div class="checkin-step-actions">
+          <button type="button" class="btn-ghost" data-step-back>
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span> Back
+          </button>
+          <button type="button" class="btn btn-primary btn-block" data-step-next>Next</button>
+        </div>
+      </div>
+
+      <div class="checkin-item" id="cat-physical" data-step="2">
+        <div class="checkin-item-head">
+          <span class="material-symbols-outlined" aria-hidden="true">fitness_center</span>
+          <h3 class="text-subtitle" id="physical-heading">Physical</h3>
+          <span class="checkin-live-label" data-live-label id="physical-live">Okay</span>
+        </div>
+        <p class="field-hint" id="physical-question">What brief physical activity could fit into your day to boost energy?</p>
+        <input class="checkin-slider" type="range" name="physical_level" min="1" max="5" value="3"
+               data-labels='["Drained", "Tired", "Okay", "Good", "Energized"]'
+               aria-labelledby="physical-heading" aria-describedby="physical-question physical-live">
+        <div class="checkin-scale" aria-hidden="true">
+          <span>Drained</span><span>Okay</span><span>Energized</span>
+        </div>
+        <div class="checkin-step-actions">
+          <button type="button" class="btn-ghost" data-step-back>
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span> Back
+          </button>
+          <button type="button" class="btn btn-primary btn-block" data-step-next>Next</button>
+        </div>
+      </div>
+
+      <div class="checkin-item" id="cat-mental" data-step="3">
+        <div class="checkin-item-head">
+          <span class="material-symbols-outlined" aria-hidden="true">psychology</span>
+          <h3 class="text-subtitle" id="mental-heading">Mental</h3>
+          <span class="checkin-live-label" data-live-label id="mental-live">Distracted</span>
+        </div>
+        <p class="field-hint" id="mental-question">What quick mental break helps you reset when the workload feels overwhelming?</p>
+        <input class="checkin-slider" type="range" name="mental_level" min="1" max="5" value="2"
+               data-labels='["Foggy", "Distracted", "Steady", "Focused", "Sharp"]'
+               aria-labelledby="mental-heading" aria-describedby="mental-question mental-live">
+        <div class="checkin-scale" aria-hidden="true">
+          <span>Foggy</span><span>Steady</span><span>Sharp</span>
+        </div>
+        <div class="checkin-step-actions">
+          <button type="button" class="btn-ghost" data-step-back>
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span> Back
+          </button>
+          <button type="button" class="btn btn-primary btn-block" data-step-next>Next</button>
+        </div>
+      </div>
+
+      <div class="checkin-item" data-step="4">
+        <div class="checkin-item-head">
+          <span class="material-symbols-outlined" aria-hidden="true">edit_note</span>
+          <h3 class="text-subtitle" id="note-heading">Anything else?</h3>
+        </div>
+        <div class="field">
+          <label class="field-label" for="checkin-note">Note</label>
+          <textarea class="checkin-note" id="checkin-note" name="note"
+                    aria-describedby="note-hint"
+                    placeholder="What made today heavier or lighter?">Group project deadline is eating my week.</textarea>
+          <p class="field-hint" id="note-hint">Optional. One line is enough — it's what shows up alongside your capacity insights later.</p>
+        </div>
+        <div class="checkin-step-actions">
+          <button type="button" class="btn-ghost" data-step-back>
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span> Back
+          </button>
+          <button type="submit" class="btn btn-outline">Skip</button>
+          <button type="submit" class="btn btn-primary">Save check-in</button>
+        </div>
+      </div>
+
+    </div>
+  </form>
+
+</main>
+
+
+    
+      <nav class="bottom-nav" aria-label="Primary">
+        <a class="bottom-nav-item "
+           
+           href="/app">
+          <span class="material-symbols-outlined" aria-hidden="true">home</span>
+          <span>Home</span>
+        </a>
+        <a class="bottom-nav-item active"
+           aria-current="page"
+           href="/checkin">
+          <span class="material-symbols-outlined" aria-hidden="true">rebase_edit</span>
+          <span>Check-in</span>
+        </a>
+      </nav>
+    
+
+    
+      <footer class="site-footer">
+        <span class="footer-brand">
+          <span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>
+          carry
+        </span>
+        <nav class="footer-links" aria-label="Footer">
+          <a href="/">What Carry is</a>
+          <a href="/checkin">Today's check-in</a>
+        </nav>
+        <span>Capacity, not productivity.</span>
+      </footer>
+    
+
+    <script src="/static/js/app.js?cb=1789166885"></script>
+    <script src="/static/js/carry-ui.js?cb=1789166885"></script>
+    
+<script>
+(function () {
+  var stage = document.querySelector(".checkin-stage");
+  var items = Array.prototype.slice.call(document.querySelectorAll(".checkin-item[data-step]"));
+  var dots = Array.prototype.slice.call(document.querySelectorAll(".checkin-progress-dot"));
+  var progress = document.querySelector(".checkin-progress");
+  if (!stage || !items.length) return;
+
+  var current = 0;
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function showStep(index) {
+    current = Math.max(0, Math.min(items.length - 1, index));
+
+    items.forEach(function (item) {
+      var step = Number(item.dataset.step);
+      item.classList.remove("is-active", "is-prev");
+      if (step === current) {
+        item.classList.add("is-active");
+        item.removeAttribute("aria-hidden");
+      } else {
+        if (step < current) item.classList.add("is-prev");
+        item.setAttribute("aria-hidden", "true");
+      }
+    });
+
+    dots.forEach(function (dot, i) {
+      dot.classList.toggle("is-active", i === current);
+      dot.classList.toggle("is-done", i < current);
+    });
+    if (progress) progress.setAttribute("aria-valuenow", String(current + 1));
+
+    var active = items[current];
+    var heading = active.querySelector("h3");
+    if (heading && !reduceMotion) {
+      // Not a real focus grab (would be jarring mid-slide) -- just moves the
+      // a11y "current position" forward for screen readers.
+      heading.setAttribute("tabindex", "-1");
+      heading.focus({ preventScroll: true });
+    }
+  }
+
+  items.forEach(function (item) {
+    var step = Number(item.dataset.step);
+
+    var nextBtn = item.querySelector("[data-step-next]");
+    if (nextBtn) nextBtn.addEventListener("click", function () { showStep(step + 1); });
+
+    var backBtn = item.querySelector("[data-step-back]");
+    if (backBtn) backBtn.addEventListener("click", function () { showStep(step - 1); });
+
+    // Auto-advance once the user settles on a value. Deliberately "change",
+    // not "input": change only fires once an interaction actually commits
+    // (drag release, or each arrow-key step), so a slow/long drag can't have
+    // the timer land mid-gesture -- which would flip is-active to the next
+    // slider while the pointer is still down and hand the rest of the drag
+    // off to it, cascading through every remaining step. A short debounce on
+    // top still gives keyboard users room to tap the arrow key more than
+    // once before it moves on.
+    var slider = item.querySelector(".checkin-slider");
+    if (slider) {
+      var advanceTimer = null;
+      slider.addEventListener("change", function () {
+        clearTimeout(advanceTimer);
+        advanceTimer = setTimeout(function () {
+          if (current === step) showStep(step + 1);
+        }, 400);
+      });
+    }
+  });
+
+  // Deep-linking from home's #cat-xxx anchors still lands on the right step
+  // instead of the old scroll-and-highlight (there's nothing to scroll to
+  // now -- only one step is ever on screen).
+  var startStep = 0;
+  if (location.hash) {
+    var target = items.filter(function (item) { return "#" + item.id === location.hash; })[0];
+    if (target) startStep = Number(target.dataset.step);
+  }
+  showStep(startStep);
+})();
+</script>
+
+
+</body>
+</html>

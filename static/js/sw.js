@@ -49,9 +49,9 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   const url = new URL(req.url);
 
-  // Never touch POSTs, other origins, or the auth/chat endpoints.
+  // Never touch POSTs, other origins, or the auth endpoints.
   if (req.method !== "GET" || url.origin !== self.location.origin) return;
-  if (url.pathname.startsWith("/auth") || url.pathname.startsWith("/chat")) return;
+  if (url.pathname.startsWith("/auth")) return;
 
   // Page loads: network only, with a static offline fallback.
   if (req.mode === "navigate") {
@@ -78,4 +78,28 @@ self.addEventListener("fetch", (event) => {
       )
     );
   }
+});
+
+// Bedtime reminder. The payload is plain JSON from app.py's send_bedtime_push
+// -- no encryption scheme to negotiate here, pywebpush already handled that.
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (e) {
+    /* not JSON -- fall back to the defaults below */
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(data.title || "Carry", {
+      body: data.body || "",
+      icon: "/static/image/icon-192.png",
+      badge: "/static/image/icon-192.png",
+    })
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil(self.clients.openWindow("/app"));
 });

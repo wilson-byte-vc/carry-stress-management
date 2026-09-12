@@ -41,7 +41,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block" rel="stylesheet">
 
-    <link rel="stylesheet" href="/static/css/carry-ui.css?cb=1789142419">
+    <link rel="stylesheet" href="/static/css/carry-ui.css?cb=1789184345">
     
 </head>
 
@@ -71,10 +71,7 @@
                  href="/checkin">Check-in</a>
               <a class=""
                  
-                 href="/insights">Insights</a>
-              <a class=""
-                 
-                 href="/assistant">Assistant</a>
+                 href="/game">Game</a>
             </nav>
           
 
@@ -157,10 +154,6 @@
                         </li>
                         <li class="account-perk">
                           <span class="material-symbols-outlined" aria-hidden="true">lock</span>
-                          <span><strong>Unlimited assistant chat.</strong> The demo stops after 10 messages.</span>
-                        </li>
-                        <li class="account-perk">
-                          <span class="material-symbols-outlined" aria-hidden="true">lock</span>
                           <span><strong>Settings that follow you.</strong> Your name and theme sync to any device you log in on.</span>
                         </li>
                       </ul>
@@ -189,67 +182,30 @@
 <main class="container" >
 
   
-    <section class="hero">
-      <p class="eyebrow">Today</p>
-      <h2 class="text-headline-md">Rest is part of the work, not a reward for finishing it.</h2>
-    </section>
-
-    <section class="widget-preview">
-      <p class="text-label-sm widget-preview-caption">Your Carry widget</p>
-      
-<div class="widget-tile">
-  <div class="widget-half widget-half--logo">
-    <span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>
-  </div>
-  <div class="widget-half widget-half--streak">
-    <p class="widget-streak-count">4-day streak</p>
-    <div class="widget-days" role="list" aria-label="Check-ins, last 7 days">
-      
-        <span class="widget-day is-done"
-              role="listitem"
-              aria-label="S: checked in">
-          <span class="material-symbols-outlined" aria-hidden="true">check</span>
-        </span>
-      
-        <span class="widget-day is-done"
-              role="listitem"
-              aria-label="S: checked in">
-          <span class="material-symbols-outlined" aria-hidden="true">check</span>
-        </span>
-      
-        <span class="widget-day is-done"
-              role="listitem"
-              aria-label="M: checked in">
-          <span class="material-symbols-outlined" aria-hidden="true">check</span>
-        </span>
-      
-        <span class="widget-day is-done"
-              role="listitem"
-              aria-label="T: checked in">
-          <span class="material-symbols-outlined" aria-hidden="true">check</span>
-        </span>
-      
-        <span class="widget-day is-done"
-              role="listitem"
-              aria-label="W: checked in">
-          <span class="material-symbols-outlined" aria-hidden="true">check</span>
-        </span>
-      
-        <span class="widget-day is-done"
-              role="listitem"
-              aria-label="T: checked in">
-          <span class="material-symbols-outlined" aria-hidden="true">check</span>
-        </span>
-      
-        <span class="widget-day is-today"
-              role="listitem"
-              aria-label="F: today, not checked in yet">
-          
-        </span>
-      
+  <div class="onboarding-overlay" id="onboardingTour" hidden>
+    <div class="onboarding-spotlight" id="onboardingSpotlight"></div>
+    <div class="onboarding-bubble" id="onboardingBubble" role="dialog" aria-live="polite" aria-label="Welcome tour">
+      <span class="onboarding-arrow" id="onboardingArrow" aria-hidden="true"></span>
+      <img class="onboarding-turtle-badge" src="/static/image/mascot-turtle.png" alt="" aria-hidden="true">
+      <div class="onboarding-progress">
+        <span class="onboarding-progress-dot"></span>
+        <span class="onboarding-progress-dot"></span>
+        <span class="onboarding-progress-dot"></span>
+        <span class="onboarding-progress-dot"></span>
+        <span class="onboarding-progress-dot"></span>
+      </div>
+      <p class="onboarding-text" id="onboardingText"></p>
+      <div class="onboarding-actions">
+        <button type="button" class="btn-ghost" id="onboardingSkip">Skip tour</button>
+        <button type="button" class="btn btn-primary" id="onboardingNext">Next</button>
+      </div>
     </div>
   </div>
-</div>
+
+  
+    <section class="hero">
+      <p class="eyebrow">Today</p>
+      <h2 class="text-headline-md">You don&#39;t owe anyone your last 10%.</h2>
     </section>
 
     <section class="capacity-section">
@@ -340,14 +296,6 @@
           </div>
         
           <div class="streak-day is-done" role="listitem">
-            <span class="streak-day-label" aria-hidden="true">S</span>
-            <span class="streak-day-dot">
-              <span class="material-symbols-outlined" aria-hidden="true">check</span>
-              <span class="sr-only">Checked in</span>
-            </span>
-          </div>
-        
-          <div class="streak-day is-done" role="listitem">
             <span class="streak-day-label" aria-hidden="true">M</span>
             <span class="streak-day-dot">
               <span class="material-symbols-outlined" aria-hidden="true">check</span>
@@ -379,8 +327,16 @@
             </span>
           </div>
         
-          <div class="streak-day is-today" role="listitem">
+          <div class="streak-day is-done" role="listitem">
             <span class="streak-day-label" aria-hidden="true">F</span>
+            <span class="streak-day-dot">
+              <span class="material-symbols-outlined" aria-hidden="true">check</span>
+              <span class="sr-only">Checked in</span>
+            </span>
+          </div>
+        
+          <div class="streak-day is-today" role="listitem">
+            <span class="streak-day-label" aria-hidden="true">S</span>
             <span class="streak-day-dot">
               
               <span class="sr-only">No check-in</span>
@@ -433,7 +389,7 @@
                 <span>effort 3/5</span>
                 
                   <span>·</span>
-                  <span>due 12 Sep</span>
+                  <span>due 13 Sep</span>
                 
               </span>
             </div>
@@ -465,7 +421,7 @@
                 <span>effort 5/5</span>
                 
                   <span>·</span>
-                  <span>due 13 Sep</span>
+                  <span>due 14 Sep</span>
                 
               </span>
             </div>
@@ -497,7 +453,7 @@
                 <span>effort 2/5</span>
                 
                   <span>·</span>
-                  <span>due 14 Sep</span>
+                  <span>due 15 Sep</span>
                 
               </span>
             </div>
@@ -545,7 +501,7 @@
 
           <div class="cf-row">
             <label class="settings-label" for="c-due">Due (optional)</label>
-            <input class="auth-input" id="c-due" name="due_at" type="date" min="2026-09-11">
+            <input class="auth-input" id="c-due" name="due_at" type="date" min="2026-09-12">
           </div>
         </div>
 
@@ -570,6 +526,61 @@
       </form>
     </details>
   </section>
+
+  
+  <section class="insights-section">
+    <div class="page-intro">
+      <p class="eyebrow">The last seven days</p>
+      <h1 class="text-headline">Your patterns</h1>
+      <p class="text-body">What the check-ins keep saying about where your week actually goes — and the one small move that changes it.</p>
+    </div>
+
+    <h2 class="sr-only">This week's insights</h2>
+
+    <div class="insight-grid">
+
+      <article class="insight-card wide motion-reveal">
+        <div>
+          <div class="insight-tag-row">
+            <span class="material-symbols-outlined" aria-hidden="true">trending_up</span>
+            <span class="text-label-sm">Stress pattern detected</span>
+          </div>
+          <h3 class="text-title">3 of your last 5 stress spikes came from group project deadlines.</h3>
+          <p class="text-body">Your energy dipped consistently the day before "Marketing Strategy" deliverables were due. The data suggests these collaborative tasks drain your reserves faster than individual study.</p>
+        </div>
+        <div class="insight-actions">
+          <button type="button" class="btn btn-primary" data-insight-action="Walk scheduled for later today">Schedule a 15-min walk</button>
+          <button type="button" class="btn btn-ghost" data-toggle-detail="#stress-detail"
+                  aria-expanded="false" aria-controls="stress-detail">
+            View detail <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+          </button>
+        </div>
+        <div class="insight-detail" id="stress-detail" role="region" aria-label="Stress pattern detail">
+          <p class="text-body">Looking at your last five check-ins: energy dropped on the two days right before a "Marketing Strategy" deliverable was due, and recovered within a day of it being submitted. The pattern doesn't show up around solo assignments in the same window — it's specific to coordinating with a group.</p>
+        </div>
+      </article>
+
+      <article class="insight-card centered motion-reveal">
+        <div class="empty-ring" aria-hidden="true">
+          <span class="material-symbols-outlined">bedtime</span>
+        </div>
+        <div>
+          <h3 class="text-subtitle">Restful recovery</h3>
+          <p class="text-body">Sleeping 8+ hours on Tuesday boosted your focus by 40% on Wednesday.</p>
+        </div>
+        <div class="insight-actions">
+          <button type="button" class="btn btn-outline btn-block" data-insight-action="Bedtime reminder set for 10:30 PM">Set a bedtime reminder</button>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="empty-cta">
+      <button type="button" class="btn btn-ghost">
+        <span class="material-symbols-outlined" aria-hidden="true">history</span> View all past insights
+      </button>
+    </div>
+  </section>
 </main>
 
 
@@ -590,15 +601,9 @@
         </a>
         <a class="bottom-nav-item "
            
-           href="/insights">
-          <span class="material-symbols-outlined" aria-hidden="true">analytics</span>
-          <span>Insights</span>
-        </a>
-        <a class="bottom-nav-item "
-           
-           href="/assistant">
-          <span class="material-symbols-outlined" aria-hidden="true">smart_toy</span>
-          <span>Assistant</span>
+           href="/game">
+          <span class="material-symbols-outlined" aria-hidden="true">sports_esports</span>
+          <span>Game</span>
         </a>
       </nav>
     
@@ -612,15 +617,139 @@
         <nav class="footer-links" aria-label="Footer">
           <a href="/">What Carry is</a>
           <a href="/checkin">Today's check-in</a>
-          <a href="/insights">Insights</a>
         </nav>
         <span>Capacity, not productivity.</span>
       </footer>
     
 
-    <script src="/static/js/app.js?cb=1789142419"></script>
-    <script src="/static/js/carry-ui.js?cb=1789142419"></script>
+    <script src="/static/js/app.js?cb=1789184345"></script>
+    <script src="/static/js/carry-ui.js?cb=1789184345"></script>
     
+<script>
+(function () {
+  // Folded in from the old insights.html: app.js owns opening/closing
+  // [data-toggle-detail] panels, this only keeps each trigger's ARIA state
+  // in step. Unconditional (unlike the capacity-ring scripts below) since
+  // the insights section renders regardless of check-in state.
+  document.querySelectorAll("[data-toggle-detail][aria-controls]").forEach(function (btn) {
+    var panel = document.querySelector(btn.dataset.toggleDetail);
+    if (!panel) return;
+    btn.addEventListener("click", function () {
+      btn.setAttribute("aria-expanded", String(panel.classList.contains("is-open")));
+    });
+  });
+})();
+
+(function () {
+  var STORAGE_KEY = "carry_onboarding_done";
+  var overlay = document.getElementById("onboardingTour");
+  if (!overlay) return;
+
+  var seen;
+  try { seen = localStorage.getItem(STORAGE_KEY); } catch (e) { seen = "1"; }
+  if (seen) return;
+
+  // Each step spotlights the real section it's talking about -- comma-listed
+  // selectors cover both the empty-state and populated-state markup so the
+  // tour still degrades gracefully for a brand-new user with no check-in yet.
+  var STEPS = [
+    { text: "Hey — I'm here to show you around Carry.", target: ".hero" },
+    { text: "This ring is your capacity: how much you've got left today, worked out from your check-in and what's coming up.", target: ".ring-wrap.capacity-trigger, .empty-ring" },
+    { text: "A one-minute check-in each day is what keeps that number honest.", target: ".ring-wrap.capacity-trigger, .empty-ring" },
+    { text: "This is your streak. Check in most days and it keeps growing.", target: ".streak-card" },
+    { text: "That's the tour. You can always add what's on your plate below, and I'll be here if you need me.", target: ".commitments" }
+  ];
+
+  var spotlight = document.getElementById("onboardingSpotlight");
+  var bubble = document.getElementById("onboardingBubble");
+  var textEl = document.getElementById("onboardingText");
+  var nextBtn = document.getElementById("onboardingNext");
+  var skipBtn = document.getElementById("onboardingSkip");
+  var progressDots = Array.prototype.slice.call(overlay.querySelectorAll(".onboarding-progress-dot"));
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var stepIndex = 0;
+  var positionTimer = null;
+
+  function position() {
+    var target = document.querySelector(STEPS[stepIndex].target);
+
+    if (target) {
+      var rect = target.getBoundingClientRect();
+      var pad = 10;
+      spotlight.style.top = (rect.top - pad) + "px";
+      spotlight.style.left = (rect.left - pad) + "px";
+      spotlight.style.width = (rect.width + pad * 2) + "px";
+      spotlight.style.height = (rect.height + pad * 2) + "px";
+      spotlight.classList.add("is-visible");
+
+      var bubbleRect = bubble.getBoundingClientRect();
+      var spaceBelow = window.innerHeight - rect.bottom;
+      var placeBelow = spaceBelow > bubbleRect.height + 32 || spaceBelow > rect.top;
+
+      var top = placeBelow ? rect.bottom + 20 : rect.top - bubbleRect.height - 20;
+      top = Math.max(16, Math.min(top, window.innerHeight - bubbleRect.height - 16));
+
+      var left = rect.left + rect.width / 2 - bubbleRect.width / 2;
+      left = Math.max(16, Math.min(left, window.innerWidth - bubbleRect.width - 16));
+
+      bubble.style.top = top + "px";
+      bubble.style.left = left + "px";
+      // Bubble below its target needs an upward-pointing arrow (back toward
+      // the target above it), and vice versa.
+      bubble.classList.toggle("arrow-up", placeBelow);
+      bubble.classList.toggle("arrow-down", !placeBelow);
+    } else {
+      spotlight.classList.remove("is-visible");
+      var bw = bubble.getBoundingClientRect();
+      bubble.style.top = ((window.innerHeight - bw.height) / 2) + "px";
+      bubble.style.left = ((window.innerWidth - bw.width) / 2) + "px";
+      bubble.classList.remove("arrow-up", "arrow-down");
+    }
+
+    bubble.classList.add("is-visible");
+  }
+
+  function render() {
+    textEl.textContent = STEPS[stepIndex].text;
+    progressDots.forEach(function (dot, i) {
+      dot.classList.toggle("is-active", i === stepIndex);
+      dot.classList.toggle("is-done", i < stepIndex);
+    });
+    nextBtn.textContent = stepIndex === STEPS.length - 1 ? "Got it" : "Next";
+
+    var target = document.querySelector(STEPS[stepIndex].target);
+    if (target && !reduceMotion) target.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    // Fade out at the old spot, then reposition once the scroll has had time
+    // to settle so the spotlight lands where the section actually ends up.
+    spotlight.classList.remove("is-visible");
+    bubble.classList.remove("is-visible", "arrow-up", "arrow-down");
+    clearTimeout(positionTimer);
+    positionTimer = setTimeout(position, reduceMotion ? 0 : 380);
+  }
+
+  function finish() {
+    spotlight.classList.remove("is-visible");
+    bubble.classList.remove("is-visible");
+    try { localStorage.setItem(STORAGE_KEY, "1"); } catch (e) { /* private mode -- tour just replays next time */ }
+    window.removeEventListener("resize", position);
+    clearTimeout(positionTimer);
+    setTimeout(function () { overlay.hidden = true; }, 300);
+  }
+
+  nextBtn.addEventListener("click", function () {
+    if (stepIndex >= STEPS.length - 1) { finish(); return; }
+    stepIndex += 1;
+    render();
+  });
+
+  skipBtn.addEventListener("click", finish);
+  window.addEventListener("resize", position);
+
+  overlay.hidden = false;
+  render();
+})();
+</script>
 
 <script>
 (function () {
@@ -631,13 +760,23 @@
 
   var target = Number(wrap.dataset.capacity);
 
+  var RING_DURATION = 900;
+
   function play() {
     // Force a fresh 0 -> target count-up on every entry, not just the first
     // -- carryRing would otherwise animate from-the-already-displayed-value,
     // which is a no-op once it's already sitting at the target.
     ring._ringStarted = false;
     pct.textContent = "0";
-    window.carryRing(ring, pct, null, 0, target, 900);
+    window.carryRing(ring, pct, null, 0, target, RING_DURATION);
+
+    // Landing flourish once the count-up settles -- purely visual, the
+    // number itself already stopped at the real value above.
+    wrap.classList.remove("is-popping");
+    setTimeout(function () {
+      wrap.classList.add("is-popping");
+      setTimeout(function () { wrap.classList.remove("is-popping"); }, 400);
+    }, RING_DURATION);
   }
 
   if ("IntersectionObserver" in window) {
@@ -652,9 +791,9 @@
 })();
 
 (function () {
-  // app.js owns opening/closing [data-toggle-detail] panels; this only
-  // keeps the trigger's ARIA state in step, and fetches the AI suggestion
-  // once, the first time the panel is actually opened.
+  // The generic [data-toggle-detail] handler above keeps this button's ARIA
+  // state in sync; this one only fetches the AI suggestion, once, the first
+  // time the panel is actually opened.
   var trigger = document.querySelector(".capacity-trigger");
   var panel = document.getElementById("capacity-detail");
   var summaryEl = document.querySelector("[data-ai-summary]");
@@ -663,9 +802,7 @@
   var fetched = false;
 
   trigger.addEventListener("click", function () {
-    var isOpen = panel.classList.contains("is-open");
-    trigger.setAttribute("aria-expanded", String(isOpen));
-    if (fetched || !isOpen) return;
+    if (fetched || !panel.classList.contains("is-open")) return;
     fetched = true;
 
     fetch("/app/summary", { method: "POST" })

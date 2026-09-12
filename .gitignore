@@ -14,3 +14,6 @@ venv/
 # Flask-Migrate
 migrations/versions/__pycache__/
 .md
+
+# Generated locally, ties existing push subscriptions to this specific keypair
+vapid_private_key.pem

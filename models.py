@@ -32,6 +32,10 @@ class User(UserMixin, db.Model):
     display_name = db.Column(db.String(80), nullable=False)
     theme = db.Column(db.String(10), default="light", nullable=False)
     created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
+    # "HH:MM" in UTC, null = reminder off. bedtime_reminder_sent_date guards
+    # against re-sending every minute the clock matches while it's on.
+    bedtime_reminder = db.Column(db.String(5), nullable=True)
+    bedtime_reminder_sent_date = db.Column(db.Date, nullable=True)
 
     checkins = db.relationship(
         "CheckIn",
@@ -50,6 +54,17 @@ class User(UserMixin, db.Model):
         back_populates="user",
         cascade="all, delete-orphan",
         order_by="Insight.created_at.desc()",
+    )
+    activity_sessions = db.relationship(
+        "ActivitySession",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        order_by="ActivitySession.started_at",
+    )
+    push_subscriptions = db.relationship(
+        "PushSubscription",
+        back_populates="user",
+        cascade="all, delete-orphan",
     )
 
     def get_id(self):
@@ -166,3 +181,55 @@ class Insight(db.Model):
 
     def __repr__(self):
         return f"<Insight {self.title!r} {self.severity}>"
+
+
+class ActivitySession(db.Model):
+    """One stretch of the app being open in a tab, used as a proxy for sleep.
+
+    Not a per-heartbeat log -- one row per open/close cycle. `last_ping_at`
+    advances every couple of minutes while the tab is visible, so a session
+    that never gets a clean `ended_at` (tab killed, not just backgrounded)
+    still has a recent enough timestamp to compute an overnight gap against.
+    """
+
+    __tablename__ = "activity_sessions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(
+        UserId, db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False, index=True,
+    )
+
+    started_at = db.Column(db.DateTime, default=utcnow, nullable=False)
+    last_ping_at = db.Column(db.DateTime, default=utcnow, nullable=False)
+    ended_at = db.Column(db.DateTime, nullable=True)
+
+    user = db.relationship("User", back_populates="activity_sessions")
+
+    def __repr__(self):
+        return f"<ActivitySession user={self.user_id} started={self.started_at:%Y-%m-%d %H:%M}>"
+
+
+class PushSubscription(db.Model):
+    """A browser's Web Push endpoint, saved when a user turns on the bedtime
+    reminder. `endpoint` is unique per browser/device -- re-subscribing the
+    same one (e.g. after re-enabling) replaces its keys instead of piling up
+    duplicates."""
+
+    __tablename__ = "push_subscriptions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(
+        UserId, db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False, index=True,
+    )
+
+    endpoint = db.Column(db.Text, unique=True, nullable=False)
+    p256dh = db.Column(db.String(255), nullable=False)
+    auth = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
+
+    user = db.relationship("User", back_populates="push_subscriptions")
+
+    def __repr__(self):
+        return f"<PushSubscription user={self.user_id}>"

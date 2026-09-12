@@ -10,90 +10,211 @@
   <div class="page-intro">
     <p class="eyebrow">Today</p>
     <h1 class="text-headline">Where is the week sitting right now?</h1>
-    <p class="text-body">Four sliders, one minute. Read each one as capacity left — not as a score you passed or failed.</p>
+    <p class="text-body">One question at a time. Read each one as capacity left — not as a score you passed or failed.</p>
   </div>
 
   <h2 class="sr-only">The four categories</h2>
 
+  <div class="checkin-progress" role="progressbar" aria-label="Check-in progress" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1">
+    <span class="checkin-progress-dot"></span>
+    <span class="checkin-progress-dot"></span>
+    <span class="checkin-progress-dot"></span>
+    <span class="checkin-progress-dot"></span>
+    <span class="checkin-progress-dot"></span>
+  </div>
+
   <form class="checkin-form" method="post" data-checkin-form>
+    <div class="checkin-stage">
 
-    <div class="checkin-item motion-reveal" id="cat-time">
-      <div class="checkin-item-head">
-        <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
-        <h3 class="text-subtitle" id="time-heading">Time</h3>
-        <span class="checkin-live-label" data-live-label id="time-live">{{ labels.time[checkin.time - 1] }}</span>
+      <div class="checkin-item" id="cat-time" data-step="0">
+        <div class="checkin-item-head">
+          <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+          <h3 class="text-subtitle" id="time-heading">Time</h3>
+          <span class="checkin-live-label" data-live-label id="time-live">{{ labels.time[checkin.time - 1] }}</span>
+        </div>
+        <p class="field-hint" id="time-question">{{ questions.time }}</p>
+        <input class="checkin-slider" type="range" name="time_level" min="1" max="5" value="{{ checkin.time }}"
+               data-labels='{{ labels.time | tojson }}'
+               aria-labelledby="time-heading" aria-describedby="time-question time-live">
+        <div class="checkin-scale" aria-hidden="true">
+          <span>Overloaded</span><span>Balanced</span><span>Light</span>
+        </div>
+        <div class="checkin-step-actions">
+          <button type="button" class="btn btn-primary btn-block" data-step-next>Next</button>
+        </div>
       </div>
-      <p class="field-hint" id="time-question">{{ questions.time }}</p>
-      <input class="checkin-slider" type="range" name="time_level" min="1" max="5" value="{{ checkin.time }}"
-             data-labels='{{ labels.time | tojson }}'
-             aria-labelledby="time-heading" aria-describedby="time-question time-live">
-      <div class="checkin-scale" aria-hidden="true">
-        <span>Overloaded</span><span>Balanced</span><span>Light</span>
+
+      <div class="checkin-item" id="cat-social" data-step="1">
+        <div class="checkin-item-head">
+          <span class="material-symbols-outlined" aria-hidden="true">group</span>
+          <h3 class="text-subtitle" id="social-heading">Social</h3>
+          <span class="checkin-live-label" data-live-label id="social-live">{{ labels.social[checkin.social - 1] }}</span>
+        </div>
+        <p class="field-hint" id="social-question">{{ questions.social }}</p>
+        <input class="checkin-slider" type="range" name="social_level" min="1" max="5" value="{{ checkin.social }}"
+               data-labels='{{ labels.social | tojson }}'
+               aria-labelledby="social-heading" aria-describedby="social-question social-live">
+        <div class="checkin-scale" aria-hidden="true">
+          <span>Isolated</span><span>Neutral</span><span>Connected</span>
+        </div>
+        <div class="checkin-step-actions">
+          <button type="button" class="btn-ghost" data-step-back>
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span> Back
+          </button>
+          <button type="button" class="btn btn-primary btn-block" data-step-next>Next</button>
+        </div>
       </div>
+
+      <div class="checkin-item" id="cat-physical" data-step="2">
+        <div class="checkin-item-head">
+          <span class="material-symbols-outlined" aria-hidden="true">fitness_center</span>
+          <h3 class="text-subtitle" id="physical-heading">Physical</h3>
+          <span class="checkin-live-label" data-live-label id="physical-live">{{ labels.physical[checkin.physical - 1] }}</span>
+        </div>
+        <p class="field-hint" id="physical-question">{{ questions.physical }}</p>
+        <input class="checkin-slider" type="range" name="physical_level" min="1" max="5" value="{{ checkin.physical }}"
+               data-labels='{{ labels.physical | tojson }}'
+               aria-labelledby="physical-heading" aria-describedby="physical-question physical-live">
+        <div class="checkin-scale" aria-hidden="true">
+          <span>Drained</span><span>Okay</span><span>Energized</span>
+        </div>
+        <div class="checkin-step-actions">
+          <button type="button" class="btn-ghost" data-step-back>
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span> Back
+          </button>
+          <button type="button" class="btn btn-primary btn-block" data-step-next>Next</button>
+        </div>
+      </div>
+
+      <div class="checkin-item" id="cat-mental" data-step="3">
+        <div class="checkin-item-head">
+          <span class="material-symbols-outlined" aria-hidden="true">psychology</span>
+          <h3 class="text-subtitle" id="mental-heading">Mental</h3>
+          <span class="checkin-live-label" data-live-label id="mental-live">{{ labels.mental[checkin.mental - 1] }}</span>
+        </div>
+        <p class="field-hint" id="mental-question">{{ questions.mental }}</p>
+        <input class="checkin-slider" type="range" name="mental_level" min="1" max="5" value="{{ checkin.mental }}"
+               data-labels='{{ labels.mental | tojson }}'
+               aria-labelledby="mental-heading" aria-describedby="mental-question mental-live">
+        <div class="checkin-scale" aria-hidden="true">
+          <span>Foggy</span><span>Steady</span><span>Sharp</span>
+        </div>
+        <div class="checkin-step-actions">
+          <button type="button" class="btn-ghost" data-step-back>
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span> Back
+          </button>
+          <button type="button" class="btn btn-primary btn-block" data-step-next>Next</button>
+        </div>
+      </div>
+
+      <div class="checkin-item" data-step="4">
+        <div class="checkin-item-head">
+          <span class="material-symbols-outlined" aria-hidden="true">edit_note</span>
+          <h3 class="text-subtitle" id="note-heading">Anything else?</h3>
+        </div>
+        <div class="field">
+          <label class="field-label" for="checkin-note">Note</label>
+          <textarea class="checkin-note" id="checkin-note" name="note"
+                    aria-describedby="note-hint"
+                    placeholder="What made today heavier or lighter?">{{ checkin.note }}</textarea>
+          <p class="field-hint" id="note-hint">Optional. One line is enough — it's what shows up alongside your capacity insights later.</p>
+        </div>
+        <div class="checkin-step-actions">
+          <button type="button" class="btn-ghost" data-step-back>
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span> Back
+          </button>
+          <button type="submit" class="btn btn-outline">Skip</button>
+          <button type="submit" class="btn btn-primary">Save check-in</button>
+        </div>
+      </div>
+
     </div>
-
-    <div class="checkin-item motion-reveal" id="cat-social">
-      <div class="checkin-item-head">
-        <span class="material-symbols-outlined" aria-hidden="true">group</span>
-        <h3 class="text-subtitle" id="social-heading">Social</h3>
-        <span class="checkin-live-label" data-live-label id="social-live">{{ labels.social[checkin.social - 1] }}</span>
-      </div>
-      <p class="field-hint" id="social-question">{{ questions.social }}</p>
-      <input class="checkin-slider" type="range" name="social_level" min="1" max="5" value="{{ checkin.social }}"
-             data-labels='{{ labels.social | tojson }}'
-             aria-labelledby="social-heading" aria-describedby="social-question social-live">
-      <div class="checkin-scale" aria-hidden="true">
-        <span>Isolated</span><span>Neutral</span><span>Connected</span>
-      </div>
-    </div>
-
-    <div class="checkin-item motion-reveal" id="cat-physical">
-      <div class="checkin-item-head">
-        <span class="material-symbols-outlined" aria-hidden="true">fitness_center</span>
-        <h3 class="text-subtitle" id="physical-heading">Physical</h3>
-        <span class="checkin-live-label" data-live-label id="physical-live">{{ labels.physical[checkin.physical - 1] }}</span>
-      </div>
-      <p class="field-hint" id="physical-question">{{ questions.physical }}</p>
-      <input class="checkin-slider" type="range" name="physical_level" min="1" max="5" value="{{ checkin.physical }}"
-             data-labels='{{ labels.physical | tojson }}'
-             aria-labelledby="physical-heading" aria-describedby="physical-question physical-live">
-      <div class="checkin-scale" aria-hidden="true">
-        <span>Drained</span><span>Okay</span><span>Energized</span>
-      </div>
-    </div>
-
-    <div class="checkin-item motion-reveal" id="cat-mental">
-      <div class="checkin-item-head">
-        <span class="material-symbols-outlined" aria-hidden="true">psychology</span>
-        <h3 class="text-subtitle" id="mental-heading">Mental</h3>
-        <span class="checkin-live-label" data-live-label id="mental-live">{{ labels.mental[checkin.mental - 1] }}</span>
-      </div>
-      <p class="field-hint" id="mental-question">{{ questions.mental }}</p>
-      <input class="checkin-slider" type="range" name="mental_level" min="1" max="5" value="{{ checkin.mental }}"
-             data-labels='{{ labels.mental | tojson }}'
-             aria-labelledby="mental-heading" aria-describedby="mental-question mental-live">
-      <div class="checkin-scale" aria-hidden="true">
-        <span>Foggy</span><span>Steady</span><span>Sharp</span>
-      </div>
-    </div>
-
-    <div class="checkin-item motion-reveal">
-      <div class="checkin-item-head">
-        <span class="material-symbols-outlined" aria-hidden="true">edit_note</span>
-        <h3 class="text-subtitle" id="note-heading">Anything else?</h3>
-      </div>
-      <div class="field">
-        <label class="field-label" for="checkin-note">Note</label>
-        <textarea class="checkin-note" id="checkin-note" name="note"
-                  aria-describedby="note-hint"
-                  placeholder="What made today heavier or lighter?">{{ checkin.note }}</textarea>
-        <p class="field-hint" id="note-hint">Optional. One line is enough — it is what the assistant reads back to you later.</p>
-      </div>
-    </div>
-
-    <button type="submit" class="btn btn-primary btn-block">Save check-in</button>
-
   </form>
 
 </main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var stage = document.querySelector(".checkin-stage");
+  var items = Array.prototype.slice.call(document.querySelectorAll(".checkin-item[data-step]"));
+  var dots = Array.prototype.slice.call(document.querySelectorAll(".checkin-progress-dot"));
+  var progress = document.querySelector(".checkin-progress");
+  if (!stage || !items.length) return;
+
+  var current = 0;
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function showStep(index) {
+    current = Math.max(0, Math.min(items.length - 1, index));
+
+    items.forEach(function (item) {
+      var step = Number(item.dataset.step);
+      item.classList.remove("is-active", "is-prev");
+      if (step === current) {
+        item.classList.add("is-active");
+        item.removeAttribute("aria-hidden");
+      } else {
+        if (step < current) item.classList.add("is-prev");
+        item.setAttribute("aria-hidden", "true");
+      }
+    });
+
+    dots.forEach(function (dot, i) {
+      dot.classList.toggle("is-active", i === current);
+      dot.classList.toggle("is-done", i < current);
+    });
+    if (progress) progress.setAttribute("aria-valuenow", String(current + 1));
+
+    var active = items[current];
+    var heading = active.querySelector("h3");
+    if (heading && !reduceMotion) {
+      // Not a real focus grab (would be jarring mid-slide) -- just moves the
+      // a11y "current position" forward for screen readers.
+      heading.setAttribute("tabindex", "-1");
+      heading.focus({ preventScroll: true });
+    }
+  }
+
+  items.forEach(function (item) {
+    var step = Number(item.dataset.step);
+
+    var nextBtn = item.querySelector("[data-step-next]");
+    if (nextBtn) nextBtn.addEventListener("click", function () { showStep(step + 1); });
+
+    var backBtn = item.querySelector("[data-step-back]");
+    if (backBtn) backBtn.addEventListener("click", function () { showStep(step - 1); });
+
+    // Auto-advance once the user settles on a value. Deliberately "change",
+    // not "input": change only fires once an interaction actually commits
+    // (drag release, or each arrow-key step), so a slow/long drag can't have
+    // the timer land mid-gesture -- which would flip is-active to the next
+    // slider while the pointer is still down and hand the rest of the drag
+    // off to it, cascading through every remaining step. A short debounce on
+    // top still gives keyboard users room to tap the arrow key more than
+    // once before it moves on.
+    var slider = item.querySelector(".checkin-slider");
+    if (slider) {
+      var advanceTimer = null;
+      slider.addEventListener("change", function () {
+        clearTimeout(advanceTimer);
+        advanceTimer = setTimeout(function () {
+          if (current === step) showStep(step + 1);
+        }, 400);
+      });
+    }
+  });
+
+  // Deep-linking from home's #cat-xxx anchors still lands on the right step
+  // instead of the old scroll-and-highlight (there's nothing to scroll to
+  // now -- only one step is ever on screen).
+  var startStep = 0;
+  if (location.hash) {
+    var target = items.filter(function (item) { return "#" + item.id === location.hash; })[0];
+    if (target) startStep = Number(target.dataset.step);
+  }
+  showStep(startStep);
+})();
+</script>
 {% endblock %}

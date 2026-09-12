@@ -623,13 +623,16 @@ section { scroll-margin-top: 88px; }
   border: 1px solid var(--hair);
   color: var(--ink-lo);
   cursor: pointer;
-  transition: background-color .2s, color .2s, border-color .2s;
+  transition: background-color .2s, color .2s, border-color .2s,
+              transform .4s cubic-bezier(.34, 1.56, .64, 1);
 }
 
 .icon-btn:hover {
   background: var(--hover-soft);
   color: var(--ink-hi);
 }
+
+.icon-btn:active { transform: scale(0.88); transition-duration: .1s; }
 
 .icon-btn .material-symbols-outlined { font-size: 20px; }
 
@@ -972,7 +975,12 @@ section { scroll-margin-top: 88px; }
   transition: color .2s, background-color .2s;
 }
 
-.bottom-nav-item .material-symbols-outlined { font-size: 22px; }
+.bottom-nav-item .material-symbols-outlined {
+  font-size: 22px;
+  transition: transform .4s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.bottom-nav-item:active .material-symbols-outlined { transform: scale(0.82); transition-duration: .1s; }
 .bottom-nav-item:hover { color: var(--ink-hi); }
 
 .bottom-nav-item.active { color: var(--ink-hi); }
@@ -1019,11 +1027,12 @@ body.has-bottom-nav { padding-bottom: 96px; }
   white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color .2s, color .2s, border-color .2s, opacity .2s, transform .15s, filter .15s;
+  transition: background-color .2s, color .2s, border-color .2s, opacity .2s, filter .15s,
+              transform .4s cubic-bezier(.34, 1.56, .64, 1);
 }
 
 .pill-btn:hover { filter: brightness(0.94); color: var(--invert-ink); }
-.pill-btn:active { transform: scale(0.97); }
+.pill-btn:active { transform: scale(0.94); transition-duration: .1s; }
 
 .pill-btn.big { font-size: 15px; padding: 14px 26px; }
 
@@ -1052,11 +1061,14 @@ body.has-bottom-nav { padding-bottom: 96px; }
   white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color .2s, color .2s, border-color .2s, opacity .2s, transform .15s;
+  transition: background-color .2s, color .2s, border-color .2s, opacity .2s,
+              transform .4s cubic-bezier(.34, 1.56, .64, 1);
 }
 
 .btn:hover { background: var(--hover-soft); color: var(--ink-hi); }
-.btn:active { transform: scale(0.98); }
+/* Press is quick (fast override below); release springs back via the base
+   transition's overshoot easing above -- that's the "juice". */
+.btn:active { transform: scale(0.94); transition-duration: .1s; }
 .btn:disabled,
 .btn[disabled] { opacity: .5; cursor: not-allowed; }
 
@@ -1458,6 +1470,42 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   gap: var(--s-4);
 }
 
+/* --- one-question-at-a-time wizard --------------------------------------- */
+
+.checkin-progress {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: var(--s-6);
+}
+
+.checkin-progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--panel-2);
+  border: 1px solid var(--hair);
+  transition: background-color .25s, border-color .25s, transform .25s;
+}
+
+.checkin-progress-dot.is-done { background: var(--band-room); border-color: var(--band-room); }
+
+.checkin-progress-dot.is-active {
+  background: var(--band-room);
+  border-color: var(--band-room);
+  transform: scale(1.35);
+}
+
+.checkin-stage { position: relative; }
+
+.checkin-step-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.checkin-step-actions .btn-primary.btn-block { flex: 1; }
+
 .checkin-item {
   display: flex;
   flex-direction: column;
@@ -1466,15 +1514,31 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   border: 1px solid var(--hair);
   border-radius: var(--radius-card);
   padding: 20px;
-  scroll-margin-top: 120px;
-  transition: border-color .3s, background-color .3s;
+  transition: border-color .3s, background-color .3s, opacity .3s ease, transform .3s ease;
+}
+
+.checkin-stage .checkin-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  transform: translateX(32px);
+  pointer-events: none;
+}
+
+.checkin-stage .checkin-item.is-prev { transform: translateX(-32px); }
+
+.checkin-stage .checkin-item.is-active {
+  position: relative;
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
 }
 
 @media (min-width: 560px) {
   .checkin-item { padding: 24px; }
 }
-
-.checkin-item-highlight { border-color: var(--band-room); }
 
 .checkin-item-head {
   display: flex;
@@ -1686,14 +1750,14 @@ input[type="checkbox"] {
   line-height: 1.4;
   text-align: left;
   opacity: 0;
-  transform: translateY(12px);
-  transition: opacity .25s ease, transform .25s cubic-bezier(.2, .7, .2, 1);
+  transform: translateY(16px) scale(0.9);
+  transition: opacity .25s ease, transform .45s cubic-bezier(.34, 1.56, .64, 1);
   pointer-events: auto;
 }
 
 .toast .material-symbols-outlined { font-size: 20px; color: var(--band-room-ink); }
 
-.toast-visible { opacity: 1; transform: translateY(0); }
+.toast-visible { opacity: 1; transform: translateY(0) scale(1); }
 
 /* --- badges ------------------------------------------------------------- */
 
@@ -1777,6 +1841,15 @@ input[type="checkbox"] {
   margin: 18px 0 10px;
 }
 
+/* Landing flourish once the count-up animation finishes -- purely visual,
+   doesn't touch the actual displayed number. */
+@keyframes ring-landing-pop {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.06); }
+}
+
+.ring-wrap.is-popping { animation: ring-landing-pop .4s cubic-bezier(.34, 1.56, .64, 1); }
+
 .ring-num {
   position: absolute;
   top: 50%;
@@ -1800,7 +1873,10 @@ input[type="checkbox"] {
   font: inherit;
   color: inherit;
   border-radius: 999px;
+  transition: transform .4s cubic-bezier(.34, 1.56, .64, 1);
 }
+
+.capacity-trigger:active { transform: scale(0.96); transition-duration: .1s; }
 
 .capacity-trigger:hover .pct { color: var(--band-room-ink, var(--ink-hi)); }
 
@@ -1814,7 +1890,8 @@ input[type="checkbox"] {
   margin-top: -2px;
 }
 
-.capacity-ai-summary.is-loading {
+.capacity-ai-summary.is-loading,
+.sleep-ai-summary.is-loading {
   color: var(--ink-lo);
   font-style: italic;
   animation: chat-pending 1.2s ease-in-out infinite;
@@ -1885,6 +1962,76 @@ input[type="checkbox"] {
   letter-spacing: 0.03em;
   color: var(--ink-lo);
   text-transform: uppercase;
+}
+
+/* 30 narrow columns (the sleep chart) instead of 4-5 wide ones: tighter
+   gap/radius, and most .cat-label text nodes are empty (only every 7th day
+   gets a date) -- the ones that aren't are allowed to overflow their own
+   sliver of a column rather than wrap, since their empty neighbors leave
+   room either side. */
+.cat-row.is-dense {
+  gap: 2px;
+}
+
+.cat-row.is-dense .cat-track {
+  height: 56px;
+}
+
+.cat-row.is-dense .cat-fill {
+  border-radius: 2px 2px 0 0;
+}
+
+.cat-row.is-dense .cat-label {
+  position: relative;
+  width: 100%;
+  overflow: visible;
+  white-space: nowrap;
+  text-align: center;
+  text-transform: none;
+}
+
+/* Bar height alone doesn't say how many hours it represents -- an axis
+   scale answers that at a glance for every bar, and the buttons themselves
+   give the exact number on tap (see #sleep-chart-detail in home.html). */
+.sleep-chart {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+}
+
+.sleep-chart-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 0 0 auto;
+  height: 56px;
+  font-size: 9px;
+  color: var(--ink-lo);
+  text-align: right;
+}
+
+.sleep-chart .cat-row {
+  flex: 1;
+  min-width: 0;
+}
+
+#sleep-chart-bars .cat {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#sleep-chart-bars .cat:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+#sleep-chart-bars .cat.is-selected .cat-fill {
+  background: var(--band-tight);
 }
 
 /* --- horizontal meter --------------------------------------------------- */
@@ -1993,7 +2140,16 @@ input[type="checkbox"] {
   flex-shrink: 0;
   border-radius: 50%;
   background: var(--panel-2);
-  transition: background-color .4s ease;
+  cursor: pointer;
+  transition: background-color .4s ease, transform .4s cubic-bezier(.34, 1.56, .64, 1);
+  animation: streak-flame-entrance .5s cubic-bezier(.34, 1.56, .64, 1) both;
+}
+
+.streak-flame:active { transform: scale(1.18); transition-duration: .1s; }
+
+@keyframes streak-flame-entrance {
+  0%   { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 .flame-svg { width: 22px; height: 22px; overflow: visible; }
@@ -2252,6 +2408,21 @@ input[type="checkbox"] {
   margin-top: auto;
 }
 
+.sleep-reminder-row {
+  align-items: center;
+}
+
+.sleep-reminder-row .auth-input {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+.sleep-reminder-row .btn-block {
+  flex: 1;
+  width: auto;
+  min-width: 160px;
+}
+
 .insight-detail {
   display: none;
   background: var(--panel-2);
@@ -2267,113 +2438,10 @@ input[type="checkbox"] {
    space, so the shared class stays untouched. */
 #capacity-detail.is-open { margin-bottom: var(--s-8); }
 
-/* --- chat --------------------------------------------------------------- */
-
-.chat-shell {
-  display: flex;
-  flex-direction: column;
-  background: var(--panel);
-  border: 1px solid var(--hair);
-  border-radius: var(--radius-card);
-  overflow: hidden;
-}
-
-.chat-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--s-3);
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--hair);
-}
-
-.chat-reset {
-  min-height: 44px;
-  padding: 8px 14px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--hair);
-  background: transparent;
-  color: var(--ink-lo);
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background-color .2s, color .2s, border-color .2s;
-}
-
-.chat-reset:hover { color: var(--ink-hi); background: var(--hover-soft); }
-
-.chat-messages {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 16px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  min-height: 220px;
-  max-height: min(56vh, 520px);
-}
-
-.chat-bubble {
-  max-width: 82%;
-  padding: 12px 14px;
-  border-radius: var(--radius-lg);
-  background: var(--panel-2);
-  color: var(--ink-hi);
-  font-size: 15px;
-  line-height: 1.55;
-  overflow-wrap: anywhere;
-}
-
-.chat-bubble.user {
-  align-self: flex-end;
-  background: var(--panel-2);
-  border: 1px solid var(--hair);
-  border-bottom-right-radius: var(--radius-sm);
-}
-
-.chat-bubble.assistant {
-  align-self: flex-start;
-  background: var(--panel);
-  border: 1px solid var(--hair);
-  border-left: 2px solid var(--band-room);
-  border-bottom-left-radius: var(--radius-sm);
-}
-
-.chat-bubble.pending {
-  color: var(--ink-lo);
-  font-style: italic;
-  animation: chat-pending 1.2s ease-in-out infinite;
-}
-
+/* Still used by .capacity-ai-summary/.sleep-ai-summary's is-loading state. */
 @keyframes chat-pending {
   0%, 100% { opacity: .55; }
   50%      { opacity: 1; }
-}
-
-.chat-bubble.error {
-  align-self: flex-start;
-  background: var(--band-over-bg);
-  border: 1px solid var(--hair);
-  border-left: 2px solid var(--band-over);
-  color: var(--ink-hi);
-}
-
-.chat-input-row {
-  display: flex;
-  align-items: center;
-  gap: var(--s-2);
-  padding: 12px 16px;
-  border-top: 1px solid var(--hair);
-}
-
-.chat-input { flex: 1; min-width: 0; }
-
-.chat-send { flex-shrink: 0; }
-
-@media (max-width: 419px) {
-  .chat-send { padding-left: 16px; padding-right: 16px; }
 }
 
 /* --- auth pages --------------------------------------------------------- */
@@ -2606,6 +2674,128 @@ input[type="checkbox"] {
 
 .chart-enter.is-visible .meter-fill { transform: scaleX(1); }
 
+/* --- first-run onboarding tour ------------------------------------------- */
+
+.onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+}
+
+/* The "hole": box-shadow spread darkens the whole viewport except this
+   element's own box, which JS sizes/positions to match whatever section is
+   being introduced -- so that section stays fully lit while everything else
+   dims, instead of a flat scrim over the whole page. */
+.onboarding-spotlight {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-radius: 20px;
+  box-shadow: 0 0 0 9999px rgba(6, 10, 20, .72);
+  outline: 2px solid var(--band-room);
+  outline-offset: 6px;
+  opacity: 0;
+  transition: top .45s cubic-bezier(.34, 1.56, .64, 1), left .45s cubic-bezier(.34, 1.56, .64, 1),
+              width .45s cubic-bezier(.34, 1.56, .64, 1), height .45s cubic-bezier(.34, 1.56, .64, 1),
+              opacity .3s ease;
+}
+
+.onboarding-spotlight.is-visible { opacity: 1; }
+
+.onboarding-bubble {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: min(280px, calc(100vw - 32px));
+  background: var(--panel);
+  border: 1px solid var(--hair);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  padding-top: 36px;
+  box-shadow: 0 20px 40px -18px var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  opacity: 0;
+  pointer-events: auto;
+  transition: top .45s cubic-bezier(.34, 1.56, .64, 1), left .45s cubic-bezier(.34, 1.56, .64, 1),
+              opacity .3s ease;
+}
+
+.onboarding-bubble.is-visible { opacity: 1; }
+
+.onboarding-turtle-badge {
+  position: absolute;
+  top: -26px;
+  left: 16px;
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 12px var(--shadow));
+}
+
+/* Tooltip-style caret: a rotated square whose fill matches the bubble, with
+   only the two outward-facing edges bordered -- the half tucked under the
+   bubble is invisible against its matching background. */
+.onboarding-arrow {
+  position: absolute;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  background: var(--panel);
+  transform: translateX(-50%) rotate(45deg);
+  display: none;
+}
+
+.onboarding-bubble.arrow-up .onboarding-arrow {
+  display: block;
+  top: -7px;
+  border-left: 1px solid var(--hair);
+  border-top: 1px solid var(--hair);
+}
+
+.onboarding-bubble.arrow-down .onboarding-arrow {
+  display: block;
+  bottom: -7px;
+  border-right: 1px solid var(--hair);
+  border-bottom: 1px solid var(--hair);
+}
+
+.onboarding-progress {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.onboarding-progress-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--panel-2);
+  border: 1px solid var(--hair);
+  transition: background-color .25s, border-color .25s;
+}
+
+.onboarding-progress-dot.is-done,
+.onboarding-progress-dot.is-active { background: var(--band-room); border-color: var(--band-room); }
+
+.onboarding-text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-hi);
+  text-align: center;
+}
+
+.onboarding-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+}
+
 /* The one global reduced-motion block: nothing animates, nothing transitions,
    and everything sits in its final state. */
 @media (prefers-reduced-motion: reduce) {
@@ -2638,7 +2828,6 @@ input[type="checkbox"] {
 
   .settings-panel { animation: none !important; }
   .auth-spinning { animation: none !important; }
-  .chat-bubble.pending { animation: none !important; opacity: 1 !important; }
   .checkin-live-label-pulse { animation: none !important; }
   .toast { transition: none !important; }
   .pill-btn:active,

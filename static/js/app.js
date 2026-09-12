@@ -236,25 +236,6 @@
     });
   });
 
-  // ---------- Landing on a category via #cat-xxx (from the home page) ----------
-  // The page loads several webfont weights; if they swap in after the
-  // browser's native anchor-jump, the layout shifts and the scroll position
-  // drifts off target. Wait for fonts to settle, then scroll deliberately.
-  if (location.hash.startsWith("#cat-")) {
-    const target = document.querySelector(location.hash);
-    if (target) {
-      const landOnTarget = () => {
-        target.scrollIntoView({ behavior: "auto", block: "start" });
-        target.classList.add("checkin-item-highlight");
-        setTimeout(() => target.classList.remove("checkin-item-highlight"), 1800);
-      };
-      if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(landOnTarget);
-      } else {
-        landOnTarget();
-      }
-    }
-  }
 
   // ---------- Toast after a check-in is saved (home page) ----------
   const main = document.querySelector("main[data-just-saved]");
@@ -287,4 +268,44 @@
       btn.classList.toggle("is-open", isOpen);
     });
   });
+
+  // ---------- Activity tracking (the sleep chart's data source) ----------
+  // Page Visibility only -- this can't see whether the phone itself is
+  // asleep, only whether this tab is open and focused. A session opens on
+  // "visible" and pings every couple of minutes so a killed tab still has a
+  // recent last-seen time; it closes cleanly via sendBeacon on hide/unload.
+  if (isAuthed) {
+    let sessionId = null;
+    let pingTimer = null;
+
+    function startActivitySession() {
+      if (sessionId) return;
+      fetch("/activity/start", { method: "POST" })
+        .then((res) => res.json())
+        .then((data) => { sessionId = data.session_id; })
+        .catch(() => {});
+      pingTimer = setInterval(() => {
+        if (!sessionId) return;
+        fetch("/activity/ping", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session_id: sessionId }),
+        }).catch(() => {});
+      }, 2 * 60 * 1000);
+    }
+
+    function endActivitySession() {
+      if (!sessionId) return;
+      navigator.sendBeacon("/activity/end", JSON.stringify({ session_id: sessionId }));
+      clearInterval(pingTimer);
+      sessionId = null;
+    }
+
+    if (document.visibilityState === "visible") startActivitySession();
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") startActivitySession();
+      else endActivitySession();
+    });
+    addEventListener("pagehide", endActivitySession);
+  }
 })();

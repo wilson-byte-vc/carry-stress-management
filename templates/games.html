@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Games — Carry{% endblock %}
+
+{% block body_class %}has-bottom-nav{% endblock %}
+
+{% block content %}
+<main class="container">
+
+  <div class="page-intro">
+    <p class="eyebrow">Take a break</p>
+    <h1 class="text-headline">Games</h1>
+    <p class="text-body">Sometimes the fastest way through a heavy moment isn't a check-in — it's letting some of it out first.</p>
+  </div>
+
+  <div class="insight-grid">
+
+    <article class="insight-card wide motion-reveal">
+      <div>
+        <div class="insight-tag-row">
+          <span class="material-symbols-outlined" aria-hidden="true">bolt</span>
+          <span class="text-label-sm">~4 minutes</span>
+        </div>
+        <h3 class="text-title">Pressure Valve</h3>
+        <p class="text-body">Name what's stressing you out, scream it out, break it, then cool down. Nothing you type or say leaves this tab — no account, no upload, nothing saved.</p>
+      </div>
+      <div class="insight-actions">
+        <a class="btn btn-primary" href="{{ url_for('play_pressure_valve') }}">
+          <span class="material-symbols-outlined" aria-hidden="true">play_arrow</span> Play
+        </a>
+      </div>
+    </article>
+
+  </div>
+
+</main>
+{% endblock %}

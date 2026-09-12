@@ -8,6 +8,29 @@
 
 <main class="container" {% if just_saved %}data-just-saved{% endif %}>
 
+  {# First-run tour: gated client-side (localStorage), not a DB flag -- see
+     the script at the bottom of this file. Hidden by default so it never
+     flashes on screen for returning users before the JS decides. #}
+  <div class="onboarding-overlay" id="onboardingTour" hidden>
+    <div class="onboarding-spotlight" id="onboardingSpotlight"></div>
+    <div class="onboarding-bubble" id="onboardingBubble" role="dialog" aria-live="polite" aria-label="Welcome tour">
+      <span class="onboarding-arrow" id="onboardingArrow" aria-hidden="true"></span>
+      <img class="onboarding-turtle-badge" src="{{ url_for('static', filename='image/mascot-turtle.png') }}" alt="" aria-hidden="true">
+      <div class="onboarding-progress">
+        <span class="onboarding-progress-dot"></span>
+        <span class="onboarding-progress-dot"></span>
+        <span class="onboarding-progress-dot"></span>
+        <span class="onboarding-progress-dot"></span>
+        <span class="onboarding-progress-dot"></span>
+      </div>
+      <p class="onboarding-text" id="onboardingText"></p>
+      <div class="onboarding-actions">
+        <button type="button" class="btn-ghost" id="onboardingSkip">Skip tour</button>
+        <button type="button" class="btn btn-primary" id="onboardingNext">Next</button>
+      </div>
+    </div>
+  </div>
+
   {% if capacity is none %}
     {# No check-in yet: say so rather than inventing a number. #}
     <section class="hero">
@@ -236,11 +259,221 @@
       </form>
     </details>
   </section>
+
+  {# ---------------- Insights (folded in from the old /insights page) ---------------- #}
+  <section class="insights-section">
+    <div class="page-intro">
+      <p class="eyebrow">The last seven days</p>
+      <h1 class="text-headline">Your patterns</h1>
+      <p class="text-body">What the check-ins keep saying about where your week actually goes — and the one small move that changes it.</p>
+    </div>
+
+    <h2 class="sr-only">This week's insights</h2>
+
+    <div class="insight-grid">
+
+      <article class="insight-card wide motion-reveal">
+        <div>
+          <div class="insight-tag-row">
+            <span class="material-symbols-outlined" aria-hidden="true">trending_up</span>
+            <span class="text-label-sm">Stress pattern detected</span>
+          </div>
+          <h3 class="text-title">3 of your last 5 stress spikes came from group project deadlines.</h3>
+          <p class="text-body">Your energy dipped consistently the day before "Marketing Strategy" deliverables were due. The data suggests these collaborative tasks drain your reserves faster than individual study.</p>
+        </div>
+        <div class="insight-actions">
+          <button type="button" class="btn btn-primary" data-insight-action="Walk scheduled for later today">Schedule a 15-min walk</button>
+          <button type="button" class="btn btn-ghost" data-toggle-detail="#stress-detail"
+                  aria-expanded="false" aria-controls="stress-detail">
+            View detail <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+          </button>
+        </div>
+        <div class="insight-detail" id="stress-detail" role="region" aria-label="Stress pattern detail">
+          <p class="text-body">Looking at your last five check-ins: energy dropped on the two days right before a "Marketing Strategy" deliverable was due, and recovered within a day of it being submitted. The pattern doesn't show up around solo assignments in the same window — it's specific to coordinating with a group.</p>
+        </div>
+      </article>
+
+      <article class="insight-card wide motion-reveal" id="sleep-card">
+        <div>
+          <div class="insight-tag-row">
+            <span class="material-symbols-outlined" aria-hidden="true">bedtime</span>
+            <span class="text-label-sm">Sleep, last 30 days</span>
+          </div>
+          <h3 class="text-title">Restful recovery</h3>
+        </div>
+
+        <div class="sleep-chart">
+          <div class="sleep-chart-axis" aria-hidden="true">
+            <span>10h</span>
+            <span>5h</span>
+            <span>0h</span>
+          </div>
+          <div class="cat-row chart-enter is-dense" id="sleep-chart-bars">
+            {% for day in sleep_days %}
+              <button type="button" class="cat" data-hours="{{ day.hours }}" data-date-label="{{ day.date_label }}"
+                      aria-label="{{ day.date_label }}, {{ day.hours }} hours">
+                <div class="cat-track">
+                  <div class="cat-fill" style="height: {{ (day.hours / 10 * 100) | round | int }}%"></div>
+                </div>
+                <div class="cat-label" aria-hidden="true">{{ day.label }}</div>
+              </button>
+            {% endfor %}
+          </div>
+        </div>
+        <p class="text-body">
+          <span id="sleep-chart-detail">{{ sleep_days[-1].hours }}h last night</span> · {{ (sleep_days | sum(attribute='hours') / sleep_days | length) | round(1) }}h average this month
+        </p>
+
+        <p class="text-body sleep-ai-summary is-loading" data-sleep-summary>Generating a suggestion…</p>
+
+        <div class="insight-actions sleep-reminder-row">
+          <input type="time" class="auth-input" id="bedtime-input" value="{{ current_user.bedtime_reminder or '22:30' }}">
+          <button type="button" class="btn btn-outline btn-block" id="bedtime-toggle"
+                  data-enabled="{{ '1' if current_user.bedtime_reminder else '0' }}"
+                  data-vapid-key="{{ vapid_public_key }}">
+            {{ 'Disable bedtime reminder' if current_user.bedtime_reminder else 'Enable bedtime reminder' }}
+          </button>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="empty-cta">
+      <button type="button" class="btn btn-ghost">
+        <span class="material-symbols-outlined" aria-hidden="true">history</span> View all past insights
+      </button>
+    </div>
+  </section>
 </main>
 
 {% endblock %}
 
 {% block scripts %}
+<script>
+(function () {
+  // Folded in from the old insights.html: app.js owns opening/closing
+  // [data-toggle-detail] panels, this only keeps each trigger's ARIA state
+  // in step. Unconditional (unlike the capacity-ring scripts below) since
+  // the insights section renders regardless of check-in state.
+  document.querySelectorAll("[data-toggle-detail][aria-controls]").forEach(function (btn) {
+    var panel = document.querySelector(btn.dataset.toggleDetail);
+    if (!panel) return;
+    btn.addEventListener("click", function () {
+      btn.setAttribute("aria-expanded", String(panel.classList.contains("is-open")));
+    });
+  });
+})();
+
+(function () {
+  var STORAGE_KEY = "carry_onboarding_done";
+  var overlay = document.getElementById("onboardingTour");
+  if (!overlay) return;
+
+  var seen;
+  try { seen = localStorage.getItem(STORAGE_KEY); } catch (e) { seen = "1"; }
+  if (seen) return;
+
+  // Each step spotlights the real section it's talking about -- comma-listed
+  // selectors cover both the empty-state and populated-state markup so the
+  // tour still degrades gracefully for a brand-new user with no check-in yet.
+  var STEPS = [
+    { text: "Hey — I'm here to show you around Carry.", target: ".hero" },
+    { text: "This ring is your capacity: how much you've got left today, worked out from your check-in and what's coming up.", target: ".ring-wrap.capacity-trigger, .empty-ring" },
+    { text: "A one-minute check-in each day is what keeps that number honest.", target: ".ring-wrap.capacity-trigger, .empty-ring" },
+    { text: "This is your streak. Check in most days and it keeps growing.", target: ".streak-card" },
+    { text: "That's the tour. You can always add what's on your plate below, and I'll be here if you need me.", target: ".commitments" }
+  ];
+
+  var spotlight = document.getElementById("onboardingSpotlight");
+  var bubble = document.getElementById("onboardingBubble");
+  var textEl = document.getElementById("onboardingText");
+  var nextBtn = document.getElementById("onboardingNext");
+  var skipBtn = document.getElementById("onboardingSkip");
+  var progressDots = Array.prototype.slice.call(overlay.querySelectorAll(".onboarding-progress-dot"));
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var stepIndex = 0;
+  var positionTimer = null;
+
+  function position() {
+    var target = document.querySelector(STEPS[stepIndex].target);
+
+    if (target) {
+      var rect = target.getBoundingClientRect();
+      var pad = 10;
+      spotlight.style.top = (rect.top - pad) + "px";
+      spotlight.style.left = (rect.left - pad) + "px";
+      spotlight.style.width = (rect.width + pad * 2) + "px";
+      spotlight.style.height = (rect.height + pad * 2) + "px";
+      spotlight.classList.add("is-visible");
+
+      var bubbleRect = bubble.getBoundingClientRect();
+      var spaceBelow = window.innerHeight - rect.bottom;
+      var placeBelow = spaceBelow > bubbleRect.height + 32 || spaceBelow > rect.top;
+
+      var top = placeBelow ? rect.bottom + 20 : rect.top - bubbleRect.height - 20;
+      top = Math.max(16, Math.min(top, window.innerHeight - bubbleRect.height - 16));
+
+      var left = rect.left + rect.width / 2 - bubbleRect.width / 2;
+      left = Math.max(16, Math.min(left, window.innerWidth - bubbleRect.width - 16));
+
+      bubble.style.top = top + "px";
+      bubble.style.left = left + "px";
+      // Bubble below its target needs an upward-pointing arrow (back toward
+      // the target above it), and vice versa.
+      bubble.classList.toggle("arrow-up", placeBelow);
+      bubble.classList.toggle("arrow-down", !placeBelow);
+    } else {
+      spotlight.classList.remove("is-visible");
+      var bw = bubble.getBoundingClientRect();
+      bubble.style.top = ((window.innerHeight - bw.height) / 2) + "px";
+      bubble.style.left = ((window.innerWidth - bw.width) / 2) + "px";
+      bubble.classList.remove("arrow-up", "arrow-down");
+    }
+
+    bubble.classList.add("is-visible");
+  }
+
+  function render() {
+    textEl.textContent = STEPS[stepIndex].text;
+    progressDots.forEach(function (dot, i) {
+      dot.classList.toggle("is-active", i === stepIndex);
+      dot.classList.toggle("is-done", i < stepIndex);
+    });
+    nextBtn.textContent = stepIndex === STEPS.length - 1 ? "Got it" : "Next";
+
+    var target = document.querySelector(STEPS[stepIndex].target);
+    if (target && !reduceMotion) target.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    // Fade out at the old spot, then reposition once the scroll has had time
+    // to settle so the spotlight lands where the section actually ends up.
+    spotlight.classList.remove("is-visible");
+    bubble.classList.remove("is-visible", "arrow-up", "arrow-down");
+    clearTimeout(positionTimer);
+    positionTimer = setTimeout(position, reduceMotion ? 0 : 380);
+  }
+
+  function finish() {
+    spotlight.classList.remove("is-visible");
+    bubble.classList.remove("is-visible");
+    try { localStorage.setItem(STORAGE_KEY, "1"); } catch (e) { /* private mode -- tour just replays next time */ }
+    window.removeEventListener("resize", position);
+    clearTimeout(positionTimer);
+    setTimeout(function () { overlay.hidden = true; }, 300);
+  }
+
+  nextBtn.addEventListener("click", function () {
+    if (stepIndex >= STEPS.length - 1) { finish(); return; }
+    stepIndex += 1;
+    render();
+  });
+
+  skipBtn.addEventListener("click", finish);
+  window.addEventListener("resize", position);
+
+  overlay.hidden = false;
+  render();
+})();
+</script>
 {% if capacity is not none %}
 <script>
 (function () {
@@ -251,13 +484,23 @@
 
   var target = Number(wrap.dataset.capacity);
 
+  var RING_DURATION = 900;
+
   function play() {
     // Force a fresh 0 -> target count-up on every entry, not just the first
     // -- carryRing would otherwise animate from-the-already-displayed-value,
     // which is a no-op once it's already sitting at the target.
     ring._ringStarted = false;
     pct.textContent = "0";
-    window.carryRing(ring, pct, null, 0, target, 900);
+    window.carryRing(ring, pct, null, 0, target, RING_DURATION);
+
+    // Landing flourish once the count-up settles -- purely visual, the
+    // number itself already stopped at the real value above.
+    wrap.classList.remove("is-popping");
+    setTimeout(function () {
+      wrap.classList.add("is-popping");
+      setTimeout(function () { wrap.classList.remove("is-popping"); }, 400);
+    }, RING_DURATION);
   }
 
   if ("IntersectionObserver" in window) {
@@ -272,9 +515,9 @@
 })();
 
 (function () {
-  // app.js owns opening/closing [data-toggle-detail] panels; this only
-  // keeps the trigger's ARIA state in step, and fetches the AI suggestion
-  // once, the first time the panel is actually opened.
+  // The generic [data-toggle-detail] handler above keeps this button's ARIA
+  // state in sync; this one only fetches the AI suggestion, once, the first
+  // time the panel is actually opened.
   var trigger = document.querySelector(".capacity-trigger");
   var panel = document.getElementById("capacity-detail");
   var summaryEl = document.querySelector("[data-ai-summary]");
@@ -283,9 +526,7 @@
   var fetched = false;
 
   trigger.addEventListener("click", function () {
-    var isOpen = panel.classList.contains("is-open");
-    trigger.setAttribute("aria-expanded", String(isOpen));
-    if (fetched || !isOpen) return;
+    if (fetched || !panel.classList.contains("is-open")) return;
     fetched = true;
 
     fetch("{{ url_for('home_summary') }}", { method: "POST" })
@@ -320,4 +561,131 @@
 })();
 </script>
 {% endif %}
+<script>
+(function () {
+  // Sleep card's AI suggestion: fetched once, the first time the chart
+  // actually scrolls into view -- reuses the same IntersectionObserver
+  // trigger carry-ui.js already runs for the .chart-enter reveal, just with
+  // its own observer instance so this file doesn't reach into that one.
+  var card = document.getElementById("sleep-card");
+  var summaryEl = document.querySelector("[data-sleep-summary]");
+  if (!card || !summaryEl) return;
+
+  var fetched = false;
+
+  function fetchSummary() {
+    if (fetched) return;
+    fetched = true;
+    fetch("{{ url_for('sleep_summary') }}", { method: "POST" })
+      .then(function (res) {
+        return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+      })
+      .then(function (result) {
+        summaryEl.textContent = result.ok
+          ? result.data.summary
+          : (result.data.error || "Couldn't generate a suggestion right now.");
+      })
+      .catch(function () {
+        summaryEl.textContent = "Couldn't generate a suggestion right now.";
+      })
+      .then(function () {
+        summaryEl.classList.remove("is-loading");
+      });
+  }
+
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) fetchSummary();
+      });
+    }, { threshold: 0.3 }).observe(card);
+  } else {
+    fetchSummary();
+  }
+})();
+
+(function () {
+  // Bar height alone doesn't give an exact number -- tapping a bar swaps
+  // the caption to that night's real value instead of just "last night".
+  var bars = document.getElementById("sleep-chart-bars");
+  var detail = document.getElementById("sleep-chart-detail");
+  if (!bars || !detail) return;
+
+  bars.addEventListener("click", function (event) {
+    var bar = event.target.closest(".cat");
+    if (!bar) return;
+
+    bars.querySelectorAll(".cat.is-selected").forEach(function (el) {
+      el.classList.remove("is-selected");
+    });
+    bar.classList.add("is-selected");
+    detail.textContent = bar.dataset.hours + "h on " + bar.dataset.dateLabel;
+  });
+})();
+
+(function () {
+  // Bedtime reminder: turning it on asks for Notification permission, then
+  // subscribes this browser to Web Push and hands the subscription + chosen
+  // time to the server. Turning it off just clears the saved time -- the
+  // stale subscription row is harmless and gets replaced if re-enabled.
+  var toggle = document.getElementById("bedtime-toggle");
+  var timeInput = document.getElementById("bedtime-input");
+  if (!toggle || !timeInput) return;
+
+  function urlBase64ToUint8Array(base64) {
+    var padding = "=".repeat((4 - (base64.length % 4)) % 4);
+    var raw = atob((base64 + padding).replace(/-/g, "+").replace(/_/g, "/"));
+    var out = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+    return out;
+  }
+
+  function setToggleState(enabled) {
+    toggle.dataset.enabled = enabled ? "1" : "0";
+    toggle.textContent = enabled ? "Disable bedtime reminder" : "Enable bedtime reminder";
+  }
+
+  function saveBedtime(bedtime, subscription) {
+    return fetch("{{ url_for('push_subscribe') }}", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ bedtime: bedtime, subscription: subscription }),
+    }).then(function (res) { return res.json(); });
+  }
+
+  toggle.addEventListener("click", function () {
+    var enabling = toggle.dataset.enabled !== "1";
+
+    if (!enabling) {
+      saveBedtime(null, null).then(function () { setToggleState(false); });
+      return;
+    }
+
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+      showToast("Push notifications aren't supported in this browser.");
+      return;
+    }
+
+    Notification.requestPermission().then(function (permission) {
+      if (permission !== "granted") {
+        showToast("Notification permission was denied.");
+        return;
+      }
+      navigator.serviceWorker.ready.then(function (registration) {
+        registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(toggle.dataset.vapidKey),
+        }).then(function (subscription) {
+          return saveBedtime(timeInput.value, subscription.toJSON());
+        }).then(function () {
+          setToggleState(true);
+          showToast("Bedtime reminder set for " + timeInput.value);
+        }).catch(function () {
+          showToast("Couldn't turn on the bedtime reminder.");
+        });
+      });
+    });
+  });
+})();
+</script>
 {% endblock %}
