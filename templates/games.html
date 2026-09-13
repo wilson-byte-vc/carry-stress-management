@@ -141,10 +141,39 @@
             <span class="text-label-sm">~1 minute</span>
           </div>
           <h3 class="text-title">Target Range</h3>
-          <p class="text-body">Fruit arcs up off the block. Aim and shoot at whatever flies by.</p>
+          <p class="text-body">Hold and sweep across flying fruits to break them.</p>
         </div>
         <div class="insight-actions">
           <a class="btn btn-primary" href="{{ url_for('play_target_range') }}">
+            <span class="material-symbols-outlined" aria-hidden="true">play_arrow</span> Play
+          </a>
+        </div>
+      </article>
+
+      <article class="insight-card motion-reveal">
+        <div class="game-scene" aria-hidden="true">
+          <svg viewBox="0 0 600 100" preserveAspectRatio="xMidYMid slice">
+            <rect width="600" height="100" fill="#a3733f"/>
+            <rect y="16" width="600" height="4" fill="#00000022"/>
+            <rect y="52" width="600" height="4" fill="#00000022"/>
+            <rect y="88" width="600" height="4" fill="#00000022"/>
+            <g transform="rotate(-10 245 50)"><rect x="205" y="15" width="62" height="75" rx="2" fill="#fff9e9"/><path d="M215 35h40m-40 10h40m-40 10h30m-30 10h40" stroke="#b6beb4" stroke-width="2"/></g>
+            <g transform="rotate(12 320 50)"><rect x="288" y="18" width="55" height="70" rx="3" fill="#627a72"/><path d="M295 18v70" stroke="#435c53" stroke-width="4"/></g>
+            <rect x="366" y="22" width="36" height="36" transform="rotate(8 384 40)" fill="#e8cd72"/>
+            <path d="M358 81l70-17" stroke="#d6a255" stroke-width="6" stroke-linecap="round"/>
+            <circle cx="170" cy="59" r="19" fill="#faf8ea"/><circle cx="170" cy="59" r="13" fill="#604637"/>
+          </svg>
+        </div>
+        <div>
+          <div class="insight-tag-row">
+            <span class="material-symbols-outlined" aria-hidden="true">bolt</span>
+            <span class="text-label-sm">At your own pace</span>
+          </div>
+          <h3 class="text-title">Clear the Desk</h3>
+          <p class="text-body">A messy desk, a little breathing room. Sweep everything away at your own pace.</p>
+        </div>
+        <div class="insight-actions">
+          <a class="btn btn-primary" href="{{ url_for('play_clear_desk') }}">
             <span class="material-symbols-outlined" aria-hidden="true">play_arrow</span> Play
           </a>
         </div>

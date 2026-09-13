@@ -1383,6 +1383,12 @@ def play_keep_the_light():
     return render_template("keep_the_light.html")
 
 
+@app.route("/game/clear-desk")
+@login_required
+def play_clear_desk():
+    return render_template("clear_desk.html")
+
+
 @app.route("/game/target-range")
 @login_required
 def play_target_range():
@@ -1406,7 +1412,9 @@ def meditate_complete():
 @app.route("/games/<slug>")
 @login_required
 def play_game(slug):
-    titles = {"crush": "Crush a Word", "break": "Break the Pile", "targets": "Target Range"}
+    if slug == "targets":
+        return render_template("target_range.html")
+    titles = {"crush": "Crush a Word", "break": "Break the Pile"}
     if slug not in titles:
         abort(404)
     return render_template("play_game.html", slug=slug, title=titles[slug])
