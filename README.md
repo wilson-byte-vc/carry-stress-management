@@ -22,21 +22,21 @@ Table of every distinct idea generated, with why each was kept or dropped, order
 
 | Idea | Why it was dropped / kept |
 |---|---|
-| Social Load, Physical Load, Errands Load, Time Load, Mental Load | We dropped errand load because it's too much for our application — we believe users won't input their own personal life tasks into the app. Social, physical, and time load were kept so we could proceed with our other ideas. |
+| Social Load, Physical Load, Errands Load, Time Load, Mental Load | **Kept** (except errand load) — we believe users won't input their own personal life tasks into the app, so we dropped errand load specifically. Social, physical, time, and mental load were kept and became the four inputs behind the capacity number. |
+| **Cost of Yes** — before accepting anything new, the app simulates the week after saying yes, showing load bars moving before you commit | **Kept as our main solution** — we observed that some university students struggle to manage time and workload from constantly getting invited to things. |
+| **Say-no scripts** — the app drafts the actual decline message for you | **Kept** — pairs well with Cost of Yes. |
+| Zero-input tracking | **Kept**, evolved. Something every team on this theme should ideally do, but hardware tracking is complex. We instead track the user's timetable (schedule, tasks, etc.) online rather than via hardware. |
+| **Quick Relief Games** — five short (~1–4 minute) stress-release games: Pressure Valve, Grow Something, Keep the Light, Target Range, Clear the Desk | **Kept and built** — came out of a mentor push for a genuine "WOW" moment (Mah Qing Fung: no WOW idea yet → Jarod Tan: approved, go all-in on games). Deliberately built for instant relief in the moment, not long-term habit tracking — that's a different problem than the one these solve. |
+| Health Recommendation | Not fully dropped, but we were advised to keep the app to around 2 major solutions, otherwise it'd be too complicated and our UI/UX would confuse users. Still a must-have if we finish everything else on the list. |
+| Mental Support Section | Not fully dropped, but same complexity issue. Mentor Marcus Mah Qing Fung pointed out that an AI chatbot for mental support isn't compelling since people can just use ChatGPT instead — he suggested using AI for functions that save the user time (e.g. arranging a timetable) instead, to be added once the core app works. |
+| Details of what causes your stress the most | Not dropped, but not guaranteed to ship — most stress-manager apps have this, and it's a useful supporting function rather than the core solution. |
 | Voting Peers System | Originated on day two with mentor Jarod Tan — Zarif said peers contribute the most to his stress, so we considered it since Jarod also recommended it. We dropped it because the idea has ethical issues that are hard to solve despite being unique. |
 | Add a Health Record area | Dropped — not related to our target group (university students), and a health record area doesn't solve stress itself. |
 | A legal rights section | Dropped — we're foundation students in computing with no prior legal knowledge. A wrong suggestion could create legal issues with the application. |
-| Health Recommendation | Not fully dropped, but we were advised to keep the app to around 2 major solutions, otherwise it'd be too complicated and our UI/UX would confuse users. Still a must-have if we finish everything else on the list. |
-| Skill Mastery (every progress visualised as a tree) / AI auto-creating tasks tailored to prevent burnout | A great idea, but it doesn't solve stress itself unless long-term, and it adds tasks to the user rather than removing burden — plus it might not match their actual university course. |
-| Mental Support Section | Not fully dropped, but same complexity issue. Mentor Marcus Mah Qing Fung pointed out that an AI chatbot for mental support isn't compelling since people can just use ChatGPT instead — he suggested using AI for functions that save the user time (e.g. arranging a timetable) instead, to be added once the core app works. |
+| Skill Mastery (every progress visualised as a tree) / AI auto-creating tasks tailored to prevent burnout | Dropped — it doesn't solve stress itself unless long-term, and it adds tasks to the user rather than removing burden — plus it might not match their actual university course. |
 | Lecturer feedback | Dropped — we can't confirm a lecturer would act on the feedback, so it was too uncertain. |
-| Details of what causes your stress the most | Not dropped, but not guaranteed to ship — most stress-manager apps have this, and it's a useful supporting function rather than the core solution. |
 | A system that tracks deadlines, where the closer the deadline the more entertainment is restricted | Dropped — it became a burden to the team itself; if it doesn't relieve our own stress, it wouldn't relieve anyone else's. |
 | Add bully/self-harm detection | Our worst idea — serious ethical issues, since it assumes someone is dangerous based on AI-analyzed chat history. |
-| **Cost of Yes** — before accepting anything new, the app simulates the week after saying yes, showing load bars moving before you commit | **Kept as our main solution** — we observed that some university students struggle to manage time and workload from constantly getting invited to things. |
-| **Say-no scripts** — the app drafts the actual decline message for you | **Kept** — pairs well with Cost of Yes. |
-| Zero-input tracking | Something every team on this theme should ideally do, but hardware tracking is complex. We instead track the user's timetable (schedule, tasks, etc.) online rather than via hardware. |
-| Game and built long term good habit game| Something we think is innovative and unexpectable in stress management especially touches wellness, we think this is a good approach due to the constraint on no "WOW" idea. We try implement this and hopefully it will help user not just solve the issue but also solve the issue entirely by building great habits. |
 
 ### 2.2 Ideation Boards
 
