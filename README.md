@@ -4,7 +4,7 @@
 
 **Problem Statement:** Stress comes from students worrying about rejecting invitations from colleagues.
 
-**Video Presentation:** [Unlisted Youtube Link]
+**Video Presentation:** [https://youtu.be/83D3eK3_YAM](https://youtu.be/83D3eK3_YAM)
 
 **Presentation Slides:** [https://canva.link/xr2yfiex49c4gbj](https://canva.link/xr2yfiex49c4gbj)
 
@@ -58,7 +58,7 @@ Table of every distinct idea generated, with why each was kept or dropped, order
 
 **UI Prototype:** [https://spaceman-lifestyle-stress-management.onrender.com](https://spaceman-lifestyle-stress-management.onrender.com)
 
-*(Opens correctly in an incognito window.)*
+*(Opens correctly in an incognito window, take ~3 minutes to start.)*
 
 ## 4. What Makes It Different
 
