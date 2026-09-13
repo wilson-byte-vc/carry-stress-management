@@ -1073,6 +1073,8 @@ def home_summary():
     ) or "nothing logged"
 
     prompt = (
+        "In this app, \"capacity\" means how loaded/stressed the week is -- higher is worse. "
+        "A good check-in (high sliders) lowers it; heavy upcoming commitments raise it. "
         f"Check-in -- time {checkin['time']}/5, social {checkin['social']}/5, "
         f"physical {checkin['physical']}/5, mental {checkin['mental']}/5. "
         f"Note: {checkin['note'] or 'none'}. "
@@ -1081,16 +1083,23 @@ def home_summary():
         "this week, then suggest one small, concrete thing they could actually do about it."
     )
 
-    try:
-        response = client.chat.completions.create(
-            model=GROQ_MODEL,
-            max_tokens=150,
-            messages=[CHAT_SYSTEM_PROMPT, {"role": "user", "content": prompt}],
-        )
-    except Exception as e:
-        return jsonify({"error": f"{type(e).__name__}: {e}"}), 502
+    # gpt-oss occasionally burns its whole token budget on hidden reasoning
+    # and comes back with an empty visible reply -- one retry clears almost
+    # all of these, since it's transient, not a property of the input text.
+    for attempt in range(2):
+        try:
+            response = client.chat.completions.create(
+                model=GROQ_MODEL,
+                max_tokens=800,
+                messages=[CHAT_SYSTEM_PROMPT, {"role": "user", "content": prompt}],
+            )
+            summary = (response.choices[0].message.content or "").strip()
+            if summary:
+                return jsonify({"summary": summary})
+        except Exception as e:
+            return jsonify({"error": f"{type(e).__name__}: {e}"}), 502
 
-    return jsonify({"summary": response.choices[0].message.content})
+    return jsonify({"error": "Couldn't generate a suggestion -- try again?"}), 502
 
 
 @app.route("/sleep/summary", methods=["POST"])
