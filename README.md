@@ -77,7 +77,7 @@ Carry reduces your week to a single capacity number across mental, time, physica
 Upload your class and work timetable once, and the AI reads it to predict workload and stress per day and week — before a single invite even shows up. *The twist:* first-years have never run a 90% week before, so they can't recognise one coming, and working students can't renegotiate a fixed shift when a deadline slides onto it. Carry gives both groups a baseline from day one, with zero manual logging. The AI only reads and scores the timetable — it never edits it.
 
 **3. Cost of Yes.**
-This is the actual decision moment. Before you accept, Carry shows exactly how much your capacity would spike if you said yes — the bars moving from 70% to 95% in front of you. *The twist:* every existing tool accepts a new commitment silently. Carry gives you feedback at the one instant the decision is still reversible, instead of after you've already said yes and the week has already collapsed.
+This is the actual decision moment. Before you accept, Carry shows exactly how much your capacity would spike if you said yes — a real test run showed it moving from 0% to 22% the moment a single group-project commitment was typed in, before the "Add" button was even pressed. *The twist:* every existing tool accepts a new commitment silently. Carry gives you feedback at the one instant the decision is still reversible, instead of after you've already said yes and the week has already collapsed.
 
 **4. Say-no drafts based on your real schedule.**
 When yes would push you over, the AI drafts the actual decline message — pointing to a real deadline or shift already on your timetable, not a generic excuse. *The twist:* it's an honest reason, which matters most for working students who can't move a shift and often don't know how to turn down a group-mate or a manager without sounding like they're dodging.
@@ -113,14 +113,22 @@ Calm and Headspace assume you have ten spare minutes — exactly what someone al
 
 **Constraints:** Free web services go to sleep after about 15 minutes idle, so the first request after that can take a while to wake up. We'll warm it up before the demos. PWAs also require HTTPS, which Render provides by default.
 
+### Resource & time awareness
+
+Four team members, one hackathon window, split by strength rather than by feature: two on the Flask backend and AI integration (capacity formula, Groq prompts, voice pipeline), one on the mini-game suite (Canvas 2D, physics), one on UI/UX and the mentor-facing design passes. Every dependency in the stack is free-tier (Supabase, Groq, Render) by necessity, not preference — the tradeoff is the constraints listed above (cold starts, rate limits, project pausing), all things we can warm up or work around before judging rather than pay to remove. Given the time available, we scoped to one fully-working core loop (check-in → capacity → commitment → Cost of Yes → decline draft) plus one relief game, rather than partial coverage of a larger feature set.
+
 ### Design tools (optional to mention)
 
 We used Figma (including its AI generator and FigJam for our ideation diagrams) and Stitch AI for layout exploration, so our time went into the problem definition and the capacity model rather than manual UI work. For the game animations we use plain Canvas 2D instead of a 3D library, to keep it light on phones.
 
 ### Build plan & scope
 
-1. **Timetable-based stress predictor.** The user uploads or connects their class/work timetable. The AI reads the timetable and estimates workload and stress level per day/week — it does not modify or suggest changes to the timetable itself, only reads and scores it. This score feeds directly into the existing capacity formula (the same peak-weighted calculation behind the "Today" ring), so the timetable becomes a real input rather than a separate hidden feature.
-2. **Cost of Yes, with AI-suggested rejection.** When the user is about to commit to something new, the app shows the projected capacity spike (Cost of Yes). Alongside this, the AI generates a suggested way to decline, based on the user's actual task schedule — for example, referencing a real deadline or class conflict already on their timetable, rather than a generic excuse.
-3. **Pressure Valve game.** The short, re-enterable stress-release game already prototyped.
+1. **Cost of Yes, with AI-suggested rejection — shipped.** The add-commitment form previews the exact capacity spike live as you set how draining a task is, before you save it, and a "Draft a decline instead" button calls Groq to write a real decline message citing your actual heaviest fixed commitment (or an honest general reason if none conflicts) — not a generic excuse.
+2. **Pressure Valve game — shipped.** The short, re-enterable stress-release game.
+3. **Timetable-based stress predictor — next.** The user uploads or connects their class/work timetable and the AI estimates workload and stress per day/week from it — it would only read and score the timetable, never modify it. This score would feed the same peak-weighted capacity formula already live behind the "Today" ring, so it's a new input source rather than a new subsystem.
 
 Out of scope for this phase: any AI-driven timetable rebalancing or automatic schedule changes, peer/social features, and a React/PWA rebuild beyond the current Flask implementation.
+
+### Reach & Scalability
+
+The capacity model (check-in + commitment effort against a weekly budget) has no MMU-specific logic in it, so it carries to any university with zero changes — a class timetable, a work shift, and a deadline mean the same thing everywhere. The only per-institution work would be an optional timetable-import template if a school's system has a distinct export format. Because Cost of Yes and the decline drafts run on general-purpose commitment data rather than a fixed category list, the same mechanism extends past students to anyone juggling fixed and movable obligations — early-career employees managing shift work, for instance — without redesigning the core model.
