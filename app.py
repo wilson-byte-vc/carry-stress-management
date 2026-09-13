@@ -360,10 +360,6 @@ DEFAULT_CHECKIN = {"time": 3, "social": 3, "physical": 4, "mental": 4, "note": "
 # Effort points that constitute a "full" week. Load is measured against this,
 # so 30 points of upcoming work reads as completely committed.
 WEEK_EFFORT_BUDGET = 30
-# How much a completely full week can eat into felt energy. At 1.0 a full slate
-# would zero you out regardless of how you feel, which isn't true -- half is a
-# more honest ceiling.
-LOAD_WEIGHT = 0.5
 # Commitments this far ahead count toward current load.
 LOAD_HORIZON_DAYS = 7
 
@@ -599,11 +595,17 @@ def load_points(commitments):
 
 
 def compute_capacity(checkin, commitments):
-    """Blend felt energy with committed load into a single percentage.
+    """How loaded the week feels, as a percentage of the weekly effort budget.
 
-        energy   = mean(check-in sliders) / 5
-        load     = min(1, upcoming effort / WEEK_EFFORT_BUDGET)
-        capacity = energy * (1 - LOAD_WEIGHT * load)
+        load_ratio  = upcoming effort / WEEK_EFFORT_BUDGET -- not capped, so a
+                      genuinely over-committed week can read over 100
+        fatigue     = 2 - energy/100 -- a drained check-in makes the same
+                      objective load feel up to 2x heavier
+        capacity    = load_ratio * 100 * fatigue
+
+    Higher = more loaded (matches the ring's room/tight/over bands). Zero
+    upcoming load reads 0 regardless of mood, since there's nothing to be
+    over-loaded by yet.
 
     Returns None when there's no check-in, because capacity without a check-in
     would be a guess dressed up as a measurement.
@@ -611,8 +613,9 @@ def compute_capacity(checkin, commitments):
     if checkin is None:
         return None
     energy = energy_percent(checkin)
-    load = min(1.0, load_points(commitments) / WEEK_EFFORT_BUDGET)
-    return max(0, round(energy * (1 - LOAD_WEIGHT * load)))
+    load_ratio = load_points(commitments) / WEEK_EFFORT_BUDGET
+    fatigue = 2 - energy / 100
+    return max(0, round(load_ratio * 100 * fatigue))
 
 
 def clamp_level(raw, fallback=3):
@@ -675,6 +678,41 @@ def parse_due_datetime(date_str, time_str):
 
 def upcoming_commitments(commitments):
     return [c for c in commitments if not c["completed"]]
+
+
+def draft_decline_message(title, category, upcoming):
+    """AI-drafted decline message that cites a real fixed commitment instead
+    of a generic excuse -- the honest reason is the whole point."""
+    fixed = [c for c in upcoming if not c["movable"]]
+    reason_source = sorted(fixed, key=lambda c: c["effort"], reverse=True)[:3]
+    reasons = "\n".join(
+        f"- {c['title']} ({c['category']}, effort {c['effort']}/5)" for c in reason_source
+    ) or "- (no fixed commitments on record -- decline on general capacity grounds)"
+
+    prompt = f"""
+A university student was invited to: "{title}" ({category}).
+
+They need to decline. Their real fixed commitments they could honestly cite:
+{reasons}
+
+Write ONE short, casual decline message (2-3 sentences) they could send a friend or group-mate.
+Reference one of the real commitments above only if it plausibly conflicts or explains why
+they're stretched thin -- otherwise give an honest general capacity reason without inventing
+a fake event. Return ONLY the message text, no quotes, no markdown.
+"""
+    for attempt in range(2):
+        try:
+            response = client.chat.completions.create(
+                model=GROQ_MODEL,
+                max_tokens=300,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            text = (response.choices[0].message.content or "").strip()
+            if text:
+                return text
+        except Exception:
+            app.logger.exception("decline draft failed")
+    return None
 
 
 # --- Auth ---
@@ -1010,6 +1048,11 @@ def home():
         top_drain_key=min(CATEGORY_LABELS, key=lambda k: checkin[k]) if checkin else None,
         # Heaviest upcoming work, for the same "what's driving this" panel.
         top_commitments=sorted(upcoming, key=lambda c: c["effort"], reverse=True)[:2],
+        # Cost of Yes: lets the add-commitment form preview the capacity hit
+        # client-side, with the same formula as compute_capacity().
+        energy_pct=energy_percent(checkin) if checkin else None,
+        load_now=load_points(commitments),
+        week_effort_budget=WEEK_EFFORT_BUDGET,
     )
 
 
@@ -1037,7 +1080,7 @@ def home_summary():
         f"physical {checkin['physical']}/5, mental {checkin['mental']}/5. "
         f"Note: {checkin['note'] or 'none'}. "
         f"Heaviest upcoming commitments: {load_text}. "
-        "In two short sentences: name what's most likely driving their capacity down "
+        "In two short sentences: name what's most likely driving their capacity up "
         "this week, then suggest one small, concrete thing they could actually do about it."
     )
 
@@ -1158,6 +1201,24 @@ def add_commitment():
 
     flash(f"Added “{title}” — AI estimated effort: {ai_effort}/5.")
     return redirect(url_for("home"))
+
+
+@app.route("/commitments/decline-draft", methods=["POST"])
+@login_required
+def decline_draft():
+    data = request.get_json(silent=True) or {}
+    title = (data.get("title") or "").strip()[:160]
+    if not title:
+        return jsonify({"error": "Type what you'd be declining first."}), 400
+    category = data.get("category")
+    if category not in Commitment.CATEGORIES:
+        category = "academic"
+
+    upcoming = upcoming_commitments(get_commitments())
+    message = draft_decline_message(title, category, upcoming)
+    if not message:
+        return jsonify({"error": "Couldn't draft one -- try again."}), 500
+    return jsonify({"message": message})
 
 
 @app.route("/commitments/voice/transcribe", methods=["POST"])

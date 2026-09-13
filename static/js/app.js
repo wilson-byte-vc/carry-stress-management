@@ -236,6 +236,66 @@
     });
   }
 
+  // ---------- Cost of Yes preview (same formula as compute_capacity()) ----------
+  const costOfYes = document.getElementById("costOfYes");
+  if (costOfYes && effortInput) {
+    const energy = parseFloat(costOfYes.dataset.energy);
+    const loadNow = parseFloat(costOfYes.dataset.loadNow);
+    const budget = parseFloat(costOfYes.dataset.budget);
+    const fatigue = 2 - energy / 100;
+    const fill = document.getElementById("costOfYesFill");
+    const afterOut = document.getElementById("costOfYesAfter");
+
+    const updateCostOfYes = () => {
+      const effort = parseFloat(effortInput.value) || 0;
+      const newLoadRatio = (loadNow + effort) / budget;
+      const after = Math.max(0, Math.round(newLoadRatio * 100 * fatigue));
+      if (afterOut) afterOut.textContent = after + "%";
+      if (fill) {
+        fill.style.width = Math.min(100, after) + "%";
+        if (window.carryBand) fill.style.background = window.carryBand(after).color;
+      }
+    };
+    effortInput.addEventListener("input", updateCostOfYes);
+    updateCostOfYes();
+  }
+
+  // ---------- Draft a decline instead ----------
+  const declineBtn = document.getElementById("declineDraftBtn");
+  const declineResult = document.getElementById("declineDraftResult");
+  if (declineBtn && declineResult) {
+    declineBtn.addEventListener("click", () => {
+      const titleField = document.getElementById("c-title");
+      const categoryField = document.getElementById("c-category");
+      const title = (titleField.value || "").trim();
+      if (!title) {
+        titleField.focus();
+        return;
+      }
+      declineBtn.disabled = true;
+      const originalLabel = declineBtn.textContent;
+      declineBtn.textContent = "Drafting…";
+      fetch("/commitments/decline-draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: title, category: categoryField ? categoryField.value : "academic" }),
+      })
+        .then((r) => r.json())
+        .then((data) => {
+          declineResult.textContent = data.message || data.error || "Something went wrong.";
+          declineResult.hidden = false;
+        })
+        .catch(() => {
+          declineResult.textContent = "Something went wrong.";
+          declineResult.hidden = false;
+        })
+        .finally(() => {
+          declineBtn.disabled = false;
+          declineBtn.textContent = originalLabel;
+        });
+    });
+  }
+
   // ---------- Toast after a check-in is saved (home page) ----------
   const main = document.querySelector("main[data-just-saved]");
   if (main) {

@@ -312,6 +312,28 @@
                  min="1" max="5" value="3" data-effort-input>
         </div>
 
+        {% if capacity is not none %}
+        <div class="cost-of-yes" id="costOfYes"
+             data-energy="{{ energy_pct }}" data-load-now="{{ load_now }}"
+             data-budget="{{ week_effort_budget }}"
+             data-capacity-now="{{ capacity }}">
+          <p class="cost-of-yes-label">
+            Cost of Yes: capacity would go from <strong>{{ capacity }}%</strong>
+            to <strong id="costOfYesAfter">{{ capacity }}%</strong>
+          </p>
+          <div class="cost-of-yes-track">
+            <div class="cost-of-yes-fill" id="costOfYesFill" style="width: {{ [capacity, 100] | min }}%;"></div>
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="cf-row">
+          <button type="button" class="btn btn-ghost btn-block" id="declineDraftBtn">
+            Can't take this on? Draft a decline instead
+          </button>
+          <p class="decline-draft-result" id="declineDraftResult" hidden></p>
+        </div>
+
         <label class="cf-toggle">
           <input type="checkbox" name="movable" value="1" checked>
           <span>
@@ -363,7 +385,7 @@
   // first check-in) are dropped rather than shown pointing at nothing.
   var STEPS = [
     { text: "Hey — I'm here to show you around Carry.", target: ".hero" },
-    { text: "This ring is your capacity: how much you've got left today, worked out from your check-in and what's coming up.", target: ".ring-wrap.capacity-trigger, .empty-ring" },
+    { text: "This ring shows how loaded your day is -- how close to your limit you're running, worked out from your check-in and what's coming up.", target: ".ring-wrap.capacity-trigger, .empty-ring" },
     { text: "A one-minute check-in each day is what keeps that number honest.", target: ".ring-wrap.capacity-trigger, .empty-ring" },
     { text: "This is your streak. Check in most days and it keeps growing.", target: ".streak-card" },
     { text: "That's the tour. You can always add what's on your plate below — type it out, or tap the mic and just say it. I'll be here if you need me.", target: ".commitments" }
