@@ -36,7 +36,7 @@ Table of every distinct idea generated, with why each was kept or dropped, order
 | **Cost of Yes** — before accepting anything new, the app simulates the week after saying yes, showing load bars moving before you commit | **Kept as our main solution** — we observed that some university students struggle to manage time and workload from constantly getting invited to things. |
 | **Say-no scripts** — the app drafts the actual decline message for you | **Kept** — pairs well with Cost of Yes. |
 | Zero-input tracking | Something every team on this theme should ideally do, but hardware tracking is complex. We instead track the user's timetable (schedule, tasks, etc.) online rather than via hardware. |
-| Game| Something we think is innovative and unexpectable in stress management especially touches wellness, we think this is a good approach due to the constraint on no "WOW" idea. |
+| Game and built long term good habit game| Something we think is innovative and unexpectable in stress management especially touches wellness, we think this is a good approach due to the constraint on no "WOW" idea. We try implement this and hopefully it will help user not just solve the issue but also solve the issue entirely by building great habits. |
 
 ### 2.2 Ideation Boards
 
