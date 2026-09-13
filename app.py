@@ -100,9 +100,6 @@ client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 # or short answers can come back empty.
 GROQ_MODEL = "openai/gpt-oss-120b"
 
-client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-GROQ_MODEL = "openai/gpt-oss-120b"
-
 # Generated once and kept on disk -- regenerating would silently invalidate
 # every browser's existing push subscription (they're signed against this
 # specific keypair). vapid_private_key=<path> is handed straight to pywebpush,
